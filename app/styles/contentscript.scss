@@ -1,0 +1,46 @@
+#popup-dict-dialog {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  max-width: 600px;
+  box-shadow: 10px 10px 5px -5px #999;
+  background-color: lightyellow;
+  padding: 3px;
+  overflow: auto;
+}
+
+hr.popup-dict-content-separator {
+  padding: 0px;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+}
+
+#popup-dict-dialog-content {
+  font-family: sans-serif;
+}
+
+.popup-dict-entry {
+  vertical-align: top;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+
+.popup-dict-entry-lemma {
+  font-size: 20px;
+  color: darkblue;
+}
+
+.popup-dict-entry-pos {
+  font-size: 12;
+  color: black;
+}
+
+.popup-dict-entry-features {
+  font-size: 12;
+  color: black;
+}
+
+.popup-dict-entry-definitions {
+  font-size: 14px;
+}
