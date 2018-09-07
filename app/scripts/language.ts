@@ -1,5 +1,3 @@
-const LANG = 'lang';
-
 export let languages = [
     'Spanish',
     'English',
@@ -10,8 +8,8 @@ export let languages = [
 const DEFAULT_LANG = languages[0];
 
 export function getLanguage(sendResponse: (lang: string) => void) {
-  chrome.storage.local.get([LANG], (data) => {
-      let lang = data[LANG];
+  chrome.storage.local.get(['lang'], (data) => {
+      let lang = data.lang;
       if (!lang) {
         setLanguage(DEFAULT_LANG);
         lang = DEFAULT_LANG;
@@ -22,6 +20,7 @@ export function getLanguage(sendResponse: (lang: string) => void) {
 }
 
 export function setLanguage(lang: string) {
-  chrome.storage.local.set({ LANG: lang });
-  console.log('Language set to', lang);
+  chrome.storage.local.set({ lang }, () => {
+    console.log('Language set to', lang);
+  });
 }

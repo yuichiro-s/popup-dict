@@ -5,8 +5,6 @@ import { Command } from './command';
 
 export type Message = 'enable' | 'disable';
 
-const ENABLED = 'enabled';
-
 function sendMessageToAllTabs(msg: Message) {
   chrome.tabs.query({}, (tabs) => {
     for (const tab of tabs) {
@@ -23,23 +21,23 @@ chrome.browserAction.setBadgeBackgroundColor({
 
 function enable() {
   chrome.browserAction.setBadgeText({ 'text': 'On' });
-  chrome.storage.local.set({ ENABLED: true });
-  sendMessageToAllTabs('enable');
-
-  console.log('Enabled.');
+  chrome.storage.local.set({ enabled: true }, () => {
+    console.log('Enabled.');
+    sendMessageToAllTabs('enable');
+  });
 }
 
 function disable() {
   chrome.browserAction.setBadgeText({ 'text': '' });
-  chrome.storage.local.set({ ENABLED: false });
-  sendMessageToAllTabs('disable');
-
-  console.log('Disabled.');
+  chrome.storage.local.set({ enabled: false }, () => {
+    console.log('Disabled.');
+    sendMessageToAllTabs('disable');
+  });
 }
 
 function isEnabled(sendResponse: (value: boolean) => void) {
-  chrome.storage.local.get([ENABLED], (data) => {
-    let enabled: boolean = data[ENABLED];
+  chrome.storage.local.get(['enabled'], (data) => {
+    let enabled: boolean = data['enabled'];
     sendResponse(enabled);
     console.log('Enabled:', enabled);
   });
@@ -66,6 +64,7 @@ chrome.runtime.onMessage.addListener(
     } else if (request.type === 'is-enabled') {
       isEnabled(sendResponse);
     }
+    return true;
   }
 );
 

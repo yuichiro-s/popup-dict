@@ -2,6 +2,7 @@ import 'chromereload/devonly';
 import {createPopup, removePopup} from './popupDialog';
 import {addEventListeners, removeEventListeners} from './userInput';
 import {Message} from './background';
+import { sendCommand } from './command';
 
 /**
  * Enable the plugin on this page.
@@ -37,8 +38,8 @@ chrome.runtime.onMessage.addListener(
 /**
  * Enable the plugin on this page if the plugin has been enabled in the background script.
  */
-chrome.storage.local.get(['enabled'], (data) => {
-  if (data.enabled) {
+sendCommand({'type': 'is-enabled'} , (enabled) => {
+  if (enabled) {
     enable();
   }
 });
