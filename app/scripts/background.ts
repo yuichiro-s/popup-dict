@@ -2,46 +2,7 @@ import 'chromereload/devonly';
 import { SearchResults, search } from './search';
 import { setLanguage, getLanguage, initLanguage } from './language';
 import { Command } from './command';
-
-export type Message = 'enable' | 'disable';
-
-function sendMessageToAllTabs(msg: Message) {
-  chrome.tabs.query({}, (tabs) => {
-    for (const tab of tabs) {
-      if (tab.id) {
-        chrome.tabs.sendMessage(tab.id, msg);
-      }
-    }
-  });
-}
-
-chrome.browserAction.setBadgeBackgroundColor({
-  'color': 'red'
-});
-
-function enable() {
-  chrome.browserAction.setBadgeText({ 'text': 'On' });
-  chrome.storage.local.set({ enabled: true }, () => {
-    console.log('Enabled.');
-    sendMessageToAllTabs('enable');
-  });
-}
-
-function disable() {
-  chrome.browserAction.setBadgeText({ 'text': '' });
-  chrome.storage.local.set({ enabled: false }, () => {
-    console.log('Disabled.');
-    sendMessageToAllTabs('disable');
-  });
-}
-
-function isEnabled(sendResponse: (value: boolean) => void) {
-  chrome.storage.local.get(['enabled'], (data) => {
-    let enabled: boolean = data['enabled'];
-    sendResponse(enabled);
-    console.log('Enabled:', enabled);
-  });
-}
+import { enable, disable, isEnabled, initEnabled } from './enabled';
 
 /**
  * Handlers of commands from content scripts.
@@ -60,9 +21,9 @@ chrome.runtime.onMessage.addListener(
     } else if (request.type === 'set-enabled') {
       request.value ? enable() : disable();
     } else if (request.type === 'toggle-enabled') {
-      isEnabled((value) => value ? disable() : enable());
+      isEnabled() ? disable() : enable();
     } else if (request.type === 'is-enabled') {
-      isEnabled(sendResponse);
+      sendResponse(isEnabled());
     }
     return true;
   }
@@ -79,3 +40,4 @@ chrome.runtime.onInstalled.addListener(() => {
  * Initialize variables.
  */
 initLanguage();
+initEnabled();
