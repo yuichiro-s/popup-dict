@@ -1,9 +1,10 @@
 import 'chromereload/devonly';
-import { Entry } from './entry';
+import { Entry, VariantEntry } from './entry';
+import { Variant, VariantType, LEMMA } from './dictionary';
 
 class Node {
   next: { [c: string]: Node; };
-  entries: Entry[];
+  entries: VariantEntry[];
 
   constructor() {
     this.next = {};
@@ -19,20 +20,22 @@ function codePointAt(str: string, i: number): number {
   return p;
 }
 
-export function addEntry(root: Node, key: string, entry: Entry) {
+export function addEntry(root: Node, variant: Variant, entry: Entry) {
   let node = root;
-  for (let i = 0; i < key.length; i++) {
-    const p = codePointAt(key, i);
+  let type = variant.type;
+  let form = variant.form;
+  for (let i = 0; i < form.length; i++) {
+    const p = codePointAt(form, i);
     if (!(p in node.next)) node.next[p] = new Node();
     node = node.next[p];
-    if (i === key.length - 1) {
-      node.entries.push(entry);
+    if (i === form.length - 1) {
+      node.entries.push({ entry, type });
     }
   }
 }
 
 export function search(root: Node, query: string) {
-  type EntryWithLength = { length: number, entry: Entry };
+  type EntryWithLength = { length: number, variantEntry: VariantEntry };
   let results: EntryWithLength[] = [];
   let node = root;
   for (let i = 0; i < query.length; i++) {
@@ -42,33 +45,31 @@ export function search(root: Node, query: string) {
       break;
     } else {
       node = node.next[p];
-      for (let entry of node.entries) {
+      for (let variantEntry of node.entries) {
         let match = query.substring(0, i + 1);
         let length = match.length;
-        results.push({ length, entry });
+        results.push({ length, variantEntry });
       }
     }
   }
 
-  // sort by length in descending order
-  results.sort((a, b) => { return b.length - a.length; });
-
-  // remove duplicates
-  let newResults: EntryWithLength[] = [];
-  for (let item of results) {
-    let used = false;
-    for (let item2 of newResults) {
-      if (item.entry === item2.entry) {
-        used = true;
-        break;
-      }
+  // sorting criteria
+  // 1. sort by length in descending order
+  // 2. lemma match comes first
+  let isExactMatch = (item: EntryWithLength): number => +(item.variantEntry.type === LEMMA);
+  let sortingCriteria = [
+    (item: EntryWithLength) => item.length,
+    isExactMatch,
+  ];
+  results.sort((a, b) => {
+    for (let c of sortingCriteria) {
+      let v = c(b) - c(a);
+      if (v !== 0) return v;
     }
-    if (!used) {
-      newResults.push(item);
-    }
-  }
+    return 0;
+  });
 
-  return newResults;
+  return results;
 }
 
 export { Node as Trie };

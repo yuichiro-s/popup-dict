@@ -4,6 +4,7 @@ import { getNextLeaf } from './util';
 import { removeSelection, updateSelection } from './selection';
 import { SearchResults } from './search';
 import { isWordBoundary } from './word';
+import { sendCommand } from './command';
 
 let eventListeners: { [index: string]: EventListenerOrEventListenerObject[] } = {};
 
@@ -112,7 +113,7 @@ function mouseMoveListener(e: MouseEvent) {
       NoResults();
     } else {
       if (query !== lastQuery) {
-        chrome.runtime.sendMessage({
+        sendCommand({
           'type': 'search',
           'query': query
         }, (response: SearchResults) => {

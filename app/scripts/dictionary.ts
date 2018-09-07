@@ -9,22 +9,28 @@ abstract class Dictionary {
 
 let dict = new Trie();
 
-function createEntry(rawEntry: any): { keys: string[], entry: Entry } {
-  let keys = [];
-  keys.push(rawEntry.form);
-  for (let { _, form } of rawEntry.variants) {
-    keys.push(form);
+export const LEMMA = '_LEMMA_';
+export type VariantType = '_LEMMA_' | string[];
+export type Variant = { type: VariantType, form: string };
+
+function createEntry(rawEntry: any): { variants: Variant[], entry: Entry } {
+  let [lemma, pos, features, variantArray, definitions] = rawEntry;
+
+  let variants: Variant[] = [];
+  variants.push({ type: LEMMA, form: lemma });
+  for (let [type, form] of variantArray) {
+    variants.push({ type, form });
   }
 
   let entry = {
-    lemma: rawEntry.form,
-    pos: rawEntry.pos,
-    features: rawEntry.attrs,
-    definitions: rawEntry.defs,
-    url: 'https://es.wiktionary.org/' + rawEntry.form,
+    lemma,
+    pos,
+    features,
+    definitions,
+    url: 'https://en.wiktionary.org/wiki/' + lemma + '#Spanish',
   };
 
-  return { keys, entry };
+  return { variants, entry };
 }
 
 function loadDictionary() {
@@ -38,14 +44,15 @@ function loadDictionary() {
         if (line.length > 0) {
           try {
             let rawEntry = JSON.parse(line);
-            let { keys, entry } = createEntry(rawEntry);
-            for (let key of keys) {
-              addEntry(dict, key, entry);
+            let { variants, entry } = createEntry(rawEntry);
+            for (let variant of variants) {
+              addEntry(dict, variant, entry);
               formCount++;
             }
             lemmaCount++;
           } catch (e) {
             console.log('Failed to parse: ' + line);
+            console.log(e);
           }
         }
       }

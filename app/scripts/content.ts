@@ -3,6 +3,9 @@ import {createPopup, removePopup} from './popupDialog';
 import {addEventListeners, removeEventListeners} from './userInput';
 import {Message} from './background';
 
+/**
+ * Enable the plugin on this page.
+ */
 function enable() {
   createPopup();
   addEventListeners();

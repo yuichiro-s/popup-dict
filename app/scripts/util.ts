@@ -1,7 +1,9 @@
-export function createNodeFromString(str: string): HTMLElement {
+export function createNodeFromString(str: string): Node {
   let parser = new DOMParser();
   let node = parser.parseFromString(str, 'text/html');
-  return node.body;
+  let element = node.body.firstChild;
+  if (!element) throw new Error('Null element found.');
+  return element;
 }
 
 /**
