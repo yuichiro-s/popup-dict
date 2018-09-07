@@ -13,12 +13,14 @@ export function updateSelection(node: Node, offset: number, length: number) {
 
   let endPos = offset + length;
   let node_: Node | null = node;
-  while (node.textContent && endPos > node.textContent.length) {
-    endPos -= node.textContent.length;
-    node_ = getNextLeaf(node);
+  while (node_ && node_.textContent && endPos > node_.textContent.length) {
+    endPos -= node_.textContent.length;
+    node_ = getNextLeaf(node_);
   }
-  range.setEnd(node, endPos);
-  let selection = document.getSelection();
-  selection.removeAllRanges();
-  selection.addRange(range);
+  if (node_) {
+    range.setEnd(node_, endPos);
+    let selection = document.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
 }
