@@ -1,6 +1,6 @@
 import 'chromereload/devonly';
 import { createNodeFromString } from './util';
-import { languages } from './language';
+import { Language } from './language';
 import { sendCommand } from './command';
 
 // initialize check box value
@@ -14,7 +14,7 @@ sendCommand({ type: 'is-enabled' }, (value: boolean) => {
 
 // initialize language selector
 let languageBox = <HTMLSelectElement>document.getElementById('language-box');
-for (let language of languages) {
+for (let language in Language) {
     let option = createNodeFromString(`<option value="${language}">${language}</option>`);
     languageBox.appendChild(option);
 }

@@ -1,26 +1,31 @@
-export let languages = [
-    'Spanish',
-    'English',
-    'German',
-    'Korean',
-];
+export enum Language {
+  Spanish = 'Spanish',
+  English = 'English',
+  German = 'German',
+  Korean = 'Korean',
+}
 
-const DEFAULT_LANG = languages[0];
+const DEFAULT_LANG = Language.Spanish;
 
-export function getLanguage(sendResponse: (lang: string) => void) {
-  chrome.storage.local.get(['lang'], (data) => {
-      let lang = data.lang;
-      if (!lang) {
-        setLanguage(DEFAULT_LANG);
-        lang = DEFAULT_LANG;
-      }
-      sendResponse(lang);
-      console.log('Language:', lang);
-  });
+let currentLanguage: Language = DEFAULT_LANG;
+
+export function getLanguage() {
+  return currentLanguage;
 }
 
 export function setLanguage(lang: string) {
+  currentLanguage = (<any>Language)[lang];
   chrome.storage.local.set({ lang }, () => {
     console.log('Language set to', lang);
+  });
+}
+
+export function initLanguage() {
+  chrome.storage.local.get(['lang'], (data) => {
+    let lang = data.lang;
+    if (!lang) {
+      lang = DEFAULT_LANG;
+    }
+    setLanguage(lang);
   });
 }

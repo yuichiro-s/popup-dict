@@ -1,6 +1,6 @@
 import 'chromereload/devonly';
 import { SearchResults, search } from './search';
-import { setLanguage, getLanguage } from './language';
+import { setLanguage, getLanguage, initLanguage } from './language';
 import { Command } from './command';
 
 export type Message = 'enable' | 'disable';
@@ -56,7 +56,7 @@ chrome.runtime.onMessage.addListener(
     } else if (request.type === 'set-language') {
       setLanguage(request.lang);
     } else if (request.type === 'get-language') {
-      getLanguage(sendResponse);
+      sendResponse(getLanguage());
     } else if (request.type === 'set-enabled') {
       request.value ? enable() : disable();
     } else if (request.type === 'toggle-enabled') {
@@ -74,3 +74,8 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onInstalled.addListener(() => {
   enable();
 });
+
+/**
+ * Initialize variables.
+ */
+initLanguage();
