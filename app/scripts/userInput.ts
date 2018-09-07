@@ -58,7 +58,9 @@ function extractTextSnippet(node: Node, offset: number, maxLength: number) {
   let text = '';
   let node_: Node | null = node;
   while (node_ && text.length < offset + maxLength) {
-    text += node_.textContent;
+    if (node_.textContent) {
+      text += node_.textContent;
+    }
     node_ = getNextLeaf(node_);
   }
   return text.substring(offset, offset + maxLength);
