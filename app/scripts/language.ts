@@ -1,9 +1,7 @@
-export enum Language {
-  Spanish = 'Spanish',
-  English = 'English',
-  German = 'German',
-  Korean = 'Korean',
-}
+import 'chromereload/devonly';
+
+import { loadDictionaries } from './dictionary';
+import { Language } from './languages';
 
 const DEFAULT_LANG = Language.Spanish;
 
@@ -17,6 +15,9 @@ export function setLanguage(lang: string) {
   currentLanguage = (<any>Language)[lang];
   chrome.storage.local.set({ lang }, () => {
     console.log('Language set to', lang);
+
+    // load dictionaries
+    loadDictionaries(currentLanguage);
   });
 }
 

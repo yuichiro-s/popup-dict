@@ -1,3 +1,5 @@
+import 'chromereload/devonly';
+
 import {getNextLeaf} from './util';
 
 export function removeSelection() {

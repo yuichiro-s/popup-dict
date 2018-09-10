@@ -1,4 +1,5 @@
-import { createNodeFromString } from './util';
+import 'chromereload/devonly';
+
 import { LEMMA, VariantType } from './dictionary';
 
 export class VariantEntry {

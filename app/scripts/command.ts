@@ -1,3 +1,5 @@
+import 'chromereload/devonly';
+
 export type Command =
   { type: 'search', query: string } |
   { type: 'set-language', lang: string } |

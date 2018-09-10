@@ -1,4 +1,5 @@
 import 'chromereload/devonly';
+
 import { hidePopup, isInsidePopup, setPopupPosision, showPopup } from './popupDialog';
 import { getNextLeaf } from './util';
 import { removeSelection, updateSelection } from './selection';
@@ -100,11 +101,6 @@ function mouseMoveListener(e: MouseEvent) {
     // text node is selected
     NoResults();
   } else {
-    // change position of the popup dialog
-    let popupX = Math.min(x, window.innerWidth - 300);
-    let popupY = y + 30;
-    setPopupPosision(popupX, popupY);
-
     // move cursor backwards until reaching beginning-of-word
     [textNode, offset] = findPreviousBeginningOfWord(textNode, offset);
 
@@ -122,7 +118,7 @@ function mouseMoveListener(e: MouseEvent) {
           if (response.entries.length === 0) {
             NoResults();
           } else {
-            showPopup(response.entries);
+            showPopup(response.entries, x, y);
             updateSelection(textNode, offset, response.matchLength);
           }
         });

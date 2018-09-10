@@ -1,4 +1,5 @@
 import 'chromereload/devonly';
+
 import {createPopup, removePopup} from './popupDialog';
 import {addEventListeners, removeEventListeners} from './userInput';
 import {Message} from './enabled';

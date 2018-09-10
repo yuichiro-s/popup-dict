@@ -1,3 +1,5 @@
+import 'chromereload/devonly';
+
 export function createNodeFromString(str: string): Node {
   let parser = new DOMParser();
   let node = parser.parseFromString(str, 'text/html');

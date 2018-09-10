@@ -1,6 +1,7 @@
 import 'chromereload/devonly';
+
 import { createNodeFromString } from './util';
-import { Language } from './language';
+import { Language } from './languages';
 import { sendCommand } from './command';
 
 // initialize check box value

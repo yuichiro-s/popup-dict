@@ -1,3 +1,5 @@
+import 'chromereload/devonly';
+
 function isAlphabet(str: string, pos: number) {
     let code = str.codePointAt(pos);
     if (!code) throw new Error('Code point is null');

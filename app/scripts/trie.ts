@@ -1,4 +1,5 @@
 import 'chromereload/devonly';
+
 import { Entry, VariantEntry } from './entry';
 import { Variant, VariantType, LEMMA } from './dictionary';
 
@@ -35,8 +36,7 @@ export function addEntry(root: Node, variant: Variant, entry: Entry) {
 }
 
 export function search(root: Node, query: string) {
-  type EntryWithLength = { length: number, variantEntry: VariantEntry };
-  let results: EntryWithLength[] = [];
+  let results = [];
   let node = root;
   for (let i = 0; i < query.length; i++) {
     const p = codePointAt(query, i);
@@ -52,22 +52,6 @@ export function search(root: Node, query: string) {
       }
     }
   }
-
-  // sorting criteria
-  // 1. sort by length in descending order
-  // 2. lemma match comes first
-  let isExactMatch = (item: EntryWithLength): number => +(item.variantEntry.type === LEMMA);
-  let sortingCriteria = [
-    (item: EntryWithLength) => item.length,
-    isExactMatch,
-  ];
-  results.sort((a, b) => {
-    for (let c of sortingCriteria) {
-      let v = c(b) - c(a);
-      if (v !== 0) return v;
-    }
-    return 0;
-  });
 
   return results;
 }

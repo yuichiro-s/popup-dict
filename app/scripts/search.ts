@@ -1,23 +1,35 @@
-import { getDictionary, VariantType } from './dictionary';
+import 'chromereload/devonly';
+
+import { getDictionaries, LEMMA, Dictionary } from './dictionary';
 import { search as searchTrie } from './trie';
-import { renderEntry, Entry, VariantEntry } from './entry';
+import { renderEntry, VariantEntry } from './entry';
 import { isWordBoundary } from './word';
+import { getLanguage } from './language';
 
-function normalize(query: string): string {
-  return query.toLowerCase();
+interface EntryWithLength {
+  variantEntry: VariantEntry;
+  length: number;
 }
 
-export class PopupEntry {
-  rendered: string;
-  url: string;
+function sortResults(results: EntryWithLength[]) {
+  // sorting criteria
+  // 1. sort by length in descending order
+  // 2. lemma match comes first
+  let isExactMatch = (item: EntryWithLength): number => +(item.variantEntry.type === LEMMA);
+  let sortingCriteria = [
+    (item: EntryWithLength) => item.length,
+    isExactMatch,
+  ];
+  results.sort((a, b) => {
+    for (let c of sortingCriteria) {
+      let v = c(b) - c(a);
+      if (v !== 0) return v;
+    }
+    return 0;
+  });
 }
 
-export class SearchResults {
-  entries: PopupEntry[];
-  matchLength: number;
-}
-
-function mergeResultsWithSameEntry(results: { length: number, variantEntry: VariantEntry }[]) {
+function mergeResultsWithSameEntry(results: {variantEntry: VariantEntry, length: number, dict: Dictionary}[]) {
   let newResults = [];
   for (let item of results) {
     let isNew = true;
@@ -35,23 +47,55 @@ function mergeResultsWithSameEntry(results: { length: number, variantEntry: Vari
         length: item.length,
         types: [item.variantEntry.type],
         entry: item.variantEntry.entry,
+        dict: item.dict,
       });
     }
   }
   return newResults;
 }
 
+function normalizeQuery(query: string): string {
+  return query.toLowerCase();
+}
+
+export class PopupEntry {
+  rendered: string;
+  url: string;
+}
+
+export class SearchResults {
+  entries: PopupEntry[];
+  matchLength: number;
+}
+
 export function search(query: string): SearchResults {
   console.log('Query:', query);
 
-  let dict = getDictionary();
+  let normalizedQuery = normalizeQuery(query);
 
-  let normalizedQuery = normalize(query);
+  // search through all working dictionaries
+  let currentLanguage = getLanguage();
+  let results = [];
+  for (let dict of getDictionaries()) {
+    if (dict.enabled && dict.lang === currentLanguage && dict.trie) {
+      let dictResults = searchTrie(dict.trie, normalizedQuery);
 
-  let results = searchTrie(dict, normalizedQuery);
+      // filter out search results that don't end at a word boundary
+      dictResults = dictResults.filter(({ length }) => isWordBoundary(query, length));
 
-  // filter out search results that don't end at an end-of-word
-  results = results.filter(({ length }) => isWordBoundary(query, length));
+      // add reference to original dictionary
+      let items = dictResults.map((item: EntryWithLength) => {
+        return {
+          length: item.length,
+          variantEntry: item.variantEntry,
+          dict,
+        };
+      });
+
+      results.push(...items);
+    }
+  }
+  sortResults(results);
 
   // merge duplicate variants
   let newResults = mergeResultsWithSameEntry(results);

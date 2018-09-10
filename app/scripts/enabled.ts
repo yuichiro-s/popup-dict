@@ -1,3 +1,5 @@
+import 'chromereload/devonly';
+
 export type Message = 'enable' | 'disable';
 
 let enabled = false;

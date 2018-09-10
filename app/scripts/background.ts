@@ -7,7 +7,6 @@ import { enable, disable, isEnabled, initEnabled } from './enabled';
 /**
  * Handlers of commands from content scripts.
  */
-
 chrome.runtime.onMessage.addListener(
   (request: Command, sender, sendResponse) => {
     console.log('Command:', request);
@@ -37,7 +36,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 /**
- * Initialize variables.
+ * Initialize states.
  */
 initLanguage();
 initEnabled();

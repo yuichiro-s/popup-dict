@@ -36,11 +36,11 @@ export function setPopupPosision(x: number, y: number) {
  * Show the popup dialog with the specified content.
  * @param entries  Array of rendered dictionary entries.
  */
-export function showPopup(entries: PopupEntry[]) {
+export function showPopup(entries: PopupEntry[], x: number, y: number) {
   withPopup((popup) => {
     let popupContent = document.getElementById('popup-dict-dialog-content');
     if (popupContent !== null) {
-      popup.style.display = 'block';
+      // populate popup dialog with content
       popupContent.innerHTML = '';
       for (let i = 0; i < entries.length; i++) {
         if (i > 0) {
@@ -56,6 +56,12 @@ export function showPopup(entries: PopupEntry[]) {
         });
         popupContent.appendChild(node);
       }
+
+      // set position of the popup dialog
+      let popupX = Math.min(x, window.innerWidth - 300);
+      let popupY = y + 30;
+      setPopupPosision(popupX, popupY);
+      popup.style.display = 'block';
     }
   });
 }
