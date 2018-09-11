@@ -3,7 +3,7 @@ extern crate wasm_bindgen;
 
 mod utils;
 
-mod trie;
+pub mod trie;
 
 use wasm_bindgen::prelude::*;
 
