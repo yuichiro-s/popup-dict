@@ -1,18 +1,4 @@
-extern crate cfg_if;
-extern crate wasm_bindgen;
+#[macro_use]
+extern crate serde_derive;
 
-mod utils;
-
-pub mod trie;
-
-use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, trie!");
-}
+pub mod dict;
