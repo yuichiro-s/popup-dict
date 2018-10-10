@@ -1,5 +1,4 @@
 import 'chromereload/devonly';
-import { Entry } from './entry';
 import { Language } from './languages';
 
 export type VariantType = string | string[];
@@ -43,32 +42,6 @@ let dictionaries: Dictionary[] = [
     dict: null,
   },
 ];
-
-/**
- * Parse a JSON line and create a dictionary entry.
- * @param line line to parse
- * @param url template string of URL of original dictionary page
- */
-function parseEntry(line: string, url: string): { variants: Variant[], entry: Entry } {
-  let [lemma, pos, features, variantArray, definitions] = JSON.parse(line);
-
-  let variants: Variant[] = [];
-  variants.push({ type: LEMMA, form: lemma });
-  for (let [type, form] of variantArray) {
-    variants.push({ type, form });
-  }
-
-  return {
-    variants,
-    entry: {
-      lemma,
-      pos,
-      features,
-      definitions,
-      url: url.replace('{}', lemma),
-    }
-  };
-}
 
 function loadDictionaryFromFile(dict: Dictionary) {
   let req = new XMLHttpRequest();
