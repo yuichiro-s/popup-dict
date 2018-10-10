@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-      "module": "commonjs",
+      "module": "esnext",
       "target": "es5",
       "noImplicitAny": true,
       "noImplicitUseStrict": true,
       "noImplicitReturns": true,
       "strictNullChecks": true,
       "jsx": "react",
-      "lib": ["dom", "es2017"]
+      "lib": ["dom", "es2017"],
+      "moduleResolution": "node"
   }
 }

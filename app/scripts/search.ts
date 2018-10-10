@@ -1,7 +1,6 @@
 import 'chromereload/devonly';
 
-import { getDictionaries, LEMMA, Dictionary } from './dictionary';
-import { search as searchTrie } from './trie';
+import { getDictionaries, LEMMA, Dictionary, VariantType } from './dictionary';
 import { renderEntry, VariantEntry } from './entry';
 import { isWordBoundary } from './word';
 import { getLanguage } from './language';
@@ -29,7 +28,7 @@ function sortResults(results: EntryWithLength[]) {
   });
 }
 
-function mergeResultsWithSameEntry(results: {variantEntry: VariantEntry, length: number, dict: Dictionary}[]) {
+function mergeResultsWithSameEntry(results: { variantEntry: VariantEntry, length: number, dict: Dictionary }[]) {
   let newResults = [];
   for (let item of results) {
     let isNew = true;
@@ -68,6 +67,45 @@ export class SearchResults {
   matchLength: number;
 }
 
+let encoder = new TextEncoder();
+
+function getVariantTypes(form: string, lemma: string, variantArray: [string[], string][]): VariantType[] {
+  let results: VariantType[] = [];
+  if (lemma === form) {
+    results.push(LEMMA);
+  }
+  for (let [variantType, variantForm] of variantArray) {
+    if (variantForm === form) {
+      results.push(variantType);
+    }
+  }
+  return results;
+}
+
+function searchDict(dict: Dictionary, query: string) {
+  let bytes = encoder.encode(query);
+  let json = dict.dict!.search(bytes);
+  let results = [];
+  for (const obj of JSON.parse(json)) {
+    let form = obj.matched;
+    let [lemma, pos, features, variantArray, definitions] = JSON.parse(obj.entry);
+    let entry = {
+      lemma,
+      pos,
+      features,
+      definitions,
+      url: dict.url.replace('{}', lemma),
+    };
+    for (let type of getVariantTypes(form, lemma, variantArray)) {
+      results.push({
+        variantEntry: { type, entry },
+        length: form.length,
+      });
+    }
+  }
+  return results;
+}
+
 export function search(query: string): SearchResults {
   console.log('Query:', query);
 
@@ -77,8 +115,8 @@ export function search(query: string): SearchResults {
   let currentLanguage = getLanguage();
   let results = [];
   for (let dict of getDictionaries()) {
-    if (dict.enabled && dict.lang === currentLanguage && dict.trie) {
-      let dictResults = searchTrie(dict.trie, normalizedQuery);
+    if (dict.enabled && dict.lang === currentLanguage && dict.dict) {
+      let dictResults = searchDict(dict, normalizedQuery);
 
       // filter out search results that don't end at a word boundary
       dictResults = dictResults.filter(({ length }) => isWordBoundary(query, length));

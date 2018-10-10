@@ -1,12 +1,12 @@
 import 'chromereload/devonly';
 import { Entry } from './entry';
-import { Trie, addEntry } from './trie';
 import { Language } from './languages';
 
-export const LEMMA = '_LEMMA_';
-export type VariantType = '_LEMMA_' | string[];
+export type VariantType = string | string[];
+export const LEMMA: VariantType = '_LEMMA_';
 export type Variant = { type: VariantType, form: string };
 
+type DictionaryWasm = typeof import('./trie_dictionary_binding');
 
 export type Dictionary = {
   lang: Language,
@@ -14,33 +14,33 @@ export type Dictionary = {
   path: string,
   url: string,
   enabled: boolean,
-  trie: Trie | null,
+  dict: null | DictionaryWasm,
 };
 
 let dictionaries: Dictionary[] = [
   {
     lang: Language.Spanish,
     name: 'es-en-wiktionary',
-    path: 'data/spanish/enwiktionary.json',
+    path: 'data/spanish/enwiktionary.bin',
     url: 'https://en.wiktionary.org/wiki/{}#Spanish',
     enabled: true,
-    trie: null,
+    dict: null,
   },
   {
     lang: Language.German,
     name: 'de-en-wiktionary',
-    path: 'data/german/enwiktionary.json',
+    path: 'data/german/enwiktionary.bin',
     url: 'https://en.wiktionary.org/wiki/{}#German',
     enabled: true,
-    trie: null,
+    dict: null,
   },
   {
     lang: Language.English,
     name: 'en-en-wiktionary',
-    path: 'data/english/enwiktionary.json',
+    path: 'data/english/enwiktionary.bin',
     url: 'https://en.wiktionary.org/wiki/{}#English',
     enabled: true,
-    trie: null,
+    dict: null,
   },
 ];
 
@@ -73,32 +73,17 @@ function parseEntry(line: string, url: string): { variants: Variant[], entry: En
 function loadDictionaryFromFile(dict: Dictionary) {
   let req = new XMLHttpRequest();
   let dictPath = chrome.runtime.getURL(dict.path);
-  req.onreadystatechange = () => {
+  req.responseType = 'arraybuffer';
+  req.onreadystatechange = async () => {
     if (req.readyState === 4 && req.status === 200) {
-      let lemmaCount = 0;
-      let formCount = 0;
-      let trie = new Trie();
-      for (let line of req.responseText.split('\n')) {
-        if (line.length > 0) {
-          try {
-            let { variants, entry } = parseEntry(line, dict.url);
-            for (let variant of variants) {
-              addEntry(trie, variant, entry);
-              formCount++;
-            }
-            lemmaCount++;
-            if (lemmaCount % 10000 === 0) {
-              console.log(`${lemmaCount} lemmas loaded.`);
-            }
-          } catch (e) {
-            console.log('Failed to parse: ' + line);
-            console.log(e);
-          }
-        }
-      }
-      console.log(`${lemmaCount} entries (${formCount} wordforms) loaded.`);
-
-      dict.trie = trie;
+      let mod = await import('./trie_dictionary_binding');
+      console.log('Loading WASM binding...');
+      await mod.ready();
+      console.log('Ready.');
+      let DictionaryWasm = mod.Dictionary;
+      let bytes = new Uint8Array(req.response);
+      let d = DictionaryWasm.deserialize(bytes, true);
+      dict.dict = d;
     }
   };
   req.open('GET', dictPath);
@@ -110,7 +95,7 @@ function loadDictionaryFromFile(dict: Dictionary) {
  */
 export function loadDictionaries(lang: Language) {
   for (let dict of dictionaries) {
-    if (dict.lang === lang && dict.enabled && !dict.trie) {
+    if (dict.lang === lang && dict.enabled && !dict.dict) {
       // load an enabeld but not loaded dictionary
       console.log(`Loading ${dict.name} from ${dict.path} ...`);
       loadDictionaryFromFile(dict);
