@@ -15,7 +15,8 @@
     "dev:firefox": "gulp --watch --vendor=firefox",
     "dev:opera": "gulp --watch --vendor=opera",
     "dev:edge": "gulp --watch --vendor=edge",
-    "lint": "standard"
+    "lint": "standard",
+    "build_dictionary": "ts-node scripts/build_dictionary.ts"
   },
   "standard": {
     "globals": [
@@ -24,6 +25,8 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.x.x",
+    "@types/node": "^10.11.6",
+    "@wasm-tool/wasm-pack-plugin": "0.0.6",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
@@ -52,12 +55,14 @@
     "gulp-zip": "^4.x.x",
     "require-dir": "0.x.x",
     "standard": "^10.0.2",
-    "ts-loader": "^2.x.x",
+    "ts-loader": "^4.x.x",
+    "ts-node": "^7.0.1",
     "tslint": "^5.x.x",
     "typescript": "^3.0.3",
     "vinyl-named": "1.x.x",
-    "webpack": "3.x.x",
-    "webpack-stream": "3.x.x",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-stream": "^5.1.1",
     "yargs": "^8.x.x"
   }
 }

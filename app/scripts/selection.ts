@@ -4,7 +4,7 @@ import {getNextLeaf} from './util';
 
 export function removeSelection() {
   // don't modify selection while dragging
-  let selection = document.getSelection();
+  let selection = document.getSelection()!;
   selection.removeAllRanges();
 }
 
@@ -26,7 +26,7 @@ export function updateSelection(node: Node, offset: number, length: number) {
 
   if (node_) {
     range.setEnd(node_, endPos);
-    let selection = document.getSelection();
+    let selection = document.getSelection()!;
     selection.removeAllRanges();
     selection.addRange(range);
   }

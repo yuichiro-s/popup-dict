@@ -2,13 +2,17 @@ extern crate bincode;
 extern crate double_array_trie;
 extern crate failure;
 extern crate serde;
+extern crate serde_json;
 extern crate snap;
 
 use self::bincode::{deserialize_from, serialize};
 use self::double_array_trie::static_trie::Trie;
-use std::io::{Read, Write};
+use self::failure::err_msg;
+use self::serde_json::Value;
+use std::collections::HashMap;
+use std::io::{BufRead, Read, Write};
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SearchResult {
     matched: String,
     entry: String,
@@ -64,6 +68,59 @@ impl Dictionary {
         } else {
             deserialize_from(data)?
         };
+        Ok(dict)
+    }
+
+    /// Loads a dictionary in JSON.
+    pub fn load_from_json<R: BufRead>(data: R) -> Result<Dictionary, failure::Error> {
+        let mut entries: Vec<String> = Vec::new();
+        let mut form_to_entry_ids: HashMap<String, Vec<usize>> = HashMap::new();
+        for line in data.lines() {
+            // Each line follows the following format.
+            //   [entry_object, [key1, key2, ...]]
+            let l = line?;
+            let entry_id = entries.len();
+            let entry_json: Value = serde_json::from_str(&l)?;
+            let entry_json_array = entry_json
+                .as_array()
+                .ok_or(err_msg(format!("Can't interpret as array: {}", l)))?;
+            let keys = entry_json_array
+                .get(1)
+                .ok_or(err_msg(format!(
+                    "Doesn't contain the second element: {}",
+                    l
+                )))?.as_array()
+                .ok_or(err_msg(format!(
+                    "Can't interpret the second element as array: {}",
+                    l
+                )))?;
+
+            for key in keys {
+                let key_str = key
+                    .as_str()
+                    .ok_or(err_msg(format!("Can't interpret as string: {}", key)))?;
+                if form_to_entry_ids.contains_key(key_str) {
+                    let vec = form_to_entry_ids.get_mut(key_str).unwrap();
+                    vec.push(entry_id);
+                } else {
+                    let vec = vec![entry_id];
+                    form_to_entry_ids.insert(key_str.to_string(), vec);
+                }
+            }
+
+            let entry = entry_json_array
+                .get(0)
+                .ok_or(err_msg(format!("Doesn't contain the first element: {}", l)))?;
+            entries.push(serde_json::ser::to_string(&entry).unwrap());
+        }
+
+        let mut trie_entries: Vec<(Vec<u8>, Vec<usize>)> = Vec::new();
+        for (variant_form, entry_ids) in form_to_entry_ids {
+            let key_bytes = variant_form.as_bytes().to_vec();
+            trie_entries.push((key_bytes, entry_ids));
+        }
+
+        let dict = Dictionary::new(Trie::new(trie_entries.as_slice()), entries);
         Ok(dict)
     }
 }
