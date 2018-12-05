@@ -156,18 +156,16 @@ function withDefinition() {
   return element.checked;
 }
 
-async function getEntriesToShow(lang: Language, withDef: boolean) {
+async function getEntriesToShow(lang: Language) {
   let entries: Entry[] = await sendCommand({ type: 'list-entries', lang, state: State.Marked });
   let entryToItem = new Map<Entry, DictionaryItem>();
-  if (withDef) {
-    let items = await sendCommand({
-      type: 'lookup-dictionary',
-      lang,
-      keys: entries.map(entry => entry.key),
-    });
-    for (let i = 0; i < items.length; i++) {
-      entryToItem.set(entries[i], items[i]);
-    }
+  let items = await sendCommand({
+    type: 'lookup-dictionary',
+    lang,
+    keys: entries.map(entry => entry.key),
+  });
+  for (let i = 0; i < items.length; i++) {
+    entryToItem.set(entries[i], items[i]);
   }
   return { entries, entryToItem };
 }
@@ -178,7 +176,7 @@ async function resetTable(sortByFreq: boolean) {
 
   let withDef = withDefinition();
   let lang = getLanguage();
-  let { entries, entryToItem } = await getEntriesToShow(lang, withDef);
+  let { entries, entryToItem } = await getEntriesToShow(lang);
 
   // sort
   function getFreq(entry: Entry) {
