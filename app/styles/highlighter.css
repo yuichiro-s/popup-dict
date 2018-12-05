@@ -23,8 +23,13 @@ span.dictionary-entry-lemma {
 
 span.dictionary-entry-def {
   font-size: small;
-  background-color: #eee;
   margin-left: 3px;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-left-style: solid;
+  border-left-width: 3px;
+  border-left-color: #ccc;
+  background-color: #eee;
 }
 
 span.dictionary-entry-expand {
