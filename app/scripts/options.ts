@@ -148,7 +148,7 @@ function createRows(entry: Entry, item: DictionaryItem | undefined, withDef: boo
     defRow.innerHTML = `<td class="cell" colspan="3">${defStr}</td>`;
     results.push(defRow);
   }
-  return results;;
+  return results;
 }
 
 function withDefinition() {
@@ -156,16 +156,18 @@ function withDefinition() {
   return element.checked;
 }
 
-async function getEntriesToShow(lang: Language) {
+async function getEntriesToShow(lang: Language, withDef: boolean) {
   let entries: Entry[] = await sendCommand({ type: 'list-entries', lang, state: State.Marked });
-  let items = await sendCommand({
-    type: 'lookup-dictionary',
-    lang,
-    keys: entries.map(entry => entry.key),
-  });
   let entryToItem = new Map<Entry, DictionaryItem>();
-  for (let i = 0; i < items.length; i++) {
-    entryToItem.set(entries[i], items[i]);
+  if (withDef) {
+    let items = await sendCommand({
+      type: 'lookup-dictionary',
+      lang,
+      keys: entries.map(entry => entry.key),
+    });
+    for (let i = 0; i < items.length; i++) {
+      entryToItem.set(entries[i], items[i]);
+    }
   }
   return { entries, entryToItem };
 }
@@ -174,8 +176,9 @@ async function resetTable(sortByFreq: boolean) {
   let table = document.getElementById('wordTable')!;
   table.innerHTML = '<p>Loading...</p>';
 
+  let withDef = withDefinition();
   let lang = getLanguage();
-  let { entries, entryToItem } = await getEntriesToShow(lang);
+  let { entries, entryToItem } = await getEntriesToShow(lang, withDef);
 
   // sort
   function getFreq(entry: Entry) {
@@ -188,7 +191,6 @@ async function resetTable(sortByFreq: boolean) {
     // sort by date
     entries.sort((a, b) => (b.date || 0) - (a.date || 0));
   }
-  let withDef = withDefinition();
   table.innerHTML = `
     <thead>
       <tr>
