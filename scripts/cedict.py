@@ -66,10 +66,14 @@ def main():
             pos = definition.find(']')
             pronunciation = definition[:pos + 1]
             definition = definition[pos + 2:]
+            definition_list = []
+            for d in definition.split('/'):
+                if len(d) > 0:
+                    definition_list.append(d)
             obj = {
                 'word': word,
                 'lemmas': ['{} {}'.format(word, func(pronunciation))],
-                'defs': [[definition]],
+                'defs': [definition_list],
             }
             print(json.dumps(obj))
 
