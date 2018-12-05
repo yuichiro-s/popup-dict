@@ -16,7 +16,13 @@ import WasmPackPlugin from '@wasm-tool/wasm-pack-plugin'
 const ENV = args.production ? 'production' : 'development'
 
 gulp.task('scripts', (cb) => {
-  return gulp.src(['app/scripts/background.ts', 'app/scripts/content.ts', 'app/scripts/popup.ts'])
+  return gulp.src([
+    'app/scripts/background.ts',
+    'app/scripts/content.ts',
+    'app/scripts/popup.ts',
+    'app/scripts/options.ts',
+    'app/scripts/tippy.all.min.js',
+  ])
     .pipe(plumber({
       // Webpack will log the errors
       errorHandler() {}
@@ -46,9 +52,9 @@ gulp.task('scripts', (cb) => {
               exclude: /node_modules/
             },
             {
-              test: /\.wasm$/,
-              type: 'webassembly/experimental',
-            }
+              test: /\.css$/,
+              loader: 'css-loader',
+            },
           ]
         },
         resolve: {

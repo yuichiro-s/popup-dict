@@ -1,0 +1,11 @@
+span.vocab-highlighted[data-state='unknown'] {
+  background-color: rgba(238, 238, 119, 0.5);
+}
+
+span.vocab-highlighted[data-state='marked'] {
+  background-color: rgba(238, 119, 119, 0.5);
+}
+
+span.vocab-highlighted:hover {
+  filter: contrast(70%) brightness(130%);
+}

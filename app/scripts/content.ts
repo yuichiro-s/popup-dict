@@ -1,46 +1,30 @@
-import 'chromereload/devonly';
-
-import {createPopup, removePopup} from './popupDialog';
-import {addEventListeners, removeEventListeners} from './userInput';
-import {Message} from './enabled';
-import { sendCommand } from './command';
-
-/**
- * Enable the plugin on this page.
- */
-function enable() {
-  createPopup();
-  addEventListeners();
-}
-
-/**
- * Disable the plugin on this page.
- */
-function disable() {
-  removePopup();
-  removeEventListeners();
-}
+import { sendCommand, ContentCommand } from './command';
+import { disable, enable, toggleMarked, toggleKnown } from './highlighter';
+import { setLanguage } from './language';
 
 /**
  * Message handler.
  */
-chrome.runtime.onMessage.addListener(
-  (message: Message) => {
-    switch (message) {
-      case 'enable':
-        enable();
-        break;
-      case 'disable':
-        disable();
-        break;
-    }
-  });
+chrome.runtime.onMessage.addListener((message: ContentCommand) => {
+  if (message.type === 'enable') {
+    enable();
+  } else if (message.type === 'disable') {
+    disable();
+  } else if (message.type === 'toggle-marked') {
+    toggleMarked();
+  } else if (message.type === 'toggle-known') {
+    toggleKnown();
+  } else if (message.type === 'set-language') {
+    setLanguage(message.lang);
+  }
+});
 
 /**
  * Enable the plugin on this page if the plugin has been enabled in the background script.
  */
-sendCommand({'type': 'is-enabled'} , (enabled) => {
+(async () => {
+  let enabled = await sendCommand({ 'type': 'is-enabled' });
   if (enabled) {
     enable();
   }
-});
+})();

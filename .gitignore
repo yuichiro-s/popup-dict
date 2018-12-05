@@ -8,3 +8,4 @@ dist/
 packages/
 
 app/data/
+__pycache__

@@ -6,12 +6,22 @@
   <link rel="stylesheet" type="text/css" href="../styles/options.css">
 </head>
 <body>
+  <input type="file" id="fileElem" style="display:none">
+  <a href="#" download="highlighter_backup.json" id="downloadLink" style="display:none"></a>
 
-  <label>
-    <input type="checkbox" name="examplOption" checked>
-    Example Option
-  </label>
-
+  <div id="navbar">
+    <select id="languageSelector"></select>
+    <select id="dictionarySelector"></select>
+    <button id="exportButton" type="button">Export</button>
+    <button id="importButton" type="button">Import</button>
+    <button id="clearButton" type="button">Clear</button>
+    <button id="sortByDateButton" type="button">Sort by Date</button>
+    <button id="sortByFreqButton" type="button">Sort by freq</button>
+    <input id="showDefinitionBox" type="checkbox">Definition</button>
+  </div>
+  <div id="content">
+    <table id="wordTable"></table>
+  </div>
   <script src="../scripts/options.js"></script>
 </body>
 </html>

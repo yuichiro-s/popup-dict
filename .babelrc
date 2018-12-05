@@ -8,5 +8,6 @@
       "debug": false
     }]
   ],
-  "ignore": ["node_modules"]
+  "ignore": ["node_modules"],
+  "plugins": ["css-modules-transform"]
 }

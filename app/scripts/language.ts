@@ -1,32 +1,54 @@
-import 'chromereload/devonly';
+import { Language, GERMAN, CHINESE, ENGLISH } from './languages';
+import { disable, enable } from './highlighter';
+import { all } from 'franc';
 
-import { loadDictionaries } from './dictionary';
-import { Language } from './languages';
+let currentLanguage: Language | null = null;
 
-const DEFAULT_LANG = Language.Spanish;
+let map = new Map<string, string>([
+    ['deu', GERMAN],
+    ['eng', ENGLISH],
+    ['cmn', CHINESE],
+]);
 
-let currentLanguage: Language = DEFAULT_LANG;
-
-export function getLanguage() {
-  return currentLanguage;
-}
-
-export function setLanguage(lang: string) {
-  currentLanguage = (<any>Language)[lang];
-  chrome.storage.local.set({ lang }, () => {
-    console.log('Language set to', lang);
-
-    // load dictionaries
-    loadDictionaries(currentLanguage);
-  });
-}
-
-export function initLanguage() {
-  chrome.storage.local.get(['lang'], (data) => {
-    let lang = data.lang;
-    if (!lang) {
-      lang = DEFAULT_LANG;
+function guessLanguage(): Language {
+    let texts: string[] = [];
+    function dfs(element: Element) {
+        if (element.tagName !== 'SCRIPT') {
+            let nodes = element.childNodes;
+            for (let j = 0; j < nodes.length; j++) {
+                let node = nodes[j];
+                if (node.nodeType === Node.TEXT_NODE) {
+                    texts.push(node.textContent!);
+                }
+            }
+        }
+        for (let i = 0; i < element.children.length; i++) {
+            dfs(element.children[i]);
+        }
     }
-    setLanguage(lang);
-  });
+    dfs(document.body);
+    let text = texts.join('\n');
+    if (text.length < 20) {
+        return ENGLISH;
+    } else {
+        let guess = all(text, { whitelist: Array.from(map.keys()) });
+        let lang = map.get(guess[0][0])!;
+        let confidence = guess[0][1];
+        console.log(`Guessed language: ${lang} (confidence = ${confidence})`);
+        return lang;
+    }
+}
+
+export function setLanguage(lang: Language) {
+    currentLanguage = lang;
+    // re-highlight
+    disable();
+    enable();
+}
+
+export function getLanguage(): Language {
+    if (currentLanguage === null) {
+        currentLanguage = guessLanguage();
+    }
+    return currentLanguage!;
 }

@@ -16,7 +16,8 @@
     "dev:opera": "gulp --watch --vendor=opera",
     "dev:edge": "gulp --watch --vendor=edge",
     "lint": "standard",
-    "build_dictionary": "ts-node scripts/build_dictionary.ts"
+    "build_dictionary": "ts-node scripts/build_dictionary.ts",
+    "build_trie": "ts-node scripts/build_trie.ts"
   },
   "standard": {
     "globals": [
@@ -25,14 +26,17 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.x.x",
+    "@types/franc": "^4.0.0",
     "@types/node": "^10.11.6",
     "@wasm-tool/wasm-pack-plugin": "0.0.6",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
+    "babel-plugin-css-modules-transform": "^1.6.1",
     "babel-preset-env": "1.x.x",
     "chai": "4.x.x",
     "chromereload": "0.x.x",
+    "css-loader": "^1.0.1",
     "debounce": "1.x.x",
     "del": "3.x.x",
     "gulp": "3.x.x",
@@ -64,5 +68,10 @@
     "webpack-cli": "^3.1.2",
     "webpack-stream": "^5.1.1",
     "yargs": "^8.x.x"
+  },
+  "dependencies": {
+    "dexie": "^2.0.4",
+    "franc": "^4.0.0",
+    "tippy.js": "^3.2.0"
   }
 }

@@ -1,62 +1,114 @@
-import 'chromereload/devonly';
+import { Language } from './languages';
+import Dexie from 'dexie';
 
-import { LEMMA, VariantType } from './dictionary';
-
-export class VariantEntry {
-  type: VariantType;
-  entry: Entry;
-}
-export class Entry {
-  lemma: string;
-  pos: string;  // part-of-speech
-  features: string[];
-  definitions: string[];
-  url: string;
+export enum State {
+  Unknown,
+  Marked,
+  Known,
 }
 
-function renderDefinition(definition: string) {
-  return `<span class="popup-dict-entry-definition">${definition}</span>`;
+export type Entry = {
+  lang: Language,
+  key: string,
+  state: State,
+  date?: number,
+  source?: {
+    url: string,
+    title: string,
+  },
+  context?: {
+    begin: number,
+    end: number,
+    text: string,
+  },
+};
+
+class Database extends Dexie {
+  vocabulary: Dexie.Table<Entry, number>;
+  constructor() {
+    super('database');
+    this.version(1).stores({
+      vocabulary: '[lang+key], state'
+    });
+  }
 }
 
-const MAX_CHARACTERS = 100;
+let db = new Database();
 
-function renderDefinitions(definitions: string[]) {
-  let definitionSpans = '';
-  let len = 0;
-  for (let i = 0; i < definitions.length; i++) {
-    let definition = definitions[i];
-    definitionSpans += renderDefinition(definition);
-    len += definition.length;
-    if (len >= MAX_CHARACTERS && len) {
-      definitionSpans += '<span>...</span>';
-      break;
+export function clearEntries() {
+  return db.vocabulary.clear();
+}
+
+export function putEntries(entries: Entry[]) {
+  return new Promise((resolve) => {
+    const CHUNK = 10000;
+    function f(index: number) {
+      if (index < entries.length) {
+        let slice = entries.slice(index, index + CHUNK);
+        db.vocabulary.bulkPut(slice).then(() => {
+          console.log(`${Math.min(index + CHUNK, entries.length)}/${entries.length} done.`);
+          f(index + CHUNK);
+        });
+      } else {
+        resolve();
+      }
+    }
+    f(0);
+  });
+}
+
+export function lookUpEntries(lang: Language, keys: string[][]): Promise<Entry[]> {
+  function lookup(resolve: any) {
+    let results: (Entry | null)[] = [];
+    function f(index: number) {
+      if (index < keys.length) {
+        let keyStr = keys[index].join(' ');
+        db.vocabulary.where({ lang, key: keyStr }).first(res => {
+          results.push(res || null);
+          f(index + 1);
+        }).catch(() => {
+          results.push(null);
+          f(index + 1);
+        });
+      } else {
+        resolve(results);
+      }
+    }
+    f(0);
+  }
+  return new Promise((resolve) => {
+    lookup(resolve);
+  });
+}
+
+export function updateEntry(entry: Entry) {
+  return db.vocabulary.put(entry);
+}
+
+export function listEntries(lang?: Language, state?: State) {
+  let c;
+  if (state === undefined) {
+    c = db.vocabulary.where('state').equals(State.Known).or('state').equals(State.Marked);
+  } else {
+    c = db.vocabulary.where('state').equals(state);
+  }
+  if (lang) {
+    c = c.and(entry => entry.lang === lang);
+  }
+  return c.toArray();
+}
+
+export function importEntries(data: string) {
+  let entries = JSON.parse(data);
+  for (let entry of entries) {
+    if (entry.state === undefined) {
+      entry.state = State.Unknown;
     }
   }
-  return definitionSpans;
+  return putEntries(entries);
 }
 
-function renderFeatures(features: string[]) {
-  let content = '';
-  if (features.length > 0) {
-    content += ' (';
-    content += features.join(', ');
-    content += ')';
-  }
-  return content;
-}
-
-export function renderEntry(entry: Entry, types: VariantType[]): string {
-  let definitionSpans = renderDefinitions(entry.definitions);
-  let features = renderFeatures(entry.features);
-
-  let html = `
-    <div class="popup-dict-entry">
-      <div class="popup-dict-entry-headline">
-        <span class="popup-dict-entry-lemma">${entry.lemma}</span>
-        <span class="popup-dict-entry-pos">${entry.pos}</span>
-        <span class="popup-dict-entry-features">${features}</span>
-      </div>
-      <div class="popup-dict-entry-definitions">${definitionSpans}</div>
-    </div>`;
-  return html;
+export async function exportEntries() {
+  let entries = await listEntries();
+  return JSON.stringify(entries);
 }
