@@ -13,6 +13,8 @@ const PUNCTUATIONS = [
   '!',
   '?',
   ';',
+  '。',
+  '．',
 ];
 
 const HIGHLIGHTED_CLASS = 'vocab-highlighted';
