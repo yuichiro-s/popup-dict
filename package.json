@@ -59,6 +59,7 @@
     "gulp-zip": "^4.x.x",
     "require-dir": "0.x.x",
     "standard": "^10.0.2",
+    "style-loader": "^0.23.1",
     "ts-loader": "^4.x.x",
     "ts-node": "^7.0.1",
     "tslint": "^5.x.x",

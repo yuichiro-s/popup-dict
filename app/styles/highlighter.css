@@ -9,3 +9,27 @@ span.vocab-highlighted[data-state='marked'] {
 span.vocab-highlighted:hover {
   filter: contrast(70%) brightness(130%);
 }
+
+div.dictionary-entry {
+  text-align: left;
+}
+
+span.dictionary-entry-lemma {
+  font-size: medium;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+span.dictionary-entry-def {
+  font-size: small;
+  background-color: #eee;
+  margin-left: 3px;
+}
+
+span.dictionary-entry-expand {
+  margin-left: 3px;
+}
+
+span.dictionary-entry-expand:hover {
+  text-decoration: underline;
+}

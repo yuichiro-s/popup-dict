@@ -4,8 +4,10 @@ import { tokenize, Token } from './tokenizer';
 import { sendCommand } from './command';
 import { Language, CHINESE } from './languages';
 import { getLanguage } from './language';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/dist/themes/light-border.css';
 import tippy from 'tippy.js';
-import { DictionaryItem } from './dictionary';
+import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
 
 const PUNCTUATIONS = [
   '\n',
@@ -38,19 +40,6 @@ function mouseLeaveListener(event: MouseEvent) {
   currentSpanNode = null;
 }
 
-function makeToolTip(item: DictionaryItem) {
-  let items = [];
-  for (let i = 0; i < Math.min(item.defs!.length, 5); i++) {
-    let l = item.lemmas![i];
-    let d = item.defs![i].join('; ');
-    if (d.length > 100) {
-      d = d.slice(0, 100) + ' ...';
-    }
-    items.push(`<p style="text-align: left"><b>${l}</b>: ${d}</p>`);
-  }
-  return items.join('<hr>');
-}
-
 function makeHighlightSpan(span: Span, text: string) {
   let spanNode = document.createElement('span');
   setSpanClass(spanNode, span.entry.state);
@@ -60,15 +49,17 @@ function makeHighlightSpan(span: Span, text: string) {
   spanNode.textContent = text;
   let toolTip;
   if (span.dictEntry && span.dictEntry.defs && span.dictEntry.lemmas) {
-    toolTip = makeToolTip(span.dictEntry);
+    toolTip = createToolTip(span.dictEntry);
   } else {
     toolTip = span.entry.key;
   }
   tippy(spanNode, {
+    theme: 'light-border',
     content: toolTip,
     allowHTML: true,
     delay: [0, 0],
     duration: [0, 0],
+    interactive: true,
   });
   return spanNode;
 }
@@ -153,7 +144,7 @@ function enumerateTextNodes(root: Element) {
     }
   }
   function dfs(element: Element) {
-    if (!element.classList.contains('tippy-popper')) {
+    if (!element.classList.contains(CLASS_POPUP_DICTIONARY)) {
       // exclude content of popup
       for (let i = 0; i < element.children.length; i++) {
         dfs(element.children[i]);
@@ -367,6 +358,18 @@ let scrollListener = (event: Event) => {
   }, 150);
 };
 
+function insideTooltip(originalElement: Element) {
+  // recursively check if the node is inside the tooltip
+  let element: Element | null = originalElement;
+  while (element) {
+    if (element.classList.contains(CLASS_POPUP_DICTIONARY)) {
+      return true;
+    }
+    element = element.parentElement;
+  }
+  return false;
+}
+
 let observer = new MutationObserver(async (records: MutationRecord[]) => {
   // enumerate all newly added nodes
   let addedNodes = new Set();
@@ -378,12 +381,10 @@ let observer = new MutationObserver(async (records: MutationRecord[]) => {
     });
   }
 
-  if (addedNodes.size > 0) {
-    // run highlighter on the newly added nodes
-    addedNodes.forEach(node => {
-      if (!node.classList.contains(HIGHLIGHTED_CLASS)) {
-        highlight(node);
-      }
-    });
-  }
+  // run highlighter on the newly added nodes
+  addedNodes.forEach(element => {
+    if (!element.classList.contains(HIGHLIGHTED_CLASS) && !insideTooltip(element)) {
+      highlight(element);
+    }
+  });
 });

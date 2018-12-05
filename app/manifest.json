@@ -35,8 +35,7 @@
         "styles/highlighter.css"
       ],
       "js": [
-        "scripts/content.js",
-        "scripts/tippy.all.min.js"
+        "scripts/content.js"
       ],
       "run_at": "document_end",
       "all_frames": false

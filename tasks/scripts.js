@@ -21,7 +21,6 @@ gulp.task('scripts', (cb) => {
     'app/scripts/content.ts',
     'app/scripts/popup.ts',
     'app/scripts/options.ts',
-    'app/scripts/tippy.all.min.js',
   ])
     .pipe(plumber({
       // Webpack will log the errors
@@ -53,7 +52,7 @@ gulp.task('scripts', (cb) => {
             },
             {
               test: /\.css$/,
-              loader: 'css-loader',
+              loader: [ 'style-loader', 'css-loader' ],
             },
           ]
         },
