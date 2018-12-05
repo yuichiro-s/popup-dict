@@ -12,6 +12,7 @@ span.vocab-highlighted:hover {
 
 div.dictionary-entry {
   text-align: left;
+  font-family: sans-serif;
 }
 
 span.dictionary-entry-lemma {

@@ -9,7 +9,7 @@ export type Command =
   { type: 'get-tab' } |
 
   { type: 'search', lang: Language, key: string[] } |
-  { type: 'search-all-batch', lang: Language, lemmasBatch: string[][], lookUpDictionary: boolean } |
+  { type: 'search-all-batch', lang: Language, lemmasBatch: string[][] } |
 
   { type: 'update-entry', entry: Entry } |
   { type: 'clear-entries' } |

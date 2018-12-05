@@ -30,13 +30,34 @@ const TAG_LIST = [
 let currentSpanNode: HTMLElement | null = null;
 
 function mouseEnterListener(event: MouseEvent) {
-  let x = event.clientX;
-  let y = event.clientY;
-  let element = document.elementFromPoint(x, y);
-  currentSpanNode = <HTMLElement>element;
+  let element = <HTMLElement>event.target;
+  currentSpanNode = element;
+  tippy.hideAllPoppers();
+
+  // look up dictionary
+  let key = element.dataset.key!;
+  let lang = getLanguage();
+  sendCommand({
+    type: 'lookup-dictionary',
+    lang,
+    keys: [key]
+  }).then(dictEntries => {
+    let dictEntry = dictEntries[0];
+    if (dictEntry && dictEntry.defs && dictEntry.lemmas) {
+      // show tooltip
+      let toolTip = createToolTip(dictEntry);
+      tippy.one(element, {
+        theme: 'light-border',
+        content: toolTip,
+        allowHTML: true,
+        delay: [0, 0],
+        duration: [0, 0],
+      }).show();
+    }
+  });
 }
 
-function mouseLeaveListener(event: MouseEvent) {
+function mouseLeaveListener() {
   currentSpanNode = null;
 }
 
@@ -47,20 +68,6 @@ function makeHighlightSpan(span: Span, text: string) {
   spanNode.addEventListener('mouseleave', mouseLeaveListener);
   spanNode.dataset.key = span.key.join(' ');
   spanNode.textContent = text;
-  let toolTip;
-  if (span.dictEntry && span.dictEntry.defs && span.dictEntry.lemmas) {
-    toolTip = createToolTip(span.dictEntry);
-  } else {
-    toolTip = span.entry.key;
-  }
-  tippy(spanNode, {
-    theme: 'light-border',
-    content: toolTip,
-    allowHTML: true,
-    delay: [0, 0],
-    duration: [0, 0],
-    interactive: true,
-  });
   return spanNode;
 }
 
@@ -168,7 +175,6 @@ async function highlight(root?: Element) {
     type: 'search-all-batch',
     lang,
     lemmasBatch,
-    lookUpDictionary: true,
   });
 
   let modification = [];

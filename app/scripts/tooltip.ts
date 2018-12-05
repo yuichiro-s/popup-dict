@@ -38,6 +38,9 @@ export function createToolTip(item: DictionaryItem) {
                 let expandButton = document.createElement('span');
                 expandButton.innerHTML = '[+]';
                 expandButton.classList.add('dictionary-entry-expand');
+                // TODO: currently this button cannot be pressed because the
+                // tooltip gets hidden when as soon as another highlight gets
+                // selected
                 expandButton.addEventListener('click', () => {
                     // fully expand
                     entryDiv.innerHTML = '';

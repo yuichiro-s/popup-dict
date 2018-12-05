@@ -17,18 +17,17 @@ export type Span = {
   end: number,
   key: string[],
   entry: Entry,
-  dictEntry?: DictionaryItem;
 };
 
-export async function searchAllBatch(lang: string, lemmasBatch: string[][], withDefinitions: boolean) {
+export async function searchAllBatch(lang: string, lemmasBatch: string[][]) {
   let results = [];
   for (let lemmas of lemmasBatch) {
-    results.push(await searchAll(lang, lemmas, withDefinitions));
+    results.push(await searchAll(lang, lemmas));
   }
   return results;
 }
 
-async function searchAll(lang: string, lemmas: string[], withDefinitions: boolean) {
+async function searchAll(lang: string, lemmas: string[]) {
   let trie = await tries.get(lang);
   let spans: Span[] = [];
   let keys = [];
@@ -70,10 +69,6 @@ async function searchAll(lang: string, lemmas: string[], withDefinitions: boolea
         key: key.key,
         entry,
       };
-      if (withDefinitions) {
-        let dictEntry = (await lookUpDictionary([key.key.join(' ')], lang))[0];
-        span.dictEntry = dictEntry;
-      }
       spans.push(span);
     }
   }

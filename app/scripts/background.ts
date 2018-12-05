@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(
     } else if (request.type === 'search') {
       search(request.lang, request.key).then(sendResponse);
     } else if (request.type === 'search-all-batch') {
-      searchAllBatch(request.lang, request.lemmasBatch, request.lookUpDictionary).then(sendResponse);
+      searchAllBatch(request.lang, request.lemmasBatch).then(sendResponse);
 
     } else if (request.type === 'update-entry') {
       updateEntry(request.entry).then(sendResponse);
