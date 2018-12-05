@@ -1,6 +1,6 @@
-import sys
 import json
 import re
+import sys
 from collections import defaultdict
 
 RE1 = re.compile(r'\(.*\)')
@@ -8,6 +8,25 @@ RE2 = re.compile(r'\[.*\]')
 RE3 = re.compile(r'{.*}')
 RE4 = re.compile(r'\<.*\>')
 RE5 = re.compile(r' +')
+
+NG_PATTERNS = [
+    '.',
+    ',',
+    '/',
+    '!',
+]
+
+DROPPED_PRONOUNS = [
+    'etw.',
+    'sich',
+    'jdn.',
+    'jdm.',
+    'jdn./etw.',
+    'jds.',
+    'jd.',
+    'jd./etw.',
+    'jdm./etw.',
+]
 
 
 def main():
@@ -26,12 +45,25 @@ def main():
             key = RE3.sub('', key)
             key = RE4.sub('', key)
             key = RE5.sub(' ', key)
-            if key.find('/') > 0:
-                key = key[:key.find('/')]
             key = key.strip()
 
-            if key.startswith('-') or ('.' in key) or (',' in key):
+            if len(key) == 0:
                 continue
+
+            # drop first pronouns
+            if key.split()[0] in DROPPED_PRONOUNS:
+                key = ' '.join(key.split()[1:])
+
+            if key.startswith('-'):
+                continue
+            else:
+                ng = False
+                for pattern in NG_PATTERNS:
+                    if pattern in key:
+                        ng = True
+                        break
+                if ng:
+                    continue
 
             dictcc[key].append((lemma, definition))
 
