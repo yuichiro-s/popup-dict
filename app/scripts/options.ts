@@ -1,5 +1,5 @@
 import { sendCommand } from './command';
-import { SUPPORTED_LANGUAGES, Language, GERMAN, ENGLISH, CHINESE } from './languages';
+import { SUPPORTED_LANGUAGES, Language, GERMAN, ENGLISH, CHINESE, CHINESE_HANZI } from './languages';
 import { Entry, State } from './entry';
 import { DictionaryItem } from './dictionary';
 
@@ -58,13 +58,18 @@ const DICTIONARIES = new Map<string, Map<string, string>>([
     ['Weblio日中中日辞典', 'https://cjjc.weblio.jp/content/{}'],
     ['句酷', 'http://www.jukuu.com/search.php?q={}'],
   ])],
+  [CHINESE_HANZI, new Map([
+    ['Weblio日中中日辞典', 'https://cjjc.weblio.jp/content/{}'],
+  ])],
 ]);
 
 function mouseClickListener(evt: MouseEvent) {
   let word = (<HTMLElement>evt.target).textContent!;
-  let selector = <HTMLSelectElement>document.getElementById('dictionarySelector')!;
-  let url = selector.value!.replace('{}', word);
-  window.open(url);
+  let selector = <HTMLSelectElement>document.getElementById('dictionarySelector');
+  if (selector) {
+    let url = selector.value!.replace('{}', word);
+    window.open(url);
+  }
 }
 
 function splitIntoTags(sentence: string, marked: boolean, lang: Language) {
@@ -221,13 +226,15 @@ function sortByFreqCommand() {
 function setUpDictionarySelector(lang: Language) {
   let selector = document.getElementById('dictionarySelector')!;
   selector.innerHTML = '';
-  let dictionaries = DICTIONARIES.get(lang)!;
-  dictionaries.forEach((url, name) => {
-    let element = document.createElement('option');
-    element.setAttribute('value', url);
-    element.innerHTML = name;
-    selector.appendChild(element);
-  });
+  let dictionaries = DICTIONARIES.get(lang);
+  if (dictionaries) {
+    dictionaries.forEach((url, name) => {
+      let element = document.createElement('option');
+      element.setAttribute('value', url);
+      element.innerHTML = name;
+      selector.appendChild(element);
+    });
+  }
 }
 
 function initLanguageSelector() {
