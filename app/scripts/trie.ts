@@ -1,6 +1,5 @@
 import { Language } from './languages';
 import { lookUpEntries, Entry } from './entry';
-import { lookUpDictionary, DictionaryItem } from './dictionary';
 import { CachedMap } from './cachedmap';
 
 type TrieNode = {

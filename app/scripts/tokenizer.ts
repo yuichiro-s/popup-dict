@@ -1,4 +1,4 @@
-import { Language, CHINESE } from './languages';
+import { Language, CHINESE, CHINESE_HANZI } from './languages';
 
 const DELIMITERS = [
     // white spaces
@@ -61,13 +61,13 @@ export function tokenize(text: string, lang: Language): Token[] {
         }
     }
     let toks;
-    if (lang === CHINESE) {
+    if (lang === CHINESE || lang === CHINESE_HANZI) {
         toks = text.split('');
     } else {
         toks = split(text);
     }
     for (const token of toks) {
-        if (lang === CHINESE || token !== ' ') {
+        if (lang === CHINESE || lang === CHINESE_HANZI || token !== ' ') {
             add(token);
         }
         cursor += token.length;

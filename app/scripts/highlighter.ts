@@ -2,7 +2,7 @@ import { State } from './entry';
 import { Span } from './trie';
 import { tokenize, Token } from './tokenizer';
 import { sendCommand } from './command';
-import { Language, CHINESE } from './languages';
+import { Language, CHINESE, CHINESE_HANZI } from './languages';
 import { getLanguage } from './language';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/themes/light-border.css';
@@ -129,7 +129,7 @@ function unhighlight(root?: Element) {
   root.normalize();
 }
 
-function enumerateTextNodes(root: Element) {
+function enumerateTextNodes(root: Element, lang: Language) {
   let nodes: Node[] = [];
   function process(element: Element) {
     let rect = element.getBoundingClientRect();
@@ -142,8 +142,11 @@ function enumerateTextNodes(root: Element) {
           if (child.nodeType === 3) {
             // text node
             let text = child.textContent;
-            if (text && text.trim().length > 1) {
-              nodes.push(child);
+            if (text) {
+              if (lang === CHINESE_HANZI || text.trim().length > 1) {
+                // allow single character when the language is ChineseHanzi
+                nodes.push(child);
+              }
             }
           }
         }
@@ -167,7 +170,7 @@ async function highlight(root?: Element) {
   let lang: Language = getLanguage();
 
   if (root === undefined) root = document.body;
-  let textNodes = enumerateTextNodes(root);
+  let textNodes = enumerateTextNodes(root, lang);
   let { tokensBatch, lemmasBatch } = await lemmatizeBatch(lang, textNodes);
 
   // TODO: allow for multilple lemmas
@@ -257,7 +260,7 @@ export async function toggle(lang: Language, newState: State) {
           let form = node.textContent!;
           let text = node.parentElement.textContent;
           let pattern;
-          if (lang === CHINESE) {
+          if (lang === CHINESE || lang === CHINESE_HANZI) {
             pattern = new RegExp(form);
           } else {
             pattern = new RegExp('\\b' + form + '\\b');
