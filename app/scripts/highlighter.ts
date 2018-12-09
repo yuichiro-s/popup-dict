@@ -46,13 +46,16 @@ function mouseEnterListener(event: MouseEvent) {
     if (dictEntry && dictEntry.defs && dictEntry.lemmas) {
       // show tooltip
       let toolTip = createToolTip(dictEntry);
-      tippy.one(element, {
+      let tip = tippy.one(element, {
         theme: 'light-border',
         content: toolTip,
         allowHTML: true,
         delay: [0, 0],
         duration: [0, 0],
-      }).show();
+      });
+      if (tip) {
+        tip.show();
+      }
     }
   });
 }

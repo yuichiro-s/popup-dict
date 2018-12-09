@@ -4,6 +4,8 @@ import { all } from 'franc';
 
 let currentLanguage: Language | null = null;
 
+const LANGUAGE_SPECIFIER_ID = 'highlighter-lang-specifier';
+
 let map = new Map<string, string>([
     ['deu', GERMAN],
     ['eng', ENGLISH],
@@ -40,15 +42,19 @@ function guessLanguage(): Language {
 }
 
 export function setLanguage(lang: Language) {
+    console.log('Language set to: ' + lang);
     currentLanguage = lang;
-    // re-highlight
-    disable();
-    enable();
 }
 
 export function getLanguage(): Language {
     if (currentLanguage === null) {
-        currentLanguage = guessLanguage();
+        let e = document.getElementById(LANGUAGE_SPECIFIER_ID);
+        if (e && e.dataset && e.dataset.lang) {
+            console.log(`Language specifier found: ${e.dataset.lang}`);
+            currentLanguage = e.dataset.lang;
+        } else {
+            currentLanguage = guessLanguage();
+        }
     }
     return currentLanguage!;
 }

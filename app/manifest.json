@@ -31,7 +31,6 @@
         "https://*/*"
       ],
       "css": [
-        "styles/contentscript.css",
         "styles/highlighter.css"
       ],
       "js": [
