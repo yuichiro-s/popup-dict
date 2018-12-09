@@ -24,7 +24,7 @@ export type Entry = {
 };
 
 class Database extends Dexie {
-  vocabulary: Dexie.Table<Entry, number>;
+  vocabulary: Dexie.Table<Entry, [Language, string]>;
   constructor() {
     super('database');
     this.version(1).stores({

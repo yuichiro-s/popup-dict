@@ -2,6 +2,8 @@ import { Language } from './languages';
 import { lookUpEntries, Entry } from './entry';
 import { CachedMap } from './cachedmap';
 
+import Dexie from 'dexie';
+
 type TrieNode = {
   n: { [c: string]: TrieNode }; // NEXT
   e: boolean; // EXISTS
@@ -94,14 +96,44 @@ export async function search(lang: string, key: string[]) {
   }
 }
 
-async function loadTrie(lang: Language) {
-  let path = chrome.runtime.getURL(`data/${lang}/trie.json`);
-  console.log('Loading trie for ' + lang + ' ...');
-  let response = await fetch(path);
-  let res = await response.text();
-  let root = JSON.parse(res);
-  console.log('Loaded.');
-  return root;
+interface DatabaseEntry {
+  lang: Language;
+  trie: TrieNode;
+}
+
+class Database extends Dexie {
+  tries: Dexie.Table<DatabaseEntry, Language>;
+  constructor() {
+    super('tries');
+    this.version(1).stores({
+      tries: 'lang'
+    });
+  }
+}
+let db = new Database();
+
+function loadTrie(lang: Language) {
+  return new Promise((resolve, reject) => {
+    console.log('Loading trie for ' + lang + ' ...');
+    db.tries.get(lang).then(result => {
+      if (result === undefined) {
+        //reject(`Trie for ${lang} not found.`);
+        let path = chrome.runtime.getURL(`data/${lang}/trie.json`);
+        fetch(path).then(response => {
+          response.text().then(res => {
+            let trie = JSON.parse(res)!;
+            db.tries.put({ lang, trie }).then(() => {
+              console.log(`Loaded trie from file for ${lang}.`);
+              resolve(trie);
+            });
+          });
+        });
+      } else {
+        console.log(`Loaded trie for ${lang}.`);
+        resolve(result.trie);
+      }
+    }).catch(reject);
+  });
 }
 
 let tries = new CachedMap<string, TrieNode>(loadTrie);
