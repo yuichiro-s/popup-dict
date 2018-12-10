@@ -1,5 +1,4 @@
 import { Language, GERMAN, CHINESE, ENGLISH } from './languages';
-import { disable, enable } from './highlighter';
 import { all } from 'franc';
 
 let currentLanguage: Language | null = null;
