@@ -31,5 +31,24 @@ export function getPackages(): Promise<{ [pkgId: string]: Settings }> {
 }
 
 export async function removePackage(pkgId: PackageID) {
+    // TODO: implement this
     throw new Error('Not implemented.');
+}
+
+export function getLastPackageID() {
+    return new Promise(resolve => {
+        chrome.storage.local.get('lastPackageID', result => {
+            if (result && result.lastPackageID) {
+                resolve(result.lastPackageID);
+            } else {
+                resolve(undefined);
+            }
+        });
+    });
+}
+
+export function setLastPackage(pkgId: PackageID) {
+    return new Promise(resolve => {
+        chrome.storage.local.set({ 'lastPackageID': pkgId }, resolve);
+    });
 }

@@ -30,7 +30,9 @@ export type Command =
     { type: 'add-package', settings: Settings } |
 
     { type: 'get-packages' } |
-    { type: 'get-package' , pkgId: PackageID };
+    { type: 'get-package' , pkgId: PackageID } |
+    { type: 'set-last-package', pkgId: PackageID } |
+    { type: 'get-last-package-id' };
 
 export function sendCommand(command: Command): Promise<any> {
     return new Promise((resolve) => {

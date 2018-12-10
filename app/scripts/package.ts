@@ -62,6 +62,7 @@ export async function setPackageID(pkgId: PackageID) {
 
 export async function getPackage(): Promise<Settings | null> {
     if (currentPackage === null) {
+        // determine current package
         let e = document.getElementById(PACKAGE_SPECIFIER_ID);
         if (e && e.dataset && e.dataset.pkg) {
             console.log(`Package specifier found: ${e.dataset.pkg}`);

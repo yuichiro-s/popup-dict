@@ -5,7 +5,7 @@ import { lemmatize, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
-import { getPackages, addPackage, getPackage } from './packages';
+import { getPackages, addPackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
  * Handlers of commands from content scripts.
@@ -57,6 +57,10 @@ chrome.runtime.onMessage.addListener(
             getPackages().then(sendResponse);
         } else if (request.type === 'get-package') {
             getPackage(request.pkgId).then(sendResponse);
+        } else if (request.type === 'set-last-package') {
+            setLastPackage(request.pkgId).then(sendResponse);
+        } else if (request.type === 'get-last-package-id') {
+            getLastPackageID().then(sendResponse);
         }
 
         return true;

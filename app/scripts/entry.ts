@@ -139,7 +139,6 @@ export interface MarkedEntryFields {
 }
 
 export async function importUserData(data: string) {
-    // TODO: implement this
     let { known, marked } = JSON.parse(data);
     let entries: Entry[] = [];
 

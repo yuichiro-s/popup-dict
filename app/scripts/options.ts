@@ -219,6 +219,7 @@ function setUpDictionarySelector(pkg: Settings) {
 async function initPackageSelector() {
     let selector = document.getElementById('packageSelector')!;
     let packages = await sendCommand({ type: 'get-packages' });
+    let lastPkgId = await sendCommand({ type: 'get-last-package-id' });
     for (let pkgId in packages) {
         let pkg: Settings = packages[pkgId];
         if (pkg) {
@@ -226,6 +227,9 @@ async function initPackageSelector() {
             element.setAttribute('value', pkg.id);
             element.innerHTML = pkg.name;
             selector.appendChild(element);
+            if (lastPkgId && pkg.id === lastPkgId) {
+                element.setAttribute('selected', 'selected');
+            }
         }
     }
     selector.addEventListener('change', async () => {
@@ -233,6 +237,7 @@ async function initPackageSelector() {
         if (pkg) {
             setUpDictionarySelector(pkg);
             resetTable(true, pkg);
+            sendCommand({ type: 'set-last-package', pkgId: pkg.id });
         }
     });
 }
