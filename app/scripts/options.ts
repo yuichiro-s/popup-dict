@@ -42,6 +42,17 @@ function handleFiles(evt: Event) {
     }
 }
 
+async function importPackageCommand(event: Event) {
+    let files = (<HTMLInputElement>event.target).files;
+    if (files) {
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            console.log(typeof file);
+            console.log(file);
+        }
+    }
+}
+
 const DICTIONARIES = new Map<string, Map<string, string>>([
     [GERMAN, new Map([
         ['Linguee', 'https://www.linguee.de/deutsch-englisch/search?source=auto&query={}'],
@@ -261,6 +272,7 @@ async function init() {
     setUpDictionarySelector(getLanguage());
     document.getElementById('fileElem')!.addEventListener('change', handleFiles);
     document.getElementById('exportButton')!.addEventListener('click', exportCommand);
+    document.getElementById('packageSelector')!.addEventListener('change', importPackageCommand);
     document.getElementById('importButton')!.addEventListener('click', importCommand);
     document.getElementById('clearButton')!.addEventListener('click', clearCommand);
     document.getElementById('sortByDateButton')!.addEventListener('click', sortByDateCommand);
