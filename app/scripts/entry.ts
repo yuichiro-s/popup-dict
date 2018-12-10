@@ -1,4 +1,4 @@
-import { PackageID } from './packages';
+import { PackageID, getPackages } from './packages';
 import Dexie from 'dexie';
 
 export enum State {
@@ -7,21 +7,34 @@ export enum State {
     Known,
 }
 
-export type Entry = {
-    pkgId: PackageID,
-    key: string,
-    state: State,
-    date?: number,
-    source?: {
-        url: string,
-        title: string,
-    },
-    context?: {
-        begin: number,
-        end: number,
-        text: string,
-    },
-};
+interface EntryKey {
+    pkgId: PackageID;
+    key: string;
+}
+
+export interface UnknownEntry extends EntryKey {
+    state: State.Unknown;
+}
+
+export interface MarkedEntry extends EntryKey {
+    state: State.Marked;
+    date: number;
+    source: {
+        url: string;
+        title: string;
+    };
+    context: {
+        begin: number;
+        end: number;
+        text: string;
+    };
+}
+
+export interface KnownEntry extends EntryKey {
+    state: State.Known;
+}
+
+export type Entry = UnknownEntry | MarkedEntry | KnownEntry;
 
 class Database extends Dexie {
     vocabulary: Dexie.Table<Entry, [PackageID, string]>;
@@ -102,7 +115,7 @@ export function importEntries(pkgId: PackageID, data: string) {
     let keys = JSON.parse(data);
     let entries = [];
     for (let key of keys) {
-        let entry = {
+        let entry: UnknownEntry = {
             pkgId,
             key,
             state: State.Unknown,
@@ -112,19 +125,83 @@ export function importEntries(pkgId: PackageID, data: string) {
     return putEntries(entries);
 }
 
-export function importUserData(data: string) {
+export interface MarkedEntryFields {
+    date: number;
+    source: {
+        url: string,
+        title: string,
+    };
+    context: {
+        begin: number,
+        end: number,
+        text: string,
+    };
+}
+
+export async function importUserData(data: string) {
     // TODO: implement this
-    let entries = JSON.parse(data);
-    for (let entry of entries) {
-        if (entry.state === undefined) {
-            entry.state = State.Unknown;
+    let { known, marked } = JSON.parse(data);
+    let entries: Entry[] = [];
+
+    let packages = await getPackages();
+    for (let pkgId in known) {
+        if (pkgId in packages) {
+            for (let key of known[pkgId]) {
+                let entry: KnownEntry = {
+                    pkgId,
+                    key,
+                    state: State.Known,
+                };
+                entries.push(entry);
+            }
+        }
+    }
+    for (let pkgId in marked) {
+        if (pkgId in packages) {
+            for (let obj of marked[pkgId]) {
+                let entry: MarkedEntry = {
+                    pkgId,
+                    key: obj.key,
+                    state: State.Marked,
+                    date: obj.date,
+                    context: obj.context,
+                    source: obj.source,
+                };
+                entries.push(entry);
+            }
         }
     }
     return putEntries(entries);
 }
 
 export async function exportUserData() {
-    // TODO: implement this
     let entries = await listEntries();
-    return JSON.stringify(entries);
+
+    let known: { [pkgId: string]: string[] } = {};
+    let marked: { [pkgId: string]: MarkedEntryFields[] } = {};
+    for (let entry of entries) {
+        if (entry.state === State.Known) {
+            let key = entry.key;
+            if (entry.pkgId in known) {
+                known[entry.pkgId].push(key);
+            } else {
+                known[entry.pkgId] = [key];
+            }
+        } else if (entry.state === State.Marked) {
+            let serializedEntry = {
+                key: entry.key,
+                date: entry.date,
+                source: entry.source,
+                context: entry.context,
+            };
+            if (entry.pkgId in marked) {
+                marked[entry.pkgId].push(serializedEntry);
+            } else {
+                marked[entry.pkgId] = [serializedEntry];
+            }
+        }
+    }
+
+    let obj = { known, marked };
+    return JSON.stringify(obj);
 }

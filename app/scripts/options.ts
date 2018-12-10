@@ -1,7 +1,7 @@
 import { sendCommand } from './command';
 import { PackageID } from './packages';
 import { importPackage, loadFile } from './importer';
-import { Entry, State } from './entry';
+import { Entry, State, MarkedEntry, KnownEntry } from './entry';
 import { DictionaryItem } from './dictionary';
 import { Settings } from './settings';
 
@@ -67,7 +67,7 @@ function splitIntoTags(sentence: string, marked: boolean, settings: Settings) {
     return tags;
 }
 
-function createRows(entry: Entry, item: DictionaryItem | undefined, withDef: boolean, settings: Settings): HTMLTableRowElement[] {
+function createRows(entry: MarkedEntry, item: DictionaryItem | undefined, withDef: boolean, settings: Settings): HTMLTableRowElement[] {
     let row = document.createElement('tr');
     /*
     let sourceStr = '';
@@ -78,39 +78,39 @@ function createRows(entry: Entry, item: DictionaryItem | undefined, withDef: boo
     let rowspan = withDef ? ' rowspan="2"' : '';
     row.innerHTML = `
       <td class="cell" ${rowspan}><button data-key="${entry.key}">OK</button></td>
-      <td class="cell" ${rowspan}>${entry.date ? new Date(entry.date).toLocaleDateString() : ''}</td>
+      <td class="cell" ${rowspan}>${new Date(entry.date).toLocaleDateString()}</td>
       <td class="cell" >${item && item.freq || 0}</td>
       <td class="cell" >${entry.key}</td>
       <td class="cell"></td>
     `;
     let context = entry.context;
-    if (context) {
-        let contextRow = row.children[4];
-        let beforeStr = context.text.slice(0, context.begin);
-        let afterStr = context.text.slice(context.end);
-        const MAX_LENGTH = 100;
-        if (beforeStr.length >= MAX_LENGTH) {
-            beforeStr = '... ' + beforeStr.slice(beforeStr.length - MAX_LENGTH);
-        }
-        if (afterStr.length >= MAX_LENGTH) {
-            afterStr = afterStr.slice(0, MAX_LENGTH) + ' ...';
-        }
-        let before = splitIntoTags(beforeStr, false, settings);
-        let highlight = splitIntoTags(context.text.slice(context.begin, context.end), true, settings);
-        let after = splitIntoTags(afterStr, false, settings);
-        let tags = [];
-        tags.push(...before);
-        tags.push(...highlight);
-        tags.push(...after);
-        for (let tag of tags) {
-            contextRow.appendChild(tag);
-        }
+    let contextRow = row.children[4];
+    let beforeStr = context.text.slice(0, context.begin);
+    let afterStr = context.text.slice(context.end);
+    const MAX_LENGTH = 100;
+    if (beforeStr.length >= MAX_LENGTH) {
+        beforeStr = '... ' + beforeStr.slice(beforeStr.length - MAX_LENGTH);
+    }
+    if (afterStr.length >= MAX_LENGTH) {
+        afterStr = afterStr.slice(0, MAX_LENGTH) + ' ...';
+    }
+    let before = splitIntoTags(beforeStr, false, settings);
+    let highlight = splitIntoTags(context.text.slice(context.begin, context.end), true, settings);
+    let after = splitIntoTags(afterStr, false, settings);
+    let tags = [];
+    tags.push(...before);
+    tags.push(...highlight);
+    tags.push(...after);
+    for (let tag of tags) {
+        contextRow.appendChild(tag);
     }
     row.getElementsByTagName('button')[0].addEventListener('click', () => {
-        entry.state = State.Known;
-        delete entry.source;
-        delete entry.context;
-        sendCommand({ type: 'update-entry', entry });
+        let newEntry: KnownEntry = {
+            key: entry.key,
+            pkgId: entry.pkgId,
+            state: State.Known,
+        };
+        sendCommand({ type: 'update-entry', entry: newEntry });
         row.style.backgroundColor = 'lightgray';
     });
 
@@ -139,7 +139,7 @@ function withDefinition() {
 }
 
 async function getEntriesToShow(pkgId: PackageID) {
-    let entries: Entry[] = await sendCommand({ type: 'list-entries', pkgId, state: State.Marked });
+    let entries: MarkedEntry[] = await sendCommand({ type: 'list-entries', pkgId, state: State.Marked });
     let entryToItem = new Map<Entry, DictionaryItem>();
     let items = await sendCommand({
         type: 'lookup-dictionary',
