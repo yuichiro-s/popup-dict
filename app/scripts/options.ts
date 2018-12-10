@@ -1,10 +1,12 @@
 import { sendCommand } from './command';
-import { SUPPORTED_LANGUAGES, Language, GERMAN, ENGLISH, CHINESE, CHINESE_HANZI } from './languages';
+import { PackageID } from './packages';
+import { importPackage, loadFile } from './importer';
 import { Entry, State } from './entry';
 import { DictionaryItem } from './dictionary';
+import { Settings } from './settings';
 
 async function exportCommand() {
-    const json = await sendCommand({ type: 'export-entries' });
+    const json = await sendCommand({ type: 'export-user-data' });
     let blob = new Blob([json], { type: 'text/json' });
     let e = document.createEvent('MouseEvents');
     let a = document.createElement('a');
@@ -20,60 +22,24 @@ async function importCommand() {
     fileElem.click();
 }
 
-async function clearCommand() {
-    sendCommand({ type: 'clear-entries' }).then(() => {
-        alert('Claered all entries.');
-    });
-}
-
-function handleFiles(evt: Event) {
+async function handleFiles(evt: Event) {
     let target = <HTMLInputElement>evt.target;
     let files = target.files!;
     if (files.length !== 0) {
         let file = files[0];
-        let reader = new FileReader();
-        reader.onload = (e) => {
-            sendCommand({ type: 'import-entries', data: (<any>e.target).result }).then(() => {
-                alert('Import completed.');
-                sortByFreqCommand();
-            });
-        };
-        reader.readAsText(file);
+        let data = await loadFile(file);
+        await sendCommand({ type: 'import-user-data', data });
+        alert('Import completed.');
+        sortByFreqCommand();
     }
 }
 
-async function importPackageCommand(event: Event) {
+function importPackageCommand(event: Event) {
     let files = (<HTMLInputElement>event.target).files;
     if (files) {
-        for (let i = 0; i < files.length; i++) {
-            let file = files[i];
-            console.log(typeof file);
-            console.log(file);
-        }
+        importPackage(files);
     }
 }
-
-const DICTIONARIES = new Map<string, Map<string, string>>([
-    [GERMAN, new Map([
-        ['Linguee', 'https://www.linguee.de/deutsch-englisch/search?source=auto&query={}'],
-        ['dict.cc', 'https://www.dict.cc/?s={}'],
-        ['Wiktionary (de)', 'https://de.wiktionary.org/wiki/{}'],
-        ['Wiktionary (en)', 'https://en.wiktionary.org/wiki/{}'],
-    ])],
-    [ENGLISH, new Map([
-        ['The Free Dictionary', 'https://www.thefreedictionary.com/{}'],
-        ['Wiktionary', 'https://en.wiktionary.org/wiki/{}'],
-        ['Dictionary.com', 'https://www.dictionary.com/browse/{}'],
-    ])],
-    [CHINESE, new Map([
-        ['Weblio日中中日辞典', 'https://cjjc.weblio.jp/content/{}'],
-        ['句酷', 'http://www.jukuu.com/search.php?q={}'],
-    ])],
-    [CHINESE_HANZI, new Map([
-        ['Weblio日中中日辞典', 'https://cjjc.weblio.jp/content/{}'],
-    ])],
-]);
-
 function mouseClickListener(evt: MouseEvent) {
     let word = (<HTMLElement>evt.target).textContent!;
     let selector = <HTMLSelectElement>document.getElementById('dictionarySelector');
@@ -83,7 +49,7 @@ function mouseClickListener(evt: MouseEvent) {
     }
 }
 
-function splitIntoTags(sentence: string, marked: boolean, lang: Language) {
+function splitIntoTags(sentence: string, marked: boolean, settings: Settings) {
     let tags = [];
     for (let word of sentence.split(' ')) {
         let tag = document.createElement('span');
@@ -93,7 +59,7 @@ function splitIntoTags(sentence: string, marked: boolean, lang: Language) {
         }
         tag.appendChild(document.createTextNode(word));
         tag.addEventListener('click', mouseClickListener);
-        if (lang !== CHINESE) {
+        if (settings.tokenizeByWhiteSpace) {
             tag.append(document.createTextNode(' ')); // trailing space
         }
         tags.push(tag);
@@ -101,7 +67,7 @@ function splitIntoTags(sentence: string, marked: boolean, lang: Language) {
     return tags;
 }
 
-function createRows(entry: Entry, item: DictionaryItem | undefined, withDef: boolean, lang: Language): HTMLTableRowElement[] {
+function createRows(entry: Entry, item: DictionaryItem | undefined, withDef: boolean, settings: Settings): HTMLTableRowElement[] {
     let row = document.createElement('tr');
     /*
     let sourceStr = '';
@@ -129,9 +95,9 @@ function createRows(entry: Entry, item: DictionaryItem | undefined, withDef: boo
         if (afterStr.length >= MAX_LENGTH) {
             afterStr = afterStr.slice(0, MAX_LENGTH) + ' ...';
         }
-        let before = splitIntoTags(beforeStr, false, lang);
-        let highlight = splitIntoTags(context.text.slice(context.begin, context.end), true, lang);
-        let after = splitIntoTags(afterStr, false, lang);
+        let before = splitIntoTags(beforeStr, false, settings);
+        let highlight = splitIntoTags(context.text.slice(context.begin, context.end), true, settings);
+        let after = splitIntoTags(afterStr, false, settings);
         let tags = [];
         tags.push(...before);
         tags.push(...highlight);
@@ -172,12 +138,12 @@ function withDefinition() {
     return element.checked;
 }
 
-async function getEntriesToShow(lang: Language) {
-    let entries: Entry[] = await sendCommand({ type: 'list-entries', lang, state: State.Marked });
+async function getEntriesToShow(pkgId: PackageID) {
+    let entries: Entry[] = await sendCommand({ type: 'list-entries', pkgId, state: State.Marked });
     let entryToItem = new Map<Entry, DictionaryItem>();
     let items = await sendCommand({
         type: 'lookup-dictionary',
-        lang,
+        pkgId,
         keys: entries.map(entry => entry.key),
     });
     for (let i = 0; i < items.length; i++) {
@@ -186,13 +152,12 @@ async function getEntriesToShow(lang: Language) {
     return { entries, entryToItem };
 }
 
-async function resetTable(sortByFreq: boolean) {
+async function resetTable(sortByFreq: boolean, pkg: Settings) {
     let table = document.getElementById('wordTable')!;
     table.innerHTML = '<p>Loading...</p>';
 
     let withDef = withDefinition();
-    let lang = getLanguage();
-    let { entries, entryToItem } = await getEntriesToShow(lang);
+    let { entries, entryToItem } = await getEntriesToShow(pkg.id);
 
     // sort
     function getFreq(entry: Entry) {
@@ -219,62 +184,80 @@ async function resetTable(sortByFreq: boolean) {
 
     for (let entry of entries) {
         let item = entryToItem.get(entry);
-        let rows = createRows(entry, item, withDef, lang);
+        let rows = createRows(entry, item, withDef, pkg);
         for (let row of rows) {
             table.appendChild(row);
         }
     }
 }
 
-function sortByDateCommand() {
-    resetTable(false);
+async function sortByDateCommand() {
+    let pkg = await getPackage();
+    if (pkg) {
+        resetTable(false, pkg);
+    }
 }
 
-function sortByFreqCommand() {
-    resetTable(true);
+async function sortByFreqCommand() {
+    let pkg = await getPackage();
+    if (pkg) {
+        resetTable(true, pkg);
+    }
 }
 
-function setUpDictionarySelector(lang: Language) {
+function setUpDictionarySelector(pkg: Settings) {
     let selector = document.getElementById('dictionarySelector')!;
     selector.innerHTML = '';
-    let dictionaries = DICTIONARIES.get(lang);
-    if (dictionaries) {
-        dictionaries.forEach((url, name) => {
-            let element = document.createElement('option');
-            element.setAttribute('value', url);
-            element.innerHTML = name;
-            selector.appendChild(element);
-        });
+    for (let dict of pkg.dictionaries) {
+        let element = document.createElement('option');
+        element.setAttribute('value', dict.pattern);
+        element.innerHTML = dict.name;
+        selector.appendChild(element);
     }
 }
 
-function initLanguageSelector() {
-    let selector = document.getElementById('languageSelector')!;
-    for (let lang of SUPPORTED_LANGUAGES) {
-        let element = document.createElement('option');
-        element.setAttribute('value', lang);
-        element.innerHTML = lang;
-        selector.appendChild(element);
+async function initPackageSelector() {
+    let selector = document.getElementById('packageSelector')!;
+    let packages = await sendCommand({ type: 'get-packages' });
+    for (let pkgId in packages) {
+        let pkg: Settings = packages[pkgId];
+        if (pkg) {
+            let element = document.createElement('option');
+            element.setAttribute('value', pkg.id);
+            element.innerHTML = pkg.name;
+            selector.appendChild(element);
+        }
     }
-    selector.addEventListener('change', () => {
-        setUpDictionarySelector(getLanguage());
-        sortByFreqCommand();
+    selector.addEventListener('change', async () => {
+        let pkg = await getPackage();
+        if (pkg) {
+            setUpDictionarySelector(pkg);
+            resetTable(true, pkg);
+        }
     });
 }
 
-function getLanguage() {
-    let selector = <HTMLSelectElement>document.getElementById('languageSelector')!;
-    return selector.value!;
+async function getPackage() {
+    let selector = <HTMLSelectElement>document.getElementById('packageSelector')!;
+    let pkgId = selector.value;
+    let packages = await sendCommand({ type: 'get-packages' });
+    if (packages) {
+        return packages[pkgId];
+    } else {
+        return null;
+    }
 }
 
 async function init() {
-    initLanguageSelector();
-    setUpDictionarySelector(getLanguage());
+    await initPackageSelector();
+    let pkg = await getPackage();
+    if (pkg) {
+        setUpDictionarySelector(pkg);
+    }
     document.getElementById('fileElem')!.addEventListener('change', handleFiles);
     document.getElementById('exportButton')!.addEventListener('click', exportCommand);
-    document.getElementById('packageSelector')!.addEventListener('change', importPackageCommand);
+    document.getElementById('importPackageButton')!.addEventListener('change', importPackageCommand);
     document.getElementById('importButton')!.addEventListener('click', importCommand);
-    document.getElementById('clearButton')!.addEventListener('click', clearCommand);
     document.getElementById('sortByDateButton')!.addEventListener('click', sortByDateCommand);
     document.getElementById('sortByFreqButton')!.addEventListener('click', sortByFreqCommand);
     document.getElementById('showDefinitionBox')!.addEventListener('click', sortByFreqCommand);

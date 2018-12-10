@@ -1,10 +1,11 @@
 import { createContextMenu } from './contextmenu';
 import { Command } from './command';
 import { enable, isEnabled, addBrowserAction } from './enabled';
-import { lemmatize } from './lemmatizer';
-import { lookUpDictionary } from './dictionary';
-import { search, searchAllBatch } from './trie';
-import { updateEntry, listEntries, clearEntries, importEntries, exportEntries } from './entry';
+import { lemmatize, importLemmatizer } from './lemmatizer';
+import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
+import { search, searchAllBatch, importTrie } from './trie';
+import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
+import { getPackages, addPackage, getPackage } from './packages';
 
 /**
  * Handlers of commands from content scripts.
@@ -15,29 +16,49 @@ chrome.runtime.onMessage.addListener(
             isEnabled().then(sendResponse);
 
         } else if (request.type === 'lemmatize') {
-            lemmatize(request.tokens, request.lang).then(sendResponse);
+            lemmatize(request.tokens, request.pkgId).then(sendResponse);
         } else if (request.type === 'lookup-dictionary') {
-            lookUpDictionary(request.keys, request.lang).then(sendResponse);
+            lookUpDictionary(request.keys, request.pkgId).then(sendResponse);
         } else if (request.type === 'get-tab') {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 sendResponse(tabs[0]);
             });
         } else if (request.type === 'search') {
-            search(request.lang, request.key).then(sendResponse);
+            search(request.pkgId, request.key).then(sendResponse);
         } else if (request.type === 'search-all-batch') {
-            searchAllBatch(request.lang, request.lemmasBatch).then(sendResponse);
+            searchAllBatch(request.pkgId, request.lemmasBatch).then(sendResponse);
 
         } else if (request.type === 'update-entry') {
             updateEntry(request.entry).then(sendResponse);
         } else if (request.type === 'clear-entries') {
             clearEntries().then(sendResponse);
         } else if (request.type === 'list-entries') {
-            listEntries(request.lang, request.state).then(sendResponse);
+            listEntries(request.pkgId, request.state).then(sendResponse);
+        } else if (request.type === 'import-user-data') {
+            importUserData(request.data).then(sendResponse);
+        } else if (request.type === 'export-user-data') {
+            exportUserData().then(sendResponse);
+
+        } else if (request.type === 'import-trie') {
+            importTrie(request.pkgId, request.data).then(sendResponse);
+        } else if (request.type === 'import-index') {
+            importIndex(request.pkgId, request.data).then(sendResponse);
+        } else if (request.type === 'import-dictionary') {
+            let key = [request.pkgId, request.n].join(',');
+            importDictionary(key, request.data).then(sendResponse);
+        } else if (request.type === 'import-lemmatizer') {
+            importLemmatizer(request.pkgId, request.data).then(sendResponse);
         } else if (request.type === 'import-entries') {
-            importEntries(request.data).then(sendResponse);
-        } else if (request.type === 'export-entries') {
-            exportEntries().then(sendResponse);
+            importEntries(request.pkgId, request.data).then(sendResponse);
+        } else if (request.type === 'add-package') {
+            addPackage(request.settings).then(sendResponse);
+
+        } else if (request.type === 'get-packages') {
+            getPackages().then(sendResponse);
+        } else if (request.type === 'get-package') {
+            getPackage(request.pkgId).then(sendResponse);
         }
+
         return true;
     }
 );

@@ -1,6 +1,6 @@
 import { sendCommand, ContentCommand } from './command';
 import { disable, enable, toggleMarked, toggleKnown } from './highlighter';
-import { setLanguage } from './language';
+import { setPackageID } from './package';
 
 function isEnabled() {
     return sendCommand({ 'type': 'is-enabled' });
@@ -17,8 +17,8 @@ chrome.runtime.onMessage.addListener(async (message: ContentCommand) => {
     } else {
         let enabled = await isEnabled();
         if (enabled) {
-            if (message.type === 'set-language') {
-                setLanguage(message.lang);
+            if (message.type === 'set-package-id') {
+                await setPackageID(message.pkgId);
                 disable();
                 enable();
             } else if (message.type === 'toggle-marked') {

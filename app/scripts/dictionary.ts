@@ -1,6 +1,6 @@
-import { Language } from './languages';
+import { PackageID } from './packages';
 import { CachedMap } from './cachedmap';
-import { makeLoader } from './database';
+import { table } from './database';
 
 export type DictionaryItem = {
     word: string,
@@ -9,15 +9,18 @@ export type DictionaryItem = {
     lemmas?: string[],
 };
 
-export async function lookUpDictionary(keys: string[], lang: Language) {
-    let index = await indexes.get(lang);
+type Dictionary = { [key: string]: DictionaryItem };
+type Index = { [key: string]: number };
+
+export async function lookUpDictionary(keys: string[], pkg: PackageID) {
+    let index = await indexes.get(pkg);
     let results = [];
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
         let n = index[key];
         let item;
         if (n !== null) {
-            let dictionaryKey = lang + ',' + n;
+            let dictionaryKey = pkg + ',' + n;
             let dict = await dictionaries.get(dictionaryKey);
             item = dict[key];
         } else {
@@ -28,8 +31,10 @@ export async function lookUpDictionary(keys: string[], lang: Language) {
     return results;
 }
 
-type Dictionary = { [key: string]: DictionaryItem };
-type Index = { [key: string]: number };
-
-let indexes = new CachedMap<Language, Index>(makeLoader('indexes'));
-let dictionaries = new CachedMap<string, Dictionary>(makeLoader('dictionaries'));
+let indexTable = table('indexes');
+let dictionaryTable = table('dictionaries');
+let indexes = new CachedMap<PackageID, Index>(indexTable.loader);
+let dictionaries = new CachedMap<string, Dictionary>(dictionaryTable.loader);
+let importIndex = indexTable.importer;
+let importDictionary = dictionaryTable.importer;
+export { importIndex, importDictionary };

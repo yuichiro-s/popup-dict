@@ -10,11 +10,7 @@ def main(lang, dict_path, lemmatizer_path):
     for word in d:
         lemmas = lemmatize(word, lang, lemmatizer_path)
         key = ' '.join(lemmas)
-        entry = {
-            'lang': lang,
-            'key': key,
-        }
-        entries.append(entry)
+        entries.append(key)
     print(json.dumps(entries))
 
 

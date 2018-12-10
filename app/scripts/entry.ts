@@ -1,4 +1,4 @@
-import { Language } from './languages';
+import { PackageID } from './packages';
 import Dexie from 'dexie';
 
 export enum State {
@@ -8,7 +8,7 @@ export enum State {
 }
 
 export type Entry = {
-    lang: Language,
+    pkgId: PackageID,
     key: string,
     state: State,
     date?: number,
@@ -24,11 +24,11 @@ export type Entry = {
 };
 
 class Database extends Dexie {
-    vocabulary: Dexie.Table<Entry, [Language, string]>;
+    vocabulary: Dexie.Table<Entry, [PackageID, string]>;
     constructor() {
-        super('database');
+        super('entries');
         this.version(1).stores({
-            vocabulary: '[lang+key], state'
+            vocabulary: '[pkgId+key], state'
         });
     }
 }
@@ -57,13 +57,13 @@ export function putEntries(entries: Entry[]) {
     });
 }
 
-export function lookUpEntries(lang: Language, keys: string[][]): Promise<Entry[]> {
+export function lookUpEntries(pkgId: PackageID, keys: string[][]): Promise<Entry[]> {
     function lookup(resolve: any) {
         let results: (Entry | null)[] = [];
         function f(index: number) {
             if (index < keys.length) {
                 let keyStr = keys[index].join(' ');
-                db.vocabulary.where({ lang, key: keyStr }).first(res => {
+                db.vocabulary.where({ pkgId, key: keyStr }).first(res => {
                     results.push(res || null);
                     f(index + 1);
                 }).catch(() => {
@@ -85,20 +85,35 @@ export function updateEntry(entry: Entry) {
     return db.vocabulary.put(entry);
 }
 
-export function listEntries(lang?: Language, state?: State) {
+export function listEntries(pkgId?: PackageID, state?: State) {
     let c;
     if (state === undefined) {
         c = db.vocabulary.where('state').equals(State.Known).or('state').equals(State.Marked);
     } else {
         c = db.vocabulary.where('state').equals(state);
     }
-    if (lang) {
-        c = c.and(entry => entry.lang === lang);
+    if (pkgId) {
+        c = c.and(entry => entry.pkgId === pkgId);
     }
     return c.toArray();
 }
 
-export function importEntries(data: string) {
+export function importEntries(pkgId: PackageID, data: string) {
+    let keys = JSON.parse(data);
+    let entries = [];
+    for (let key of keys) {
+        let entry = {
+            pkgId,
+            key,
+            state: State.Unknown,
+        };
+        entries.push(entry);
+    }
+    return putEntries(entries);
+}
+
+export function importUserData(data: string) {
+    // TODO: implement this
     let entries = JSON.parse(data);
     for (let entry of entries) {
         if (entry.state === undefined) {
@@ -108,7 +123,8 @@ export function importEntries(data: string) {
     return putEntries(entries);
 }
 
-export async function exportEntries() {
+export async function exportUserData() {
+    // TODO: implement this
     let entries = await listEntries();
     return JSON.stringify(entries);
 }

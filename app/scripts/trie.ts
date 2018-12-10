@@ -1,8 +1,7 @@
-import { Language } from './languages';
+import { PackageID } from './packages';
 import { lookUpEntries, Entry } from './entry';
 import { CachedMap } from './cachedmap';
-
-import Dexie from 'dexie';
+import { table } from './database';
 
 type TrieNode = {
     n: { [c: string]: TrieNode }; // NEXT
@@ -20,16 +19,16 @@ export type Span = {
     entry: Entry,
 };
 
-export async function searchAllBatch(lang: string, lemmasBatch: string[][]) {
+export async function searchAllBatch(pkgId: PackageID, lemmasBatch: string[][]) {
     let results = [];
     for (let lemmas of lemmasBatch) {
-        results.push(await searchAll(lang, lemmas));
+        results.push(await searchAll(pkgId, lemmas));
     }
     return results;
 }
 
-async function searchAll(lang: string, lemmas: string[]) {
-    let trie = await tries.get(lang);
+async function searchAll(pkgId: PackageID, lemmas: string[]) {
+    let trie = await tries.get(pkgId);
     let spans: Span[] = [];
     let keys = [];
     let start = 0;
@@ -59,7 +58,7 @@ async function searchAll(lang: string, lemmas: string[]) {
             start++;
         }
     }
-    let entries = await lookUpEntries(lang, keys.map((k) => k.key));
+    let entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
         let entry = entries[i];
@@ -77,8 +76,8 @@ async function searchAll(lang: string, lemmas: string[]) {
     return spans;
 }
 
-export async function search(lang: string, key: string[]) {
-    let trie = await tries.get(lang);
+export async function search(pkgId: PackageID, key: string[]) {
+    let trie = await tries.get(pkgId);
     const length = key.length;
     function dfs(node: TrieNode, i: number): boolean {
         if (i >= length) {
@@ -89,51 +88,14 @@ export async function search(lang: string, key: string[]) {
         }
     }
     if (dfs(trie, 0)) {
-        let entry = (await lookUpEntries(lang, [key]))[0];
+        let entry = (await lookUpEntries(pkgId, [key]))[0];
         return entry;
     } else {
         return null;
     }
 }
 
-interface DatabaseEntry {
-    lang: Language;
-    trie: TrieNode;
-}
-
-class Database extends Dexie {
-    tries: Dexie.Table<DatabaseEntry, Language>;
-    constructor() {
-        super('tries');
-        this.version(1).stores({
-            tries: 'lang'
-        });
-    }
-}
-let db = new Database();
-
-function loadTrie(lang: Language) {
-    return new Promise((resolve, reject) => {
-        console.log('Loading trie for ' + lang + ' ...');
-        db.tries.get(lang).then(result => {
-            if (result === undefined) {
-                //reject(`Trie for ${lang} not found.`);
-                let path = chrome.runtime.getURL(`data/${lang}/trie.json`);
-                fetch(path).then(response => {
-                    response.text().then(res => {
-                        let trie = JSON.parse(res)!;
-                        db.tries.put({ lang, trie }).then(() => {
-                            console.log(`Loaded trie from file for ${lang}.`);
-                            resolve(trie);
-                        });
-                    });
-                });
-            } else {
-                console.log(`Loaded trie for ${lang}.`);
-                resolve(result.trie);
-            }
-        }).catch(reject);
-    });
-}
-
-let tries = new CachedMap<string, TrieNode>(loadTrie);
+let trieTable = table('tries');
+let tries = new CachedMap<PackageID, TrieNode>(trieTable.loader);
+let importTrie = trieTable.importer;
+export { importTrie };

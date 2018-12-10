@@ -1,15 +1,18 @@
-import { SUPPORTED_LANGUAGES } from './languages';
 import { sendContentCommand } from './command';
+import { getPackages } from './packages';
 
-export function createContextMenu() {
+export async function createContextMenu() {
     let parentMenuItem = chrome.contextMenus.create({ title: 'Highlighter' });
 
-    for (let lang of SUPPORTED_LANGUAGES) {
+    // TODO: get packages
+    let packages = await getPackages();
+    for (let pkgId in packages) {
+        let pkg = packages[pkgId];
         chrome.contextMenus.create({
-            title: lang,
+            title: pkg.name,
             parentId: parentMenuItem,
             onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-                sendContentCommand({ type: 'set-language', lang }, tab.id!);
+                sendContentCommand({ type: 'set-package-id', pkgId: pkg.id }, tab.id!);
             },
         });
     }

@@ -43,13 +43,13 @@ def main(args):
         chunks[chunk_index][key] = entry
 
     # write to files
-    index_path = os.path.join(args.out, 'index')
+    index_path = os.path.join(args.out, 'index.json')
     os.makedirs(args.out)
     with open(index_path, 'w') as f_index:
         json.dump(index, f_index)
     for i, chunk in chunks.items():
         print(f'Writing chunk {i+1}/{len(chunks)} ...', file=sys.stderr)
-        chunk_path = os.path.join(args.out, 'entries' + str(i))
+        chunk_path = os.path.join(args.out, f'subdict{str(i)}.json')
         with open(chunk_path, 'w') as f_chunk:
             json.dump(chunk, f_chunk)
 

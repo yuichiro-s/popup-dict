@@ -1,5 +1,3 @@
-import { Language, CHINESE, CHINESE_HANZI } from './languages';
-
 const DELIMITERS = [
     // white spaces
     ' ',
@@ -48,7 +46,7 @@ function split(word: string) {
     return tokens;
 }
 
-export function tokenize(text: string, lang: Language): Token[] {
+export function tokenize(text: string, tokenizeByWhiteSpace: boolean): Token[] {
     let tokens: Token[] = [];
     let cursor = 0;
     function add(word: string) {
@@ -61,13 +59,13 @@ export function tokenize(text: string, lang: Language): Token[] {
         }
     }
     let toks;
-    if (lang === CHINESE || lang === CHINESE_HANZI) {
-        toks = text.split('');
-    } else {
+    if (tokenizeByWhiteSpace) {
         toks = split(text);
+    } else {
+        toks = text.split('');
     }
     for (const token of toks) {
-        if (lang === CHINESE || lang === CHINESE_HANZI || token !== ' ') {
+        if (!tokenizeByWhiteSpace || token !== ' ') {
             add(token);
         }
         cursor += token.length;

@@ -2,12 +2,14 @@ import { State } from './entry';
 import { Span } from './trie';
 import { tokenize, Token } from './tokenizer';
 import { sendCommand } from './command';
-import { Language, CHINESE, CHINESE_HANZI } from './languages';
-import { getLanguage } from './language';
+import { PackageID } from './packages';
+import { getPackage } from './package';
+import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
+
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/themes/light-border.css';
 import tippy from 'tippy.js';
-import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
+import { Settings } from './settings';
 
 const PUNCTUATIONS = [
     '\n',
@@ -29,19 +31,16 @@ const TAG_LIST = [
 
 let currentSpanNode: HTMLElement | null = null;
 
-function mouseEnterListener(event: MouseEvent) {
+async function mouseEnterListener(event: MouseEvent) {
     let element = <HTMLElement>event.target;
     currentSpanNode = element;
     tippy.hideAllPoppers();
 
     // look up dictionary
     let key = element.dataset.key!;
-    let lang = getLanguage();
-    sendCommand({
-        type: 'lookup-dictionary',
-        lang,
-        keys: [key]
-    }).then(dictEntries => {
+    let pkg = await getPackage();
+    if (pkg) {
+        let dictEntries = await sendCommand({ type: 'lookup-dictionary', pkgId: pkg.id, keys: [key] });
         let dictEntry = dictEntries[0];
         if (dictEntry && dictEntry.defs && dictEntry.lemmas) {
             // show tooltip
@@ -57,7 +56,7 @@ function mouseEnterListener(event: MouseEvent) {
                 tip.show();
             }
         }
-    });
+    }
 }
 
 function mouseLeaveListener() {
@@ -132,7 +131,7 @@ function unhighlight(root?: Element) {
     root.normalize();
 }
 
-function enumerateTextNodes(root: Element, lang: Language) {
+function enumerateTextNodes(root: Element, pkg: Settings) {
     let nodes: Node[] = [];
     function process(element: Element) {
         let rect = element.getBoundingClientRect();
@@ -146,8 +145,7 @@ function enumerateTextNodes(root: Element, lang: Language) {
                         // text node
                         let text = child.textContent;
                         if (text) {
-                            if (lang === CHINESE_HANZI || text.trim().length > 1) {
-                                // allow single character when the language is ChineseHanzi
+                            if (!pkg.tokenizeByWhiteSpace || text.trim().length > 1) {
                                 nodes.push(child);
                             }
                         }
@@ -170,43 +168,44 @@ function enumerateTextNodes(root: Element, lang: Language) {
 }
 
 async function highlight(root?: Element) {
-    let lang: Language = getLanguage();
+    let pkg: Settings | null = await getPackage();
+    if (pkg) {
+        if (root === undefined) root = document.body;
+        let textNodes = enumerateTextNodes(root, pkg);
+        let { tokensBatch, lemmasBatch } = await lemmatizeBatch(textNodes, pkg);
 
-    if (root === undefined) root = document.body;
-    let textNodes = enumerateTextNodes(root, lang);
-    let { tokensBatch, lemmasBatch } = await lemmatizeBatch(lang, textNodes);
+        // TODO: allow for multilple lemmas
+        let spansBatch = await sendCommand({
+            type: 'search-all-batch',
+            pkgId: pkg.id,
+            lemmasBatch,
+        });
 
-    // TODO: allow for multilple lemmas
-    let spansBatch = await sendCommand({
-        type: 'search-all-batch',
-        lang,
-        lemmasBatch,
-    });
-
-    let modification = [];
-    for (let i = 0; i < lemmasBatch.length; i++) {
-        let textNode = textNodes[i];
-        let tokens = tokensBatch[i];
-        let spans = spansBatch[i];
-        if (spans.length > 0) {
-            // match found
-            modification.push([textNode, tokens, spans]);
+        let modification = [];
+        for (let i = 0; i < lemmasBatch.length; i++) {
+            let textNode = textNodes[i];
+            let tokens = tokensBatch[i];
+            let spans = spansBatch[i];
+            if (spans.length > 0) {
+                // match found
+                modification.push([textNode, tokens, spans]);
+            }
         }
-    }
 
-    for (const [node, tokens, spans] of modification) {
-        replaceTextWithSpans(node, tokens, spans);
+        for (const [node, tokens, spans] of modification) {
+            replaceTextWithSpans(node, tokens, spans);
+        }
     }
 }
 
-async function lemmatizeBatch(lang: Language, textNodes: Node[]) {
+async function lemmatizeBatch(textNodes: Node[], pkg: Settings) {
     let tokensBatch = [];
     let tokensList = [];
     let boundaries = [0];
     let cursor = 0;
     for (let textNode of textNodes) {
         let text = textNode.textContent!;
-        let tokens = tokenize(text, lang);
+        let tokens = tokenize(text, pkg.tokenizeByWhiteSpace);
         tokensList.push(tokens);
         tokensBatch.push(...tokens);
         cursor += tokens.length;
@@ -215,7 +214,7 @@ async function lemmatizeBatch(lang: Language, textNodes: Node[]) {
     let lemmasBatch: string[] = await sendCommand({
         type: 'lemmatize',
         tokens: tokensBatch.map((tok) => tok.form),
-        lang,
+        pkgId: pkg.id,
     });
     let lemmasList: string[][] = [];
     for (let i = 0; i < boundaries.length - 1; i++) {
@@ -242,17 +241,17 @@ async function rehighlight(keys: string[], state: State) {
     }
 }
 
-async function getSpanEntry(lang: Language, node: HTMLElement) {
+async function getSpanEntry(pkgId: PackageID, node: HTMLElement) {
     let key = node.dataset.key!.split(' ');
-    let entry = await sendCommand({ type: 'search', lang, key });
+    let entry = await sendCommand({ type: 'search', pkgId, key });
     // TODO: when is entry undefined?
     return entry;
 }
 
-export async function toggle(lang: Language, newState: State) {
+export async function toggle(pkg: Settings, newState: State) {
     if (currentSpanNode !== null) {
         let node = currentSpanNode;
-        let entry = await getSpanEntry(lang, node);
+        let entry = await getSpanEntry(pkg.id, node);
         let tab = await sendCommand({ type: 'get-tab' });
         if (entry) {
             let currentState = entry.state;
@@ -263,10 +262,10 @@ export async function toggle(lang: Language, newState: State) {
                     let form = node.textContent!;
                     let text = node.parentElement.textContent;
                     let pattern;
-                    if (lang === CHINESE || lang === CHINESE_HANZI) {
-                        pattern = new RegExp(form);
-                    } else {
+                    if (pkg.tokenizeByWhiteSpace) {
                         pattern = new RegExp('\\b' + form + '\\b');
+                    } else {
+                        pattern = new RegExp(form);
                     }
                     let begin = text.search(pattern);
                     let end = begin + form.length;
@@ -308,40 +307,44 @@ export async function toggle(lang: Language, newState: State) {
 }
 
 export async function toggleKnown() {
-    let lang = getLanguage();
-    let selection = window.getSelection();
-    let done = false;
-    if (selection) {
-        let elements = document.getElementsByClassName(HIGHLIGHTED_CLASS);
-        let entries = [];
-        for (let i = 0; i < elements.length; i++) {
-            let element = <HTMLElement>elements[i];
-            if (selection.containsNode(element, true)) {
-                let entry = await getSpanEntry(lang, element);
-                if (entry && entry.state === State.Unknown) {
-                    entries.push(entry);
+    let pkg = await getPackage();
+    if (pkg) {
+        let selection = window.getSelection();
+        let done = false;
+        if (selection) {
+            let elements = document.getElementsByClassName(HIGHLIGHTED_CLASS);
+            let entries = [];
+            for (let i = 0; i < elements.length; i++) {
+                let element = <HTMLElement>elements[i];
+                if (selection.containsNode(element, true)) {
+                    let entry = await getSpanEntry(pkg.id, element);
+                    if (entry && entry.state === State.Unknown) {
+                        entries.push(entry);
+                    }
                 }
             }
-        }
-        if (entries.length > 0) {
-            let keys = [];
-            for (let entry of entries) {
-                entry.state = State.Known;
-                keys.push(entry.key);
-                await sendCommand({ type: 'update-entry', entry });
+            if (entries.length > 0) {
+                let keys = [];
+                for (let entry of entries) {
+                    entry.state = State.Known;
+                    keys.push(entry.key);
+                    await sendCommand({ type: 'update-entry', entry });
+                }
+                rehighlight(keys, State.Known);
+                done = true;
             }
-            rehighlight(keys, State.Known);
-            done = true;
         }
-    }
-    if (!done) {
-        await toggle(lang, State.Known);
+        if (!done) {
+            await toggle(pkg, State.Known);
+        }
     }
 }
 
 export async function toggleMarked() {
-    let lang = getLanguage();
-    await toggle(lang, State.Marked);
+    let pkg = await getPackage();
+    if (pkg) {
+        await toggle(pkg, State.Marked);
+    }
 }
 
 export async function enable() {

@@ -20,31 +20,29 @@ function getTable<K, V>(name: string) {
     return db.database;
 }
 
-function put<K, V>(table: Dexie.Table<DatabaseEntry<K, V>, K>, key: K, value: V) {
-    return table.put({ key, value });
-}
+export function table<K, V>(tableName: string) {
+    let table = getTable<K, V>(tableName);
 
-function get<K, V>(table: Dexie.Table<DatabaseEntry<K, V>, K>, key: K) {
-    return new Promise((resolve, reject) => {
-        table.get(key).then(result => {
-            if (result === undefined) {
-                reject(`Key ${key} not found in ${table.name}.`);
-            } else {
-                resolve(result.value);
-            }
-        });
-    });
-}
-
-export function makeLoader<K, V>(tableName: string) {
-    return (key: K) => {
+    let loader = (key: K) => {
         return new Promise((resolve, reject) => {
-            let table = getTable<K, V>(tableName);
             console.log(`Loading ${key} for ${tableName} ...`);
-            get(table, key).then(value => {
-                console.log(`Loaded ${key} for ${tableName} .`);
-                resolve(value);
+            table.get(key).then(result => {
+                if (result === undefined) {
+                    reject(`Key ${key} not found in ${tableName}.`);
+                } else {
+                    console.log(`Loaded ${key} for ${tableName} .`);
+                    resolve(result.value);
+                }
             }).catch(reject);
         });
     };
+
+    let importer = (key: K, data: string) => {
+        let value: V = JSON.parse(data);
+        return table.put({ key, value }).then(() => {
+            console.log(`Imported data into ${tableName} for ${key}.`);
+        });
+    };
+
+    return { loader, importer };
 }

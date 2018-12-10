@@ -1,21 +1,36 @@
-import { Language } from './languages';
+import { PackageID } from './packages';
 import { State, Entry } from './entry';
+import { Settings } from './settings';
 
 export type Command =
     { type: 'is-enabled' } |
 
-    { type: 'lemmatize', tokens: string[], lang: Language } |
-    { type: 'lookup-dictionary', keys: string[], lang: Language } |
+    { type: 'lemmatize', tokens: string[], pkgId: PackageID } |
+    { type: 'lookup-dictionary', keys: string[], pkgId: PackageID } |
+
     { type: 'get-tab' } |
 
-    { type: 'search', lang: Language, key: string[] } |
-    { type: 'search-all-batch', lang: Language, lemmasBatch: string[][] } |
+    // search
+    { type: 'search', pkgId: PackageID, key: string[] } |
+    { type: 'search-all-batch', pkgId: PackageID, lemmasBatch: string[][] } |
 
+    // entries
     { type: 'update-entry', entry: Entry } |
     { type: 'clear-entries' } |
-    { type: 'list-entries', lang?: Language, state?: State } |
-    { type: 'import-entries', data: string } |
-    { type: 'export-entries' };
+    { type: 'list-entries', pkgId?: PackageID, state?: State } |
+    { type: 'import-user-data', data: string } |
+    { type: 'export-user-data' } |
+
+    // package import
+    { type: 'import-index', pkgId: PackageID, data: string } |
+    { type: 'import-dictionary', pkgId: PackageID, n: number, data: string } |
+    { type: 'import-lemmatizer', pkgId: PackageID, data: string } |
+    { type: 'import-trie', pkgId: PackageID, data: string } |
+    { type: 'import-entries', pkgId: PackageID, data: string } |
+    { type: 'add-package', settings: Settings } |
+
+    { type: 'get-packages' } |
+    { type: 'get-package' , pkgId: PackageID };
 
 export function sendCommand(command: Command): Promise<any> {
     return new Promise((resolve) => {
@@ -28,7 +43,7 @@ export type ContentCommand =
     { type: 'disable' } |
     { type: 'toggle-marked' } |
     { type: 'toggle-known' } |
-    { type: 'set-language', lang: Language };
+    { type: 'set-package-id', pkgId: PackageID };
 
 export function sendContentCommand(command: ContentCommand, tabId: number): Promise<any> {
     return new Promise((resolve) => {
