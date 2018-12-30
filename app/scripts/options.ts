@@ -51,7 +51,8 @@ function mouseClickListener(evt: MouseEvent) {
 
 function splitIntoTags(sentence: string, marked: boolean, settings: Settings) {
     let tags = [];
-    for (let word of sentence.split(' ')) {
+    let words = marked ? [sentence] : sentence.split(' ');
+    for (let word of words) {
         let tag = document.createElement('span');
         tag.classList.add('word');
         if (marked) {
@@ -60,7 +61,7 @@ function splitIntoTags(sentence: string, marked: boolean, settings: Settings) {
         tag.appendChild(document.createTextNode(word));
         tag.addEventListener('click', mouseClickListener);
         if (settings.tokenizeByWhiteSpace) {
-            tag.append(document.createTextNode(' ')); // trailing space
+            tags.push(document.createTextNode(' ')); // trailing space
         }
         tags.push(tag);
     }
