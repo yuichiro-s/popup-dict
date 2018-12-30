@@ -69,12 +69,6 @@ function splitIntoTags(sentence: string, marked: boolean, settings: Settings) {
 
 function createRows(entry: MarkedEntry, item: DictionaryItem | undefined, withDef: boolean, settings: Settings): HTMLTableRowElement[] {
     let row = document.createElement('tr');
-    /*
-    let sourceStr = '';
-    if (entry.source) {
-      sourceStr = `<a href="${entry.source.url || ''}" target="_blank">${entry.source.title || ''}</a>`;
-    }
-    */
     let rowspan = withDef ? ' rowspan="2"' : '';
     row.innerHTML = `
       <td class="cell" ${rowspan}><button data-key="${entry.key}">OK</button></td>
@@ -82,6 +76,7 @@ function createRows(entry: MarkedEntry, item: DictionaryItem | undefined, withDe
       <td class="cell" >${item && item.freq || 0}</td>
       <td class="cell" >${entry.key}</td>
       <td class="cell"></td>
+      <td class="cell"><a href="${entry.source.url}">${entry.source.title}</a></td>
     `;
     let context = entry.context;
     let contextRow = row.children[4];
@@ -178,6 +173,7 @@ async function resetTable(sortByFreq: boolean, pkg: Settings) {
       <th>Freq</th>
       <th>Key</th>
       <th>Context</th>
+      <th>Source</th>
       </tr>
       </thead>
   `;
