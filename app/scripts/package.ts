@@ -3,7 +3,7 @@ import { sendCommand } from './command';
 import { Settings } from './settings';
 import { all } from 'franc';
 
-let currentPackage: Settings | null = null;
+let currentPackage: Promise<Settings | null> | null = null;
 
 const PACKAGE_SPECIFIER_ID = 'highlighter-package-specifier';
 
@@ -62,21 +62,25 @@ export async function setPackageID(pkgId: PackageID) {
 
 export async function getPackage(): Promise<Settings | null> {
     if (currentPackage === null) {
+        // currentPackage has not been initialized
         // determine current package
-        let e = document.getElementById(PACKAGE_SPECIFIER_ID);
-        if (e && e.dataset && e.dataset.pkg) {
-            console.log(`Package specifier found: ${e.dataset.pkg}`);
-            let pkgId = e.dataset.pkg;
-            let packages = await sendCommand({ type: 'get-packages' });
-            if (pkgId in packages) {
-                currentPackage = packages[pkgId];
+        currentPackage = new Promise(resolve => {
+            let e = document.getElementById(PACKAGE_SPECIFIER_ID);
+            if (e && e.dataset && e.dataset.pkg) {
+                let pkgId = e.dataset.pkg;
+                console.log(`Package specifier found: ${pkgId}`);
+                sendCommand({ type: 'get-packages' }).then(packages => {
+                    if (pkgId in packages) {
+                        resolve(packages[pkgId]);
+                    } else {
+                        console.log(`Package ${pkgId} is not installed.`);
+                        resolve(guessPackage());
+                    }
+                });
             } else {
-                console.log(`Package ${e.dataset.pkg} is not installed.`);
-                currentPackage = await guessPackage();
+                resolve(guessPackage());
             }
-        } else {
-            currentPackage = await guessPackage();
-        }
+        });
     }
     return currentPackage;
 }
