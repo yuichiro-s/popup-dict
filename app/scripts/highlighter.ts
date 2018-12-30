@@ -21,6 +21,8 @@ const PUNCTUATIONS = [
     '．',
 ];
 
+const HIGHLIGHT_TAG = 'highlighted';
+
 const HIGHLIGHTED_CLASS = 'vocab-highlighted';
 
 // tags to search for matches
@@ -64,7 +66,7 @@ function mouseLeaveListener() {
 }
 
 function makeHighlightSpan(span: Span, text: string) {
-    let spanNode = document.createElement('span');
+    let spanNode = document.createElement(HIGHLIGHT_TAG);
     setSpanClass(spanNode, span.entry.state);
     spanNode.addEventListener('mouseenter', mouseEnterListener);
     spanNode.addEventListener('mouseleave', mouseLeaveListener);
