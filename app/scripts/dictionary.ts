@@ -19,7 +19,7 @@ export async function lookUpDictionary(keys: string[], pkg: PackageID) {
         let key = keys[i];
         let n = index[key];
         let item;
-        if (n !== null) {
+        if (n !== undefined) {
             let dictionaryKey = pkg + ',' + n;
             let dict = await dictionaries.get(dictionaryKey);
             item = dict[key];
