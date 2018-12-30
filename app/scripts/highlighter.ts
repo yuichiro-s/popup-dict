@@ -400,7 +400,7 @@ let observer = new MutationObserver(async (records: MutationRecord[]) => {
 
     // run highlighter on the newly added nodes
     addedNodes.forEach(element => {
-        if (!element.classList.contains(HIGHLIGHTED_CLASS) && !insideTooltip(element)) {
+        if (element.classList && !element.classList.contains(HIGHLIGHTED_CLASS) && !insideTooltip(element)) {
             highlight(element);
         }
     });
