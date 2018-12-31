@@ -53,6 +53,8 @@ async function mouseEnterListener(event: MouseEvent) {
                 allowHTML: true,
                 delay: [0, 0],
                 duration: [0, 0],
+                arrow: true,
+                size: 'small',
             });
             if (tip) {
                 tip.show();

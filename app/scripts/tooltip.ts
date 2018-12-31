@@ -31,6 +31,11 @@ export function createToolTip(item: DictionaryItem) {
         let defs = item.defs![i];
         for (let j = 0; j < defs.length; j++) {
             let def = defs[j];
+            // add bullet
+            let bullet = document.createElement('span');
+            bullet.textContent = '►';
+            bullet.classList.add('dictionary-def-bullet');
+            entryDiv.appendChild(bullet);
             entryDiv.appendChild(createDefSpan(def));
             totalLength += def.length;
             if (totalLength > 100 && j < defs.length - 1) {
@@ -54,7 +59,9 @@ export function createToolTip(item: DictionaryItem) {
             }
         }
         if (i > 0) {
-            e.appendChild(document.createElement('hr'));
+            let hr = document.createElement('hr');
+            hr.classList.add('dictionary-entry-separator');
+            e.appendChild(hr);
         }
         e.appendChild(entryDiv);
     }

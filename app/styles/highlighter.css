@@ -13,29 +13,47 @@ highlighted.vocab-highlighted:hover {
 div.dictionary-entry {
   text-align: left;
   font-family: sans-serif;
+  margin: 0px;
+  padding: 0px;
 }
 
 span.dictionary-entry-lemma {
   font-size: medium;
   font-weight: bold;
-  margin-right: 5px;
+  color: navy;
+  margin: 0px 5px 0px 0px;
+  padding: 0px;
 }
 
 span.dictionary-entry-def {
   font-size: small;
-  margin-left: 3px;
-  padding-left: 2px;
-  padding-right: 2px;
-  border-left-style: solid;
-  border-left-width: 3px;
-  border-left-color: #ccc;
-  background-color: #eee;
+  margin: 0px;
+  padding: 0px;
+  border-style: none none solid none;
+  border-width: 0px 0px 1px 0px;
+  border-color: white white #eeeeee white;
+  color: #222222;
 }
 
 span.dictionary-entry-expand {
-  margin-left: 3px;
+  margin: 0px 0px 0px 3px;
 }
 
 span.dictionary-entry-expand:hover {
   text-decoration: underline;
+}
+
+span.dictionary-def-bullet {
+  margin: 0px 2px 0px 4px;
+  padding: 0px;
+  color: rgb(50, 50, 170);
+}
+
+hr.dictionary-entry-separator {
+  margin: 3px 0px;
+  padding: 0px;
+  border-style: solid;
+  border-width: 1px;
+  height: 0px;
+  border-color: gray;
 }
