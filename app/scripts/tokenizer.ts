@@ -19,6 +19,7 @@ const DELIMITERS = [
     '„',
     '‘',
     '’',
+    '—',
 ];
 
 export type Token = {
