@@ -28,7 +28,7 @@ const HIGHLIGHTED_CLASS = 'vocab-highlighted';
 // tags to search for matches
 const TAG_LIST = [
     'P', 'A', 'B', 'I', 'STRONG', 'EM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI',
-    'TD', 'DD', 'SPAN', 'DIV', 'BLOCKQUOTE', 'SECTION',
+    'TD', 'DD', 'SPAN', 'DIV', 'BLOCKQUOTE', 'SECTION', 'PRE',
 ];
 
 let currentSpanNode: HTMLElement | null = null;
