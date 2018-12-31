@@ -1,27 +1,22 @@
 import gulp from 'gulp'
 import gulpif from 'gulp-if'
-import {
-  log,
-  colors
-} from 'gulp-util'
+import { cyan } from 'ansi-colors'
+import { info } from 'fancy-log'
 import named from 'vinyl-named'
 import webpack from 'webpack'
 import gulpWebpack from 'webpack-stream'
 import plumber from 'gulp-plumber'
 import livereload from 'gulp-livereload'
 import args from './lib/args'
-import path from 'path'
-import WasmPackPlugin from '@wasm-tool/wasm-pack-plugin'
 
 const ENV = args.production ? 'production' : 'development'
 
 gulp.task('scripts', (cb) => {
   return gulp.src([
-    'app/scripts/background.ts',
-    'app/scripts/content.ts',
-    'app/scripts/popup.ts',
-    'app/scripts/options.ts',
-  ])
+      'app/scripts/background.ts',
+      'app/scripts/content.ts',
+      'app/scripts/options.ts',
+    ])
     .pipe(plumber({
       // Webpack will log the errors
       errorHandler() {}
@@ -40,19 +35,18 @@ gulp.task('scripts', (cb) => {
             crateDirectory: path.resolve(__dirname, "..", "rust", "binding")
           }),*/
         ].concat(args.production ? [
-          new webpack.optimize.UglifyJsPlugin(),
+          //new webpack.optimize.UglifyJsPlugin(),
           new webpack.optimize.ModuleConcatenationPlugin()
         ] : []),
         module: {
-          rules: [
-            {
+          rules: [{
               test: /\.ts$/,
               loader: 'ts-loader',
               exclude: /node_modules/
             },
             {
               test: /\.css$/,
-              loader: [ 'style-loader', 'css-loader' ],
+              loader: ['style-loader', 'css-loader'],
             },
           ]
         },
@@ -69,7 +63,7 @@ gulp.task('scripts', (cb) => {
       webpack,
       (err, stats) => {
         if (err) return
-        log(`Finished '${colors.cyan('scripts')}'`, stats.toString({
+        info(`Finished '${cyan('scripts')}'`, stats.toString({
           chunks: false,
           colors: true,
           cached: false,

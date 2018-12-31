@@ -1,5 +1,6 @@
 import gulp from 'gulp'
-import gutil from 'gulp-util'
+import { info } from 'fancy-log'
+import { cyan } from 'ansi-colors'
 import livereload from 'gulp-livereload'
 import args from './lib/args'
 
@@ -27,17 +28,17 @@ gulp.task('chromereload', (cb) => {
     quiet: !args.verbose
   })
 
-  gutil.log('Starting', gutil.colors.cyan('\'livereload-server\''))
+  info('Starting', cyan('\'livereload-server\''))
 
   // The watching for javascript files is done by webpack
   // Check out ./tasks/scripts.js for further info.
-  gulp.watch('app/manifest.json', ['manifest'])
-  gulp.watch('app/styles/**/*.css', ['styles:css'])
-  gulp.watch('app/styles/**/*.less', ['styles:less'])
-  gulp.watch('app/styles/**/*.scss', ['styles:sass'])
-  gulp.watch('app/pages/**/*.html', ['pages'])
-  gulp.watch('app/_locales/**/*', ['locales'])
-  gulp.watch('app/images/**/*', ['images'])
-  gulp.watch('app/fonts/**/*.{woff,ttf,eot,svg}', ['fonts'])
-  gulp.watch('app/data/**/*', ['data'])
+  gulp.watch('app/manifest.json', gulp.parallel('manifest'))
+  gulp.watch('app/styles/**/*.css', gulp.parallel('styles:css'))
+  gulp.watch('app/styles/**/*.less', gulp.parallel('styles:less'))
+  gulp.watch('app/styles/**/*.scss', gulp.parallel('styles:sass'))
+  gulp.watch('app/pages/**/*.html', gulp.parallel('pages'))
+  gulp.watch('app/_locales/**/*', gulp.parallel('locales'))
+  gulp.watch('app/images/**/*', gulp.parallel('images'))
+  gulp.watch('app/fonts/**/*.{woff,ttf,eot,svg}', gulp.parallel('fonts'))
+  gulp.watch('app/data/**/*', gulp.parallel('data'))
 })

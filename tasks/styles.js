@@ -1,6 +1,6 @@
 import gulp from 'gulp'
 import gulpif from 'gulp-if'
-import gutil from 'gulp-util'
+import { red } from 'ansi-colors'
 import sourcemaps from 'gulp-sourcemaps'
 import less from 'gulp-less'
 import sass from 'gulp-sass'
@@ -20,8 +20,10 @@ gulp.task('styles:css', function () {
 gulp.task('styles:less', function () {
   return gulp.src('app/styles/*.less')
     .pipe(gulpif(args.sourcemaps, sourcemaps.init()))
-    .pipe(less({ paths: ['./app'] }).on('error', function (error) {
-      gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message))
+    .pipe(less({
+      paths: ['./app']
+    }).on('error', function (error) {
+      gutil.log(red('Error (' + error.plugin + '): ' + error.message))
       this.emit('end')
     }))
     .pipe(gulpif(args.production, cleanCSS()))
@@ -33,8 +35,10 @@ gulp.task('styles:less', function () {
 gulp.task('styles:sass', function () {
   return gulp.src('app/styles/*.scss')
     .pipe(gulpif(args.sourcemaps, sourcemaps.init()))
-    .pipe(sass({ includePaths: ['./app'] }).on('error', function (error) {
-      gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message))
+    .pipe(sass({
+      includePaths: ['./app']
+    }).on('error', function (error) {
+      gutil.log(red('Error (' + error.plugin + '): ' + error.message))
       this.emit('end')
     }))
     .pipe(gulpif(args.production, cleanCSS()))
@@ -43,8 +47,8 @@ gulp.task('styles:sass', function () {
     .pipe(gulpif(args.watch, livereload()))
 })
 
-gulp.task('styles', [
+gulp.task('styles', gulp.parallel(
   'styles:css',
   'styles:less',
   'styles:sass'
-])
+))
