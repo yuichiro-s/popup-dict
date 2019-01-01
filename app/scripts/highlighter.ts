@@ -39,25 +39,28 @@ async function mouseEnterListener(event: MouseEvent) {
     tippy.hideAllPoppers();
 
     // look up dictionary
-    let key = element.dataset.key!;
-    let pkg = await getPackage();
-    if (pkg) {
-        let dictEntries = await sendCommand({ type: 'lookup-dictionary', pkgId: pkg.id, keys: [key] });
-        let dictEntry = dictEntries[0];
-        if (dictEntry && dictEntry.defs && dictEntry.lemmas) {
-            // show tooltip
-            let toolTip = createToolTip(dictEntry);
-            let tip = tippy.one(element, {
-                theme: 'light-border',
-                content: toolTip,
-                allowHTML: true,
-                delay: [0, 0],
-                duration: [0, 0],
-                arrow: true,
-                size: 'small',
-            });
-            if (tip) {
-                tip.show();
+    if (element.dataset.state !== 'known') {
+        let key = element.dataset.key!;
+        let pkg = await getPackage();
+        if (pkg) {
+            let dictEntries = await sendCommand({ type: 'lookup-dictionary', pkgId: pkg.id, keys: [key] });
+            let dictEntry = dictEntries[0];
+            if (dictEntry && dictEntry.defs && dictEntry.lemmas) {
+                // show tooltip
+                let toolTip = createToolTip(dictEntry);
+                let tip = tippy.one(element, {
+                    theme: 'light-border',
+                    content: toolTip,
+                    allowHTML: true,
+                    delay: [0, 0],
+                    duration: [0, 0],
+                    arrow: true,
+                    size: 'small',
+                    interactive: false,
+                });
+                if (tip) {
+                    tip.show();
+                }
             }
         }
     }
