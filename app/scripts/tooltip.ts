@@ -26,7 +26,7 @@ export const CLASS_POPUP_DICTIONARY = 'popup-dictionary';
 export function createToolTip(item: DictionaryItem) {
     let e = document.createElement('div');
     e.classList.add(CLASS_POPUP_DICTIONARY);
-    for (let i = 0; i < Math.min(item.defs!.length, 5); i++) {
+    for (let i = 0; i < item.defs!.length; i++) {
         let entryDiv = document.createElement('div');
         entryDiv.classList.add('dictionary-entry');
 
