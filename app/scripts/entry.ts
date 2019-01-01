@@ -111,6 +111,12 @@ export function listEntries(pkgId?: PackageID, state?: State) {
     return c.toArray();
 }
 
+export async function getEntryStats(pkgId: PackageID) {
+    let knownCount = (await listEntries(pkgId, State.Known)).length;
+    let markedCount = (await listEntries(pkgId, State.Marked)).length;
+    return { knownCount, markedCount };
+}
+
 export function importEntries(pkgId: PackageID, data: string) {
     let keys = JSON.parse(data);
     let entries = [];

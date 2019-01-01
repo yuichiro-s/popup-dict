@@ -202,6 +202,11 @@ async function sortByFreqCommand() {
     }
 }
 
+async function setUp(pkg: Settings) {
+    setUpDictionarySelector(pkg);
+    setUpEntryStats(pkg);
+}
+
 function setUpDictionarySelector(pkg: Settings) {
     let selector = document.getElementById('dictionarySelector')!;
     selector.innerHTML = '';
@@ -211,6 +216,14 @@ function setUpDictionarySelector(pkg: Settings) {
         element.innerHTML = dict.name;
         selector.appendChild(element);
     }
+}
+
+async function setUpEntryStats(pkg: Settings) {
+    let stats = await sendCommand({ type: 'get-entry-stats', pkgId: pkg.id });
+    let knownCountSpan = document.getElementById('knownWordsCount')!;
+    knownCountSpan.innerText = stats.knownCount;
+    let markedCountSpan = document.getElementById('markedWordsCount')!;
+    markedCountSpan.innerText = stats.markedCount;
 }
 
 async function initPackageSelector() {
@@ -232,7 +245,7 @@ async function initPackageSelector() {
     selector.addEventListener('change', async () => {
         let pkg = await getPackage();
         if (pkg) {
-            setUpDictionarySelector(pkg);
+            setUp(pkg);
             resetTable(true, pkg);
             sendCommand({ type: 'set-last-package', pkgId: pkg.id });
         }
@@ -254,7 +267,7 @@ async function init() {
     await initPackageSelector();
     let pkg = await getPackage();
     if (pkg) {
-        setUpDictionarySelector(pkg);
+        setUp(pkg);
     }
     document.getElementById('fileElem')!.addEventListener('change', handleFiles);
     document.getElementById('exportButton')!.addEventListener('click', exportCommand);

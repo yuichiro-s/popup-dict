@@ -4,7 +4,7 @@ import { enable, isEnabled, addBrowserAction } from './enabled';
 import { lemmatize, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { search, searchAllBatch, importTrie } from './trie';
-import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
+import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, getEntryStats } from './entry';
 import { getPackages, addPackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
@@ -34,6 +34,8 @@ chrome.runtime.onMessage.addListener(
             clearEntries().then(sendResponse);
         } else if (request.type === 'list-entries') {
             listEntries(request.pkgId, request.state).then(sendResponse);
+        } else if (request.type === 'get-entry-stats') {
+            getEntryStats(request.pkgId).then(sendResponse);
         } else if (request.type === 'import-user-data') {
             importUserData(request.data).then(sendResponse);
         } else if (request.type === 'export-user-data') {
