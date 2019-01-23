@@ -41,7 +41,7 @@ export function createToolTip(item: DictionaryItem) {
             entryDiv.appendChild(createBullet());
             entryDiv.appendChild(createDefSpan(def));
             totalLength += def.length;
-            if (totalLength > 100 && j < defs.length - 1) {
+            if (totalLength > 300 && j < defs.length - 1) {
                 // truncate
                 let expandButton = document.createElement('span');
                 expandButton.innerHTML = '[+]';
