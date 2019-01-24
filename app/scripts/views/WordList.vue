@@ -1,7 +1,6 @@
 <template>
 <div>
-<p>{{counter}}</p>
-<button @click="onClick">Increment</button>
+    <p>WordList</p>
 </div>
 </template>
 <script lang="ts">
@@ -20,6 +19,6 @@ export default Vue.extend({
     },
 })
 </script>
-<style lang="scss" scoped>
+<style scoped>
 
 </style>
