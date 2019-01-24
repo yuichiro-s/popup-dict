@@ -11,6 +11,8 @@ import args from './lib/args'
 
 const ENV = args.production ? 'production' : 'development'
 
+import VueLoaderPlugin from 'vue-loader/lib/plugin'
+
 gulp.task('scripts', (cb) => {
   return gulp.src([
       'app/scripts/background.ts',
@@ -31,18 +33,29 @@ gulp.task('scripts', (cb) => {
             'process.env.NODE_ENV': JSON.stringify(ENV),
             'process.env.VENDOR': JSON.stringify(args.vendor)
           }),
-          /*new WasmPackPlugin({
-            crateDirectory: path.resolve(__dirname, "..", "rust", "binding")
-          }),*/
+          new VueLoaderPlugin(),
         ].concat(args.production ? [
           //new webpack.optimize.UglifyJsPlugin(),
           new webpack.optimize.ModuleConcatenationPlugin()
         ] : []),
         module: {
           rules: [{
-              test: /\.ts$/,
+              test: /\.tsx?$/,
               loader: 'ts-loader',
-              exclude: /node_modules/
+              exclude: /node_modules/,
+              options: {
+                  appendTsSuffixTo: [/\.vue$/],
+              }
+            },
+            {
+              test: /\.vue$/,
+              loader: 'vue-loader',
+              options: {
+                  loaders: {
+                      'scss': 'vue-style-loader!css-loader!sass-loader',
+                      'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+                  },
+              }
             },
             {
               test: /\.css$/,
@@ -51,13 +64,14 @@ gulp.task('scripts', (cb) => {
           ]
         },
         resolve: {
-          //extensions: ['.ts', '.js', '.wasm'],
-          extensions: ['.ts', '.js'],
+          extensions: ['.ts', '.js', '.vue'],
           modules: [
             'node_modules/',
             'app/scripts/',
-            //'rust/binding/pkg/'
-          ]
+          ],
+          alias: {
+              'vue$': 'vue/dist/vue.esm.js'
+          }
         }
       },
       webpack,

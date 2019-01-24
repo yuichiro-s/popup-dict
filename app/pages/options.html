@@ -3,26 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <title>Options</title>
-  <link rel="stylesheet" type="text/css" href="../styles/options.css">
 </head>
 <body>
-  <input type="file" id="fileElem" style="display:none">
-  <a href="#" download="highlighter_backup.json" id="downloadLink" style="display:none"></a>
-
-  <div id="navbar">
-    <select id="packageSelector"></select>
-    <select id="dictionarySelector"></select>
-    <input id="importPackageButton" type="file" name="fileList" webkitdirectory multiple />
-    <button id="exportButton" type="button">Export</button>
-    <button id="importButton" type="button">Import</button>
-    <button id="sortByDateButton" type="button">Sort by Date</button>
-    <button id="sortByFreqButton" type="button">Sort by freq</button>
-    <input id="showDefinitionBox" type="checkbox">Definition</button>
-    <span>Known: <span id="knownWordsCount">0</span> Marked: <span id="markedWordsCount">0</span></span>
-  </div>
-  <div id="content">
-    <table id="wordTable"></table>
-  </div>
+  <div id="app"></div>
   <script src="../scripts/options.js"></script>
 </body>
 </html>
