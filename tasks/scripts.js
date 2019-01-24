@@ -1,7 +1,11 @@
 import gulp from 'gulp'
 import gulpif from 'gulp-if'
-import { cyan } from 'ansi-colors'
-import { info } from 'fancy-log'
+import {
+  cyan
+} from 'ansi-colors'
+import {
+  info
+} from 'fancy-log'
 import named from 'vinyl-named'
 import webpack from 'webpack'
 import gulpWebpack from 'webpack-stream'
@@ -44,23 +48,27 @@ gulp.task('scripts', (cb) => {
               loader: 'ts-loader',
               exclude: /node_modules/,
               options: {
-                  appendTsSuffixTo: [/\.vue$/],
+                appendTsSuffixTo: [/\.vue$/],
               }
             },
             {
               test: /\.vue$/,
               loader: 'vue-loader',
               options: {
-                  loaders: {
-                      'scss': 'vue-style-loader!css-loader!sass-loader',
-                      'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
-                  },
+                loaders: {
+                  'scss': 'vue-style-loader!css-loader!sass-loader',
+                  'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+                },
               }
             },
             {
               test: /\.css$/,
               loader: ['style-loader', 'css-loader'],
             },
+            {
+              test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+              loader: 'url-loader'
+            }
           ]
         },
         resolve: {
@@ -70,7 +78,7 @@ gulp.task('scripts', (cb) => {
             'app/scripts/',
           ],
           alias: {
-              'vue$': 'vue/dist/vue.esm.js'
+            'vue$': 'vue/dist/vue.esm.js'
           }
         }
       },
