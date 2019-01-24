@@ -4,7 +4,9 @@ import Options from './Options.vue';
 import Vuetify from 'vuetify';
 import 'vuetify/dist/vuetify.min.css';
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+    iconfont: 'mdi',
+});
 
 new Vue({
     router,

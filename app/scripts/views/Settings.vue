@@ -1,26 +1,46 @@
 <template>
-<div>
-    <p>Settings</p>
-<p>{{counter}}</p>
-<button @click="onClick">Increment</button>
-</div>
+<span>
+    <v-btn>Import</v-btn>
+    <v-btn>Delete</v-btn>
+    <v-select :items="items" v-model="currentPackage" label="Select package"></v-select>
+    <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
+</span>
 </template>
+
 <script lang="ts">
 import Vue from 'vue'
+import { sendCommand } from '../command';
+import { Settings } from '../settings';
+import PackageEditor from '../components/PackageEditor.vue';
+
 export default Vue.extend({
     data: () => ({
-        counter: 0,
+        items: [],
+        currentPackage: null,
     }),
     computed: {},
-    created () {},
-    mounted () {},
-    methods: {
-        onClick() {
-            this.counter = this.counter + 1;
-        },
+    created () {
+        sendCommand({ type: 'get-packages' }).then(async packages => {
+            const pkgIds = Object.keys(packages);
+            const items = [];
+            for (const pkgId of pkgIds) {
+                let pkg = await sendCommand({ type: 'get-package', pkgId });
+                let item = {
+                    text: pkg.name,
+                    value: pkg,
+                };
+                items.push(item);
+            }
+            this.items = items;
+        });
     },
+    mounted () {},
+    methods: {},
+    components: {
+        PackageEditor,
+    }
 })
 </script>
-<style lang="scss" scoped>
 
+<style scoped>
 </style>
