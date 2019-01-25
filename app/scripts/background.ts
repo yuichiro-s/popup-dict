@@ -6,7 +6,7 @@ import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, getEntryStats } from './entry';
-import { getPackages, updatePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
+import { getPackages, updatePackage, removePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
  * Handlers of commands from content scripts.
@@ -57,8 +57,6 @@ chrome.runtime.onMessage.addListener(
             importLemmatizer(request.pkgId, request.data).then(sendResponse);
         } else if (request.type === 'import-entries') {
             importEntries(request.pkgId, request.data).then(sendResponse);
-        } else if (request.type === 'update-package') {
-            updatePackage(request.pkg).then(sendResponse);
 
         } else if (request.type === 'get-packages') {
             getPackages().then(sendResponse);
@@ -68,6 +66,10 @@ chrome.runtime.onMessage.addListener(
             setLastPackage(request.pkgId).then(sendResponse);
         } else if (request.type === 'get-last-package-id') {
             getLastPackageID().then(sendResponse);
+        } else if (request.type === 'update-package') {
+            updatePackage(request.pkg).then(sendResponse);
+        } else if (request.type === 'remove-package') {
+            removePackage(request.pkgId).then(sendResponse);
         }
 
         return true;

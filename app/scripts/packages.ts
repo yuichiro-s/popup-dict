@@ -32,7 +32,7 @@ export function getPackages(): Promise<{ [pkgId: string]: Settings }> {
 
 export async function removePackage(pkgId: PackageID) {
     // TODO: implement this
-    throw new Error('Not implemented.');
+    return;
 }
 
 export function getLastPackageID() {
