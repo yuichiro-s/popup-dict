@@ -3,7 +3,7 @@
     <v-select :items="items" v-model="currentPackage" label="Select package"></v-select>
     <v-data-table :headers="headers" :items="entries" :loading="loading">
       <template slot="items" slot-scope="props">
-        <td>{{ props.item.date }}</td>
+        <td>{{ props.item.dateStr }}</td>
         <td>{{ props.item.frequency }}</td>
         <td>{{ props.item.key }}</td>
         <td>{{ props.item.context }}</td>
@@ -23,6 +23,7 @@ import { DictionaryItem } from "../dictionary";
 
 interface TableEntry {
   date: number;
+  dateStr: string;
   frequency: number;
   key: string;
   context: string;
@@ -88,6 +89,7 @@ export default Vue.extend({
           let item = entryToItem.get(entry);
           newEntries.push({
             date: entry.date,
+            dateStr: new Date(entry.date).toLocaleDateString(),
             frequency: (item && item.freq) || 0,
             key: entry.key,
             context: entry.context.text,
