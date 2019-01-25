@@ -7,7 +7,9 @@
         <td>{{ props.item.frequency }}</td>
         <td>{{ props.item.key }}</td>
         <td>{{ props.item.context }}</td>
-        <td>{{ props.item.source }}</td>
+        <td>
+          <a :href="props.item.source.url" target="_blank">{{ props.item.source.title }}</a>
+        </td>
       </template>
     </v-data-table>
   </div>
@@ -27,7 +29,10 @@ interface TableEntry {
   frequency: number;
   key: string;
   context: string;
-  source: string;
+  source: {
+    url: string;
+    title: string;
+  };
 }
 
 async function getEntriesToShow(pkgId: PackageID) {
@@ -93,7 +98,7 @@ export default Vue.extend({
             frequency: (item && item.freq) || 0,
             key: entry.key,
             context: entry.context.text,
-            source: entry.source.title
+            source: entry.source,
           });
         }
         this.entries = newEntries;
