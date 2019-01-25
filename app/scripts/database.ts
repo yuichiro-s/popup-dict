@@ -46,5 +46,11 @@ export function table<K, V>(tableName: string) {
         });
     };
 
-    return { loader, importer };
+    let deleter = (key: K) => {
+        return table.delete(key).then(() => {
+            console.log(`Deleted ${key} from ${tableName}.`);
+        });
+    };
+
+    return { loader, importer, deleter };
 }

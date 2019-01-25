@@ -17,4 +17,5 @@ export async function lemmatize(tokens: string[], lang: PackageID): Promise<stri
 let lemmatizerTable = table('lemmatizers');
 let lemmatizers = new CachedMap<PackageID, Lemmatizer>(lemmatizerTable.loader);
 let importLemmatizer = lemmatizerTable.importer;
-export { importLemmatizer };
+let deleteLemmatizer = lemmatizerTable.deleter;
+export { importLemmatizer, deleteLemmatizer };

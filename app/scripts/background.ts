@@ -6,7 +6,7 @@ import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, getEntryStats } from './entry';
-import { getPackages, updatePackage, removePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
+import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
  * Handlers of commands from content scripts.
@@ -68,8 +68,8 @@ chrome.runtime.onMessage.addListener(
             getLastPackageID().then(sendResponse);
         } else if (request.type === 'update-package') {
             updatePackage(request.pkg).then(sendResponse);
-        } else if (request.type === 'remove-package') {
-            removePackage(request.pkgId).then(sendResponse);
+        } else if (request.type === 'delete-package') {
+            deletePackage(request.pkgId).then(sendResponse);
         }
 
         return true;

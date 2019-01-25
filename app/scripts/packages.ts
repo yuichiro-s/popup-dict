@@ -1,4 +1,8 @@
 import { Settings } from './settings';
+import { deleteDictionary, deleteIndex } from './dictionary';
+import { deleteFrequencyTable } from './frequency';
+import { deleteLemmatizer } from './lemmatizer';
+import { deleteTrie } from './trie';
 
 export type PackageID = string;
 
@@ -30,9 +34,25 @@ export function getPackages(): Promise<{ [pkgId: string]: Settings }> {
     });
 }
 
-export async function removePackage(pkgId: PackageID) {
-    // TODO: implement this
-    return;
+export async function deletePackage(pkgId: PackageID) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get('packages', result => {
+            if (result && result.packages && pkgId in result.packages) {
+                delete result.packages[pkgId];
+                chrome.storage.local.set({ 'packages': result.packages }, () => {
+                    Promise.all([
+                        deleteDictionary(pkgId),
+                        deleteIndex(pkgId),
+                        deleteLemmatizer(pkgId),
+                        deleteFrequencyTable(pkgId),
+                        deleteTrie(pkgId),
+                    ]).then(resolve).catch(reject);
+                });
+            } else {
+                reject(`${pkgId} not found.`);
+            }
+        });
+    });
 }
 
 export function getLastPackageID() {

@@ -98,4 +98,5 @@ export async function search(pkgId: PackageID, key: string[]) {
 let trieTable = table('tries');
 let tries = new CachedMap<PackageID, TrieNode>(trieTable.loader);
 let importTrie = trieTable.importer;
-export { importTrie };
+let deleteTrie = trieTable.deleter;
+export { importTrie, deleteTrie };

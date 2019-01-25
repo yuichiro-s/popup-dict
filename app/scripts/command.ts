@@ -37,7 +37,7 @@ export type Command =
     { type: 'set-last-package', pkgId: PackageID } |
     { type: 'get-last-package-id' } |
     { type: 'update-package', pkg: Settings } |
-    { type: 'remove-package', pkgId: PackageID };
+    { type: 'delete-package', pkgId: PackageID };
 
 export function sendCommand(command: Command): Promise<any> {
     return new Promise((resolve) => {

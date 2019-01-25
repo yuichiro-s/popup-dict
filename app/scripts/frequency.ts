@@ -23,4 +23,5 @@ export function getFrequency(tokens: string[], lang: PackageID): Promise<number[
 let frequencyTable = table('frequencyTables');
 let frequencyTables = new CachedMap<PackageID, FrequencyTable>(frequencyTable.loader);
 let importFrequencyTable = frequencyTable.importer;
-export { importFrequencyTable };
+let deleteFrequencyTable = frequencyTable.deleter;
+export { importFrequencyTable, deleteFrequencyTable };

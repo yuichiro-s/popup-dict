@@ -35,5 +35,7 @@ let dictionaryTable = table('dictionaries');
 let indexes = new CachedMap<PackageID, Index>(indexTable.loader);
 let dictionaries = new CachedMap<string, Dictionary>(dictionaryTable.loader);
 let importIndex = indexTable.importer;
+let deleteIndex = indexTable.deleter;
 let importDictionary = dictionaryTable.importer;
-export { importIndex, importDictionary };
+let deleteDictionary = dictionaryTable.deleter;
+export { importIndex, deleteIndex, importDictionary, deleteDictionary };

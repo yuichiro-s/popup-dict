@@ -1,12 +1,12 @@
 <template>
   <span>
-    <v-dialog v-model="dialog" v-if="currentPackage" :persistent="removing">
+    <v-dialog v-model="dialog" v-if="currentPackage" :persistent="deleting">
       <v-card>
         <v-card-text>Are you sure you want to delete {{ this.currentPackage.name }}? This cannot be undone.</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="dialog = false" :disabled="removing" :loading="removing">Cancel</v-btn>
-          <v-btn @click="removePackage" :disabled="removing" :loading="removing">Delete</v-btn>
+          <v-btn @click="dialog = false" :disabled="deleting" :loading="deleting">Cancel</v-btn>
+          <v-btn @click="deletePackage" :disabled="deleting" :loading="deleting">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -26,7 +26,7 @@ import PackageEditor from "../components/PackageEditor.vue";
 export default Vue.extend({
   data: () => ({
     dialog: false,
-    removing: false,
+    deleting: false,
     packages: {},
     currentPackage: null
   }),
@@ -50,16 +50,17 @@ export default Vue.extend({
     PackageEditor
   },
   methods: {
-    removePackage() {
+    deletePackage() {
       let name = this.currentPackage.name;
-      this.removing = true;
+      this.deleting = true;
       sendCommand({
-        type: "remove-package",
+        type: "delete-package",
         pkgId: this.currentPackage.id
       }).then(() => {
         this.reloadPackages().then(() => {
           alert(`${name} has been successfully deleted.`);
-          this.removing = false;
+          this.currentPackage = null;
+          this.deleting = false;
           this.dialog = false;
         });
       });
