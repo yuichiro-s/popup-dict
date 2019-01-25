@@ -6,7 +6,10 @@ export type Command =
     { type: 'is-enabled' } |
 
     { type: 'lemmatize', tokens: string[], pkgId: PackageID } |
+
+    // dictionary
     { type: 'lookup-dictionary', keys: string[], pkgId: PackageID } |
+    { type: 'get-frequency', keys: string[], pkgId: PackageID } |
 
     { type: 'get-tab' } |
 

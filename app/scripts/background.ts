@@ -3,6 +3,7 @@ import { Command } from './command';
 import { enable, isEnabled, addBrowserAction } from './enabled';
 import { lemmatize, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
+import { getFrequency } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, getEntryStats } from './entry';
 import { getPackages, updatePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
@@ -17,8 +18,12 @@ chrome.runtime.onMessage.addListener(
 
         } else if (request.type === 'lemmatize') {
             lemmatize(request.tokens, request.pkgId).then(sendResponse);
+
         } else if (request.type === 'lookup-dictionary') {
             lookUpDictionary(request.keys, request.pkgId).then(sendResponse);
+        } else if (request.type === 'get-frequency') {
+            getFrequency(request.keys, request.pkgId).then(sendResponse);
+
         } else if (request.type === 'get-tab') {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 sendResponse(tabs[0]);

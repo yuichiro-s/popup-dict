@@ -6,7 +6,7 @@ export class CachedMap<K, V> {
         this.cache = new Map();
     }
     get(key: K): Promise<V> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             let value = this.cache.get(key);
             if (value) {
                 resolve(value);
@@ -16,7 +16,7 @@ export class CachedMap<K, V> {
                 promise.then((value: V) => {
                     this.cache.set(key, value);
                     resolve(value);
-                });
+                }).catch(reject);
             }
         });
     }

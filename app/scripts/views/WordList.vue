@@ -4,9 +4,13 @@
     <v-data-table :headers="headers" :items="entries" :loading="loading">
       <template slot="items" slot-scope="props">
         <td>{{ props.item.dateStr }}</td>
-        <td>{{ props.item.frequency }}</td>
+        <td v-if="freqSupported">{{ props.item.freq }}</td>
         <td>{{ props.item.key }}</td>
-        <td>{{ props.item.context }}</td>
+        <td>
+          <span>{{ props.item.context.before }}</span>
+          <span class="word-in-context">{{ props.item.context.word }}</span>
+          <span>{{ props.item.context.after }}</span>
+        </td>
         <td>
           <a :href="props.item.source.url" target="_blank">{{ props.item.source.title }}</a>
         </td>
@@ -21,14 +25,17 @@ import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import { PackageID } from "../packages";
 import { MarkedEntry, State } from "../entry";
-import { DictionaryItem } from "../dictionary";
 
 interface TableEntry {
   date: number;
   dateStr: string;
-  frequency: number;
+  freq: number;
   key: string;
-  context: string;
+  context: {
+    before: string;
+    word: string;
+    after: string;
+  };
   source: {
     url: string;
     title: string;
@@ -41,29 +48,47 @@ async function getEntriesToShow(pkgId: PackageID) {
     pkgId,
     state: State.Marked
   });
-  let entryToItem = new Map<MarkedEntry, DictionaryItem>();
-  const items = await sendCommand({
-    type: "lookup-dictionary",
+  const freqs = await sendCommand({
+    type: "get-frequency",
     pkgId,
     keys: entries.map(entry => entry.key)
   });
-  for (let i = 0; i < items.length; i++) {
-    entryToItem.set(entries[i], items[i]);
+  let entryToFreq;
+  if (freqs === null) {
+    entryToFreq = null;
+  } else {
+    entryToFreq = new Map<MarkedEntry, number>();
+    for (let i = 0; i < freqs.length; i++) {
+      entryToFreq.set(entries[i], freqs[i]);
+    }
   }
-  return { entries, entryToItem };
+  return { entries, entryToFreq };
+}
+
+function splitContext(text: string, begin: number, end: number) {
+  let beforeStr = text.slice(0, begin);
+  let word = text.slice(begin, end);
+  let afterStr = text.slice(end);
+  const MAX_LENGTH = 100;
+  if (beforeStr.length >= MAX_LENGTH) {
+    beforeStr = "... " + beforeStr.slice(beforeStr.length - MAX_LENGTH);
+  }
+  if (afterStr.length >= MAX_LENGTH) {
+    afterStr = afterStr.slice(0, MAX_LENGTH) + " ...";
+  }
+  return {
+    before: beforeStr,
+    word: word,
+    after: afterStr
+  };
 }
 
 export default Vue.extend({
   data: () => ({
     packages: {},
     currentPackage: null,
-    headers: [
-      { text: "Date", value: "date" },
-      { text: "Frequency", value: "frequency" },
-      { text: "Key", value: "key" },
-      { text: "Context", value: "date", sortable: false },
-      { text: "Source", value: "date", sortable: false }
-    ],
+    freqSupported: false,
+    headers: [],
     loading: false,
     entries: []
   }),
@@ -88,17 +113,33 @@ export default Vue.extend({
   watch: {
     currentPackage(pkg: Settings) {
       this.loading = true;
-      getEntriesToShow(pkg.id).then(({ entries, entryToItem }) => {
+      getEntriesToShow(pkg.id).then(({ entries, entryToFreq }) => {
+        let headers = [
+          { text: "Date", value: "date" },
+          { text: "Key", value: "key" },
+          { text: "Context", value: "date", sortable: false },
+          { text: "Source", value: "date", sortable: false }
+        ];
+        this.freqSupported = entryToFreq !== null;
+        if (entryToFreq !== null) {
+          headers.splice(1, 0, { text: "Frequency", value: "freq" });
+        }
+        this.headers = headers;
+
         const newEntries: TableEntry[] = [];
         for (let entry of entries) {
-          let item = entryToItem.get(entry);
+          let freq = entryToFreq && entryToFreq.get(entry) || 0;
           newEntries.push({
             date: entry.date,
             dateStr: new Date(entry.date).toLocaleDateString(),
-            frequency: (item && item.freq) || 0,
+            freq,
             key: entry.key,
-            context: entry.context.text,
-            source: entry.source,
+            context: splitContext(
+              entry.context.text,
+              entry.context.begin,
+              entry.context.end
+            ),
+            source: entry.source
           });
         }
         this.entries = newEntries;
@@ -111,4 +152,8 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.word-in-context {
+  color: red;
+  font-weight: bold;
+}
 </style>

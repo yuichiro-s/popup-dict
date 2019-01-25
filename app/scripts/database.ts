@@ -28,7 +28,9 @@ export function table<K, V>(tableName: string) {
             console.log(`Loading ${key} for ${tableName} ...`);
             table.get(key).then(result => {
                 if (result === undefined) {
-                    reject(`Key ${key} not found in ${tableName}.`);
+                    let msg = `Key ${key} not found in ${tableName}.`;
+                    console.log(msg);
+                    reject(msg);
                 } else {
                     console.log(`Loaded ${key} for ${tableName} .`);
                     resolve(result.value);

@@ -4,7 +4,6 @@ import { table } from './database';
 
 export type DictionaryItem = {
     word: string,
-    freq: number,
     defs?: string[][],
     lemmas?: string[],
 };
