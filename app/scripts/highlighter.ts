@@ -5,11 +5,12 @@ import { sendCommand } from './command';
 import { PackageID } from './packages';
 import { getPackage } from './package';
 import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
+import { Settings } from './settings';
 
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/themes/light-border.css';
 import tippy from 'tippy.js';
-import { Settings } from './settings';
+import { debounce } from 'lodash';
 
 const PUNCTUATIONS = [
     '\n',
@@ -236,6 +237,8 @@ async function highlight(root?: Element) {
     }
 }
 
+const highlightDebounced = debounce(highlight, 150);
+
 async function lemmatizeBatch(textNodes: Node[], pkg: Settings) {
     let tokensBatch = [];
     let tokensList = [];
@@ -401,14 +404,8 @@ export function disable() {
     unhighlight();
 }
 
-let timer: any = null;
 let scrollListener = (event: Event) => {
-    if (timer !== null) {
-        window.clearTimeout(timer);
-    }
-    timer = setTimeout(() => {
-        highlight();
-    }, 150);
+    highlightDebounced();
 };
 
 function insideTooltip(originalElement: Element) {
