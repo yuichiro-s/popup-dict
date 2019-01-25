@@ -4,7 +4,11 @@
     <v-text-field label="Name" v-model="pkg.name"></v-text-field>
     <v-text-field label="Language Code (ISO 639-3)" v-model="pkg.languageCode"></v-text-field>
     <!-- TODO: edit capitalization option -->
-    <!-- TODO: edit when to show popup dictionary -->
+    <v-select
+      :items="showDictionaryValues"
+      label="When to show the dictionary tooltip"
+      v-model="pkg.showDictionary"
+    ></v-select>
     <!-- TODO: edit dictionaries -->
   </span>
 </template>
@@ -25,6 +29,15 @@ export default Vue.extend({
       },
       deep: true
     }
+  },
+  data() {
+    return {
+      showDictionaryValues: [
+        { text: "Always", value: "always" },
+        { text: "Unknown or Marked", value: "unknown-or-marked" },
+        { text: "Never", value: "never" }
+      ]
+    };
   },
   methods: {
     updatePackage: debounce(function() {

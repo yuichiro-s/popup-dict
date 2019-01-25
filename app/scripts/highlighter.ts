@@ -33,15 +33,46 @@ const TAG_LIST = [
 
 let currentSpanNode: HTMLElement | null = null;
 
+function stateToString(state: State) {
+    return State[state].toLowerCase();
+}
+
+function stringToState(str: string) {
+    let state: State;
+    switch (str) {
+        case 'unknown': { state = State.Unknown; break; }
+        case 'known': { state = State.Known; break; }
+        case 'marked': { state = State.Marked; break; }
+        default: { throw Error(`Unknown state: ${str}`); }
+    }
+    return state;
+}
+
+function isTooltipEnabled(pkg: Settings | null, state: State) {
+    if (pkg) {
+        if (pkg.showDictionary === 'always') {
+            return true;
+        } else if (pkg.showDictionary === 'never') {
+            return false;
+        } else {
+            // pkg.showDictionary === 'unknown-or-marked'
+            return state !== State.Known;
+        }
+    } else {
+        // TODO: can pkg be none?
+        return true;
+    }
+}
+
 async function mouseEnterListener(event: MouseEvent) {
     let element = <HTMLElement>event.target;
     currentSpanNode = element;
     tippy.hideAllPoppers();
 
     // look up dictionary
-    if (element.dataset.state !== 'known') {
+    let pkg = await getPackage();
+    if (isTooltipEnabled(pkg, stringToState(element.dataset.state!))) {
         let key = element.dataset.key!;
-        let pkg = await getPackage();
         if (pkg) {
             let dictEntries = await sendCommand({ type: 'lookup-dictionary', pkgId: pkg.id, keys: [key] });
             let dictEntry = dictEntries[0];
@@ -116,7 +147,7 @@ function replaceTextWithSpans(textNode: Node, tokens: Token[], spans: Span[]) {
 
 function setSpanClass(e: HTMLElement, state: State) {
     e.classList.add(HIGHLIGHTED_CLASS);
-    e.dataset.state = State[state].toLowerCase();
+    e.dataset.state = stateToString(state);
 }
 
 function unhighlight(root?: Element) {

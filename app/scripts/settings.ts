@@ -3,10 +3,13 @@ export type DictionaryInfo = {
     pattern: string,
 };
 
+export type ShowDictionary = 'always' | 'unknown-or-marked' | 'never';
+
 export type Settings = {
     id: string,
     name: string,
     languageCode: string,
     tokenizeByWhiteSpace: boolean,
-    dictionaries: DictionaryInfo[]
+    dictionaries: DictionaryInfo[],
+    showDictionary: ShowDictionary,
 };

@@ -61,6 +61,7 @@ export async function setPackageID(pkgId: PackageID) {
 }
 
 export async function getPackage(): Promise<Settings | null> {
+    // TODO: when can the result be none?
     if (currentPackage === null) {
         // currentPackage has not been initialized
         // determine current package
