@@ -58,6 +58,6 @@ export async function importPackage(files: FileList) {
     }
 
     // import completed
-    await sendCommand({ type: 'add-package', settings });
+    await sendCommand({ type: 'update-package', pkg: settings });
     console.log(`Imported ${settings.name}.`);
 }

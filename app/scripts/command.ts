@@ -28,7 +28,7 @@ export type Command =
     { type: 'import-lemmatizer', pkgId: PackageID, data: string } |
     { type: 'import-trie', pkgId: PackageID, data: string } |
     { type: 'import-entries', pkgId: PackageID, data: string } |
-    { type: 'add-package', settings: Settings } |
+    { type: 'update-package', pkg: Settings } |
 
     { type: 'get-packages' } |
     { type: 'get-package' , pkgId: PackageID } |

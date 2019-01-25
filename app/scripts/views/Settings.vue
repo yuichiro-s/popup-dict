@@ -15,30 +15,30 @@ import PackageEditor from '../components/PackageEditor.vue';
 
 export default Vue.extend({
     data: () => ({
-        items: [],
+        packages: [],
         currentPackage: null,
     }),
-    computed: {},
-    created () {
-        sendCommand({ type: 'get-packages' }).then(async packages => {
-            const pkgIds = Object.keys(packages);
+    computed: {
+        items () {
             const items = [];
-            for (const pkgId of pkgIds) {
-                let pkg = await sendCommand({ type: 'get-package', pkgId });
-                let item = {
+            for (const pkgId in this.packages) {
+                let pkg = this.packages[pkgId];
+                items.push({
                     text: pkg.name,
                     value: pkg,
-                };
-                items.push(item);
+                });
             }
-            this.items = items;
+            return items;
+        },
+    },
+    created () {
+        sendCommand({ type: 'get-packages' }).then(packages => {
+            this.packages = packages;
         });
     },
-    mounted () {},
-    methods: {},
     components: {
         PackageEditor,
-    }
+    },
 })
 </script>
 

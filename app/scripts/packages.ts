@@ -2,11 +2,11 @@ import { Settings } from './settings';
 
 export type PackageID = string;
 
-export async function addPackage(settings: Settings) {
+export function updatePackage(pkg: Settings) {
     return new Promise(resolve => {
-        let pkgId = settings.id;
+        let pkgId = pkg.id;
         getPackages().then(packages => {
-            packages[pkgId] = settings;
+            packages[pkgId] = pkg;
             chrome.storage.local.set({ 'packages': packages }, resolve);
         });
     });
