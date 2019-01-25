@@ -52,5 +52,5 @@ export function table<K, V>(tableName: string) {
         });
     };
 
-    return { loader, importer, deleter };
+    return { table, loader, importer, deleter };
 }

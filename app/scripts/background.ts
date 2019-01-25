@@ -3,7 +3,7 @@ import { Command } from './command';
 import { enable, isEnabled, addBrowserAction } from './enabled';
 import { lemmatize, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
-import { getFrequency } from './frequency';
+import { getFrequency, importFrequencyTable } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, getEntryStats } from './entry';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
@@ -57,6 +57,8 @@ chrome.runtime.onMessage.addListener(
             importLemmatizer(request.pkgId, request.data).then(sendResponse);
         } else if (request.type === 'import-entries') {
             importEntries(request.pkgId, request.data).then(sendResponse);
+        } else if (request.type === 'import-frequency') {
+            importFrequencyTable(request.pkgId, request.data).then(sendResponse);
 
         } else if (request.type === 'get-packages') {
             getPackages().then(sendResponse);

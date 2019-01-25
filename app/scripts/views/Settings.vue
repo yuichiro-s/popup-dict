@@ -14,10 +14,18 @@
     <v-dialog v-model="importDialog" :persistent="importing">
       <v-card>
         <v-card-text>Import package</v-card-text>
+        <file-upload directory multiple v-model="files">Select</file-upload>
+        <ul>
+          <li v-for="file in files" :key="file.id">{{file.name}}</li>
+        </ul>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="importDialog = false" :disabled="importing" :loading="importing">Cancel</v-btn>
-          <v-btn @click="importPackage" :disabled="importing" :loading="importing">Import</v-btn>
+          <v-btn
+            @click="importPackage"
+            :disabled="importing || files.length === 0"
+            :loading="importing"
+          >Import</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -35,6 +43,8 @@ import Vue from "vue";
 import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import PackageEditor from "../components/PackageEditor.vue";
+import FileUpload from "vue-upload-component";
+import { importPackage } from "../importer";
 
 export default Vue.extend({
   data: () => ({
@@ -43,7 +53,8 @@ export default Vue.extend({
     importDialog: false,
     importing: false,
     packages: {},
-    currentPackage: null
+    currentPackage: null,
+    files: []
   }),
   computed: {
     items() {
@@ -62,7 +73,8 @@ export default Vue.extend({
     this.reloadPackages();
   },
   components: {
-    PackageEditor
+    PackageEditor,
+    FileUpload
   },
   methods: {
     deletePackage() {
@@ -81,9 +93,27 @@ export default Vue.extend({
       });
     },
     importPackage() {
-      this.reloadPackages();
-      console.log('import');
-      // TODO: set currentPackage
+      this.importing = true;
+      let files = this.files.map((f: any) => f.file);
+      importPackage(files)
+        .then(pkg => {
+          this.reloadPackages().then(() => {
+            alert(`Successfully imported.`);
+            for (const pkgId in this.packages) {
+              if (pkgId === pkg.id) {
+                this.currentPackage = this.packages[pkgId];
+                break;
+              }
+            }
+            this.importing = false;
+            this.importDialog = false;
+          });
+        })
+        .catch(err => {
+          alert(err);
+          this.importing = false;
+          this.importDialog = false;
+        });
     },
     reloadPackages() {
       return new Promise(resolve => {
@@ -92,6 +122,11 @@ export default Vue.extend({
           resolve();
         });
       });
+    }
+  },
+  watch: {
+    importDialog(value) {
+      this.files = [];
     }
   }
 });

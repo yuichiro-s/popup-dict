@@ -14,12 +14,13 @@ export function loadFile(file: File): Promise<string> {
     });
 }
 
-export async function importPackage(files: FileList) {
+export async function importPackage(files: File[]) {
     let settingsFile = null;
     let trieFile = null;
     let lemmatizerFile = null;
     let entriesFile = null;
     let indexFile = null;
+    let frequencyFile = null;
     let subDictFiles: File[] = [];
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
@@ -33,6 +34,8 @@ export async function importPackage(files: FileList) {
             entriesFile = file;
         } else if (file.name === 'index.json') {
             indexFile = file;
+        } else if (file.name === 'frequency.json') {
+            frequencyFile = file;
         } else if (file.name.startsWith('subdict')) {
             subDictFiles.push(file);
         }
@@ -52,6 +55,11 @@ export async function importPackage(files: FileList) {
     await sendCommand({ type: 'import-lemmatizer', pkgId, data: lemmatizerData });
     let indexData = indexFile ? await loadFile(indexFile) : '{}';
     await sendCommand({ type: 'import-index', pkgId, data: indexData });
+    if (frequencyFile) {
+        // if frequency.json does not exist, do not import any frequency info
+        let frequencyData = await loadFile(frequencyFile);
+        await sendCommand({ type: 'import-frequency', pkgId, data: frequencyData });
+    }
     for (let file of subDictFiles) {
         let n = Number.parseInt(file.name.replace('subdict', '').replace('.json', ''));
         await sendCommand({ type: 'import-dictionary', pkgId, n, data: await loadFile(file) });
@@ -60,4 +68,6 @@ export async function importPackage(files: FileList) {
     // import completed
     await sendCommand({ type: 'update-package', pkg: settings });
     console.log(`Imported ${settings.name}.`);
+
+    return settings;
 }

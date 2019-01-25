@@ -30,6 +30,14 @@ export async function lookUpDictionary(keys: string[], pkg: PackageID) {
     return results;
 }
 
+export async function deleteAllDictionaries(pkg: PackageID) {
+    for (const key of await dictionaryTable.table.toCollection().keys()) {
+        if (key.toString().split(',')[0] === pkg) {
+            await dictionaryTable.deleter(key);
+        }
+    }
+}
+
 let indexTable = table('indexes');
 let dictionaryTable = table('dictionaries');
 let indexes = new CachedMap<PackageID, Index>(indexTable.loader);
@@ -37,5 +45,4 @@ let dictionaries = new CachedMap<string, Dictionary>(dictionaryTable.loader);
 let importIndex = indexTable.importer;
 let deleteIndex = indexTable.deleter;
 let importDictionary = dictionaryTable.importer;
-let deleteDictionary = dictionaryTable.deleter;
-export { importIndex, deleteIndex, importDictionary, deleteDictionary };
+export { importIndex, deleteIndex, importDictionary };

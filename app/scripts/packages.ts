@@ -1,5 +1,5 @@
 import { Settings } from './settings';
-import { deleteDictionary, deleteIndex } from './dictionary';
+import { deleteAllDictionaries, deleteIndex } from './dictionary';
 import { deleteFrequencyTable } from './frequency';
 import { deleteLemmatizer } from './lemmatizer';
 import { deleteTrie } from './trie';
@@ -41,7 +41,7 @@ export async function deletePackage(pkgId: PackageID) {
                 delete result.packages[pkgId];
                 chrome.storage.local.set({ 'packages': result.packages }, () => {
                     Promise.all([
-                        deleteDictionary(pkgId),
+                        deleteAllDictionaries(pkgId),
                         deleteIndex(pkgId),
                         deleteLemmatizer(pkgId),
                         deleteFrequencyTable(pkgId),

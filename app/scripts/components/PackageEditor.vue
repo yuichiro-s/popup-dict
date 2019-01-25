@@ -61,7 +61,7 @@ export default Vue.extend({
       headers: [
         { text: "Name", value: "name" },
         { text: "Pattern", value: "pattern" },
-        { text: "Actions", value: "name" }
+        { text: "Actions", value: "name", sortable: false }
       ],
       dialog: false,
       editedIndex: -1,

@@ -31,6 +31,7 @@ export type Command =
     { type: 'import-lemmatizer', pkgId: PackageID, data: string } |
     { type: 'import-trie', pkgId: PackageID, data: string } |
     { type: 'import-entries', pkgId: PackageID, data: string } |
+    { type: 'import-frequency', pkgId: PackageID, data: string } |
 
     { type: 'get-packages' } |
     { type: 'get-package', pkgId: PackageID } |
