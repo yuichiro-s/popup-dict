@@ -15,7 +15,7 @@ import PackageEditor from '../components/PackageEditor.vue';
 
 export default Vue.extend({
     data: () => ({
-        packages: [],
+        packages: {},
         currentPackage: null,
     }),
     computed: {
