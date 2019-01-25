@@ -1,7 +1,14 @@
 <template>
   <div>
     <v-select :items="items" v-model="currentPackage" label="Select package"></v-select>
-    <v-data-table :headers="headers" :items="entries" :loading="loading">
+    <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
+    <v-data-table
+      :headers="headers"
+      :items="entries"
+      :loading="loading"
+      :search="search"
+      :rows-per-page-items="[100, 500, 1000, {'text': 'All', 'value': -1}]"
+    >
       <template slot="items" slot-scope="props">
         <td>{{ props.item.dateStr }}</td>
         <td v-if="freqSupported">{{ props.item.freq }}</td>
@@ -90,7 +97,8 @@ export default Vue.extend({
     freqSupported: false,
     headers: [],
     loading: false,
-    entries: []
+    entries: [],
+    search: ""
   }),
   computed: {
     items() {
@@ -128,7 +136,7 @@ export default Vue.extend({
 
         const newEntries: TableEntry[] = [];
         for (let entry of entries) {
-          let freq = entryToFreq && entryToFreq.get(entry) || 0;
+          let freq = (entryToFreq && entryToFreq.get(entry)) || 0;
           newEntries.push({
             date: entry.date,
             dateStr: new Date(entry.date).toLocaleDateString(),

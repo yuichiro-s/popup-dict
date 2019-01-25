@@ -27,16 +27,18 @@
       </v-card>
     </v-dialog>
 
-    <v-data-table :headers="headers" :items="pkg.dictionaries">
-      <template slot="items" slot-scope="props">
-        <td>{{ props.item.name }}</td>
-        <td>{{ props.item.pattern }}</td>
-        <td>
-          <v-icon small @click="editItem(props.item)">edit</v-icon>
-          <v-icon small @click="deleteItem(props.item)">delete</v-icon>
-        </td>
-      </template>
-    </v-data-table>
+    <v-container>
+      <v-data-table :headers="headers" :items="pkg.dictionaries">
+        <template slot="items" slot-scope="props">
+          <td>{{ props.item.name }}</td>
+          <td>{{ props.item.pattern }}</td>
+          <td>
+            <v-icon small @click="editItem(props.item)">edit</v-icon>
+            <v-icon small @click="deleteItem(props.item)">delete</v-icon>
+          </td>
+        </template>
+      </v-data-table>
+    </v-container>
   </span>
 </template>
 
