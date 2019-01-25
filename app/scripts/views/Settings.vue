@@ -1,17 +1,30 @@
 <template>
   <span>
-    <v-dialog v-model="dialog" v-if="currentPackage" :persistent="deleting">
+    <v-dialog v-model="deleteDialog" v-if="currentPackage" :persistent="deleting">
       <v-card>
         <v-card-text>Are you sure you want to delete {{ this.currentPackage.name }}? This cannot be undone.</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="dialog = false" :disabled="deleting" :loading="deleting">Cancel</v-btn>
+          <v-btn @click="deleteDialog = false" :disabled="deleting" :loading="deleting">Cancel</v-btn>
           <v-btn @click="deletePackage" :disabled="deleting" :loading="deleting">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn>Import</v-btn>
-    <v-btn @click="dialog = true" :disabled="!currentPackage">Delete</v-btn>
+
+    <v-dialog v-model="importDialog" persistent>
+      <v-card>
+        <v-card-text>Import package</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="importDialog = false" :disabled="importing" :loading="importing">Cancel</v-btn>
+          <v-btn @click="importPackage" :disabled="importing" :loading="importing">Import</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-btn @click="importDialog = true">Import</v-btn>
+    <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete</v-btn>
+
     <v-select :items="items" v-model="currentPackage" label="Select package"></v-select>
     <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
   </span>
@@ -25,8 +38,10 @@ import PackageEditor from "../components/PackageEditor.vue";
 
 export default Vue.extend({
   data: () => ({
-    dialog: false,
+    deleteDialog: false,
     deleting: false,
+    importDialog: false,
+    importing: false,
     packages: {},
     currentPackage: null
   }),
@@ -61,9 +76,14 @@ export default Vue.extend({
           alert(`${name} has been successfully deleted.`);
           this.currentPackage = null;
           this.deleting = false;
-          this.dialog = false;
+          this.deleteDialog = false;
         });
       });
+    },
+    importPackage() {
+      this.reloadPackages();
+      console.log('import');
+      // TODO: set currentPackage
     },
     reloadPackages() {
       return new Promise(resolve => {
