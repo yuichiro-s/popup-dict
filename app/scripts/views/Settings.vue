@@ -11,7 +11,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="importDialog" persistent>
+    <v-dialog v-model="importDialog" :persistent="importing">
       <v-card>
         <v-card-text>Import package</v-card-text>
         <v-card-actions>

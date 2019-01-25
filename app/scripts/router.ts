@@ -6,8 +6,6 @@ import Settings from './views/Settings.vue';
 Vue.use(VueRouter);
 
 export default new VueRouter({
-    mode: 'history',
-    base: __dirname,
     routes: [
         {
             path: '/settings',
