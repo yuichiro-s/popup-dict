@@ -33,7 +33,7 @@
     <v-btn @click="importDialog = true">Import</v-btn>
     <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete</v-btn>
 
-    <v-select :items="items" v-model="currentPackage" label="Select package"></v-select>
+    <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
     <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
   </span>
 </template>
@@ -53,7 +53,7 @@ export default Vue.extend({
     importDialog: false,
     importing: false,
     packages: {},
-    currentPackage: null,
+    currentPkgId: null,
     files: []
   }),
   computed: {
@@ -63,10 +63,13 @@ export default Vue.extend({
         let pkg = this.packages[pkgId];
         items.push({
           text: pkg.name,
-          value: pkg
+          value: pkgId,
         });
       }
       return items;
+    },
+    currentPackage() {
+      return this.packages[this.currentPkgId];
     }
   },
   created() {
@@ -82,11 +85,11 @@ export default Vue.extend({
       this.deleting = true;
       sendCommand({
         type: "delete-package",
-        pkgId: this.currentPackage.id
+        pkgId: this.currentPkgId
       }).then(() => {
         this.reloadPackages().then(() => {
           alert(`${name} has been successfully deleted.`);
-          this.currentPackage = null;
+          this.currentPkgId = null;
           this.deleting = false;
           this.deleteDialog = false;
         });
@@ -99,12 +102,7 @@ export default Vue.extend({
         .then(pkg => {
           this.reloadPackages().then(() => {
             alert(`Successfully imported.`);
-            for (const pkgId in this.packages) {
-              if (pkgId === pkg.id) {
-                this.currentPackage = this.packages[pkgId];
-                break;
-              }
-            }
+            this.currentPkgId = pkg.id;
             this.importing = false;
             this.importDialog = false;
           });
