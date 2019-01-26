@@ -28,7 +28,7 @@
     </v-dialog>
 
     <v-container>
-      <v-data-table :headers="headers" :items="pkg.dictionaries">
+      <v-data-table :headers="headers" :items="pkg.dictionaries" hide-actions>
         <template slot="items" slot-scope="props">
           <td>{{ props.item.name }}</td>
           <td>{{ props.item.pattern }}</td>
