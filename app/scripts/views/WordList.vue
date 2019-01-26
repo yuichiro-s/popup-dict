@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-select :items="items" v-model="currentPackage" label="Select package"></v-select>
+    <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
     <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
     <v-data-table
       :headers="headers"
@@ -93,7 +93,7 @@ function splitContext(text: string, begin: number, end: number) {
 export default Vue.extend({
   data: () => ({
     packages: {},
-    currentPackage: null,
+    currentPkgId: null,
     freqSupported: false,
     headers: [],
     loading: false,
@@ -107,16 +107,29 @@ export default Vue.extend({
         const pkg = this.packages[pkgId];
         items.push({
           text: pkg.name,
-          value: pkg
+          value: pkgId
         });
       }
       return items;
+    },
+    currentPackage() {
+      return this.packages[this.currentPkgId];
     }
   },
   created() {
-    sendCommand({ type: "get-packages" }).then(packages => {
+    (async () => {
+      const packages = await sendCommand({ type: "get-packages" });
+      let lastPkgId = await sendCommand({ type: "get-last-package-id" });
       this.packages = packages;
-    });
+      if (lastPkgId) {
+        this.currentPkgId = lastPkgId;
+      } else {
+        let pkgIds = Object.keys(packages);
+        if (pkgIds.length > 0) {
+          this.currentPkgId = pkgIds[0];
+        }
+      }
+    })();
   },
   watch: {
     currentPackage(pkg: Settings) {
