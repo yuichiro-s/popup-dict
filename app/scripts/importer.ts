@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import { sendCommand } from './command';
 
 export function loadFile(file: File): Promise<string> {
@@ -43,6 +45,9 @@ export async function importPackage(files: File[]) {
 
     // load settings
     let settings = JSON.parse(await loadFile(settingsFile!));
+
+    // save default settings
+    settings.default = cloneDeep(settings);
 
     // load each file
     let pkgId = settings.id;

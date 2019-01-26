@@ -10,7 +10,7 @@ import { Settings } from './settings';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/themes/light-border.css';
 import tippy from 'tippy.js';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 const PUNCTUATIONS = [
     '\n',

@@ -39,12 +39,14 @@
         </template>
       </v-data-table>
     </v-container>
+
+    <v-btn @click="restoreDefault">Restore default settings</v-btn>
   </span>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { debounce, Dictionary } from "lodash";
+import debounce from "lodash/debounce";
 import { sendCommand } from "../command";
 import { Settings, DictionaryInfo } from "../settings";
 
@@ -90,7 +92,7 @@ export default Vue.extend({
   },
   methods: {
     updatePackage: debounce(function() {
-      let pkgId = this.pkg.id;
+      const pkgId = this.pkg.id;
       sendCommand({ type: "update-package", pkg: this.pkg }).then(() => {
         console.log(`Updated package: ${pkgId}`);
       });
@@ -119,6 +121,18 @@ export default Vue.extend({
       const index = this.pkg.dictionaries.indexOf(item);
       confirm(`Are you sure you want to delete ${item.name}?`) &&
         this.pkg.dictionaries.splice(index, 1);
+    },
+    restoreDefault() {
+      const name = this.pkg.name;
+      if (
+        confirm(
+          `Are you sure you want to restore the default settings of ${name}?`
+        )
+      ) {
+        for (const key in this.pkg.default) {
+          this.pkg[key] = this.pkg.default[key];
+        }
+      }
     }
   }
 });
