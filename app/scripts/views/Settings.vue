@@ -43,8 +43,11 @@
       </v-card>
     </v-dialog>
 
-    <v-btn @click="importDialog = true">Import</v-btn>
-    <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete</v-btn>
+    <file-upload v-model="userDataFiles" :extensions="['json']" ref="uploadUserData"></file-upload>
+    <v-btn @click="importUserDataButton">Import User Data</v-btn>
+    <v-btn @click="exportUserDataButton">Export User Data</v-btn>
+    <v-btn @click="importDialog = true">Import New Package</v-btn>
+    <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
 
     <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
     <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
@@ -57,7 +60,7 @@ import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import PackageEditor from "../components/PackageEditor.vue";
 import FileUpload from "vue-upload-component";
-import { importPackage, validatePackage } from "../importer";
+import { importPackage, validatePackage, loadFile } from "../importer";
 
 export default Vue.extend({
   data: () => ({
@@ -67,7 +70,8 @@ export default Vue.extend({
     importing: false,
     packages: {},
     currentPkgId: null,
-    files: []
+    files: [],
+    userDataFiles: []
   }),
   computed: {
     items() {
@@ -154,11 +158,57 @@ export default Vue.extend({
       this.resetFiles();
       const input = this.$refs.upload.$el.querySelector("input");
       input.click();
+    },
+    importUserDataButton() {
+      const input = this.$refs.uploadUserData.$el.querySelector("input");
+      input.click();
+    },
+    exportUserDataButton() {
+      sendCommand({ type: "export-user-data" }).then(json => {
+        let blob = new Blob([json], { type: "text/json" });
+        let e = document.createEvent("MouseEvents");
+        let a = document.createElement("a");
+        a.download = "highlighter_backup.json";
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+        e.initMouseEvent(
+          "click",
+          true,
+          false,
+          window,
+          0,
+          0,
+          0,
+          0,
+          0,
+          false,
+          false,
+          false,
+          false,
+          0,
+          null
+        );
+        a.dispatchEvent(e);
+      });
     }
   },
   watch: {
     importDialog(value) {
       this.resetFiles();
+    },
+    userDataFiles(value) {
+      if (value.length === 1) {
+        let f: File = value[0].file;
+        loadFile(f)
+          .then(data => {
+            sendCommand({ type: "import-user-data", data })
+              .then(() => {
+                alert("Import completed.");
+              })
+              .catch(alert);
+          })
+          .catch(alert);
+      }
     }
   }
 });
