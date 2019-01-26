@@ -63,7 +63,7 @@ export default Vue.extend({
         let pkg = this.packages[pkgId];
         items.push({
           text: pkg.name,
-          value: pkgId,
+          value: pkgId
         });
       }
       return items;
@@ -73,7 +73,12 @@ export default Vue.extend({
     }
   },
   created() {
-    this.reloadPackages();
+    this.reloadPackages().then(() => {
+      let pkgIds = Object.keys(this.packages);
+      if (pkgIds.length > 0) {
+        this.currentPkgId = pkgIds[0];
+      }
+    });
   },
   components: {
     PackageEditor,
