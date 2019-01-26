@@ -8,6 +8,7 @@
       :loading="loading"
       :search="search"
       :rows-per-page-items="[100, 500, 1000, {'text': 'All', 'value': -1}]"
+      :pagination.sync="pagination"
     >
       <template slot="items" slot-scope="props">
         <td>{{ props.item.dateStr }}</td>
@@ -98,7 +99,11 @@ export default Vue.extend({
     headers: [],
     loading: false,
     entries: [],
-    search: ""
+    search: "",
+    pagination: {
+        'sortBy': 'date',
+        descending: true,
+    }
   }),
   computed: {
     items() {
