@@ -1,6 +1,6 @@
 <template>
 <span>
-    <v-toolbar>
+    <v-toolbar fixed app>
         <v-btn flat to="/settings">Settings</v-btn>
         <v-btn flat to="/wordlist">Word List</v-btn>
     </v-toolbar>
