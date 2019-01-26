@@ -1,17 +1,17 @@
 <template>
-<span>
+  <span>
     <v-toolbar fixed app>
-        <v-btn flat to="/settings">Settings</v-btn>
-        <v-btn flat to="/wordlist">Word List</v-btn>
+      <v-btn flat to="/settings">Settings</v-btn>
+      <v-btn flat to="/wordlist">Word List</v-btn>
     </v-toolbar>
-</span>
+  </span>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue";
 export default Vue.extend({
-    name: 'AppNavigation',
-})
+  name: "AppNavigation"
+});
 </script>
 
 <style scoped>

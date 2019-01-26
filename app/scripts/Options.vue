@@ -1,24 +1,24 @@
 <template>
-<div id="app">
+  <div id="app">
     <v-app>
-        <app-navigation></app-navigation>
-        <v-content transition="slide-x-transition">
-            <router-view></router-view>
-        </v-content>
+      <app-navigation></app-navigation>
+      <v-content transition="slide-x-transition">
+        <router-view></router-view>
+      </v-content>
     </v-app>
-</div>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import AppNavigation from './components/AppNavigation.vue';
+import Vue from "vue";
+import AppNavigation from "./components/AppNavigation.vue";
 
 export default Vue.extend({
-    name: 'App',
-    components: {
-        AppNavigation
-    },
-})
+  name: "App",
+  components: {
+    AppNavigation
+  }
+});
 </script>
 
 <style scoped>
