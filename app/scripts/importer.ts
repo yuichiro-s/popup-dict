@@ -16,7 +16,7 @@ export function loadFile(file: File): Promise<string> {
     });
 }
 
-export async function importPackage(files: File[]) {
+function gatherNecessaryFiles(files: File[]) {
     let settingsFile = null;
     let trieFile = null;
     let lemmatizerFile = null;
@@ -42,6 +42,52 @@ export async function importPackage(files: File[]) {
             subDictFiles.push(file);
         }
     }
+    return {
+        settingsFile,
+        trieFile,
+        lemmatizerFile,
+        entriesFile,
+        indexFile,
+        frequencyFile,
+        subDictFiles
+    };
+}
+
+export function validatePackage(files: File[]) {
+    const errors = [];
+    const warnings = [];
+
+    const {
+        settingsFile,
+        trieFile,
+        lemmatizerFile,
+        entriesFile,
+        indexFile,
+        frequencyFile,
+        subDictFiles
+    } = gatherNecessaryFiles(files);
+
+    if (settingsFile === null) errors.push('settings.json is not found.');
+    if (trieFile === null) errors.push('trie.json is not found.');
+    if (lemmatizerFile === null) errors.push('lemmatizer.json is not found.');
+    if (entriesFile === null) errors.push('entries.json is not found.');
+    if (frequencyFile === null) warnings.push('frequency.json is not found.');
+    if (indexFile === null) warnings.push('index.json is not found.');
+    if (subDictFiles.length === 0) warnings.push('No dictionary files are found.');
+
+    return { errors, warnings };
+}
+
+export async function importPackage(files: File[]) {
+    const {
+        settingsFile,
+        trieFile,
+        lemmatizerFile,
+        entriesFile,
+        indexFile,
+        frequencyFile,
+        subDictFiles
+    } = gatherNecessaryFiles(files);
 
     // load settings
     let settings = JSON.parse(await loadFile(settingsFile!));

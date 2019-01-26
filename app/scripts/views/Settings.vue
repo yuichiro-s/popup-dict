@@ -13,19 +13,32 @@
 
     <v-dialog v-model="importDialog" :persistent="importing">
       <v-card>
-        <v-card-text>Import package</v-card-text>
-        <file-upload directory multiple v-model="files">Select</file-upload>
+        <v-card-title primary-title>
+          <div class="headline">Import package</div>
+        </v-card-title>
+        <div v-if="files.length > 0">
+          <v-alert
+            v-model="messages.errors[idx]"
+            type="error"
+            v-for="(msg, idx) in messages.errors"
+            :key="msg"
+          >{{ msg }}</v-alert>
+          <v-alert
+            v-model="messages.warnings[idx]"
+            type="warning"
+            v-for="(msg, idx) in messages.warnings"
+            :key="msg"
+          >{{ msg }}</v-alert>
+        </div>
+        <v-btn @click="selectPackageDirectoryButton">Select directory</v-btn>
+        <file-upload directory multiple v-model="files" ref="upload"></file-upload>
         <ul>
-          <li v-for="file in files" :key="file.id">{{file.name}}</li>
+          <li v-for="file in files" :key="file.id">{{ file.name }}</li>
         </ul>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="importDialog = false" :disabled="importing" :loading="importing">Cancel</v-btn>
-          <v-btn
-            @click="importPackage"
-            :disabled="importing || files.length === 0"
-            :loading="importing"
-          >Import</v-btn>
+          <v-btn @click="importDialog = false" :disabled="importing">Cancel</v-btn>
+          <v-btn @click="importPackage" :disabled="importing || !importable">Import</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -44,7 +57,7 @@ import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import PackageEditor from "../components/PackageEditor.vue";
 import FileUpload from "vue-upload-component";
-import { importPackage } from "../importer";
+import { importPackage, validatePackage } from "../importer";
 
 export default Vue.extend({
   data: () => ({
@@ -70,6 +83,14 @@ export default Vue.extend({
     },
     currentPackage() {
       return this.packages[this.currentPkgId];
+    },
+    importable() {
+      return this.messages.errors.length === 0;
+    },
+    messages() {
+      let files = this.files.map((f: any) => f.file);
+      let { errors, warnings } = validatePackage(files);
+      return { errors, warnings };
     }
   },
   created() {
@@ -125,11 +146,19 @@ export default Vue.extend({
           resolve();
         });
       });
+    },
+    resetFiles() {
+      this.files = [];
+    },
+    selectPackageDirectoryButton() {
+      this.resetFiles();
+      const input = this.$refs.upload.$el.querySelector("input");
+      input.click();
     }
   },
   watch: {
     importDialog(value) {
-      this.files = [];
+      this.resetFiles();
     }
   }
 });
