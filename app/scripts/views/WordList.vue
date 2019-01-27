@@ -24,16 +24,22 @@
     >
       <template slot="items" slot-scope="props">
         <tr @click="props.expanded = !props.expanded; expand(props.item)">
-          <td>{{ props.item.dateStr }}</td>
-          <td v-if="freqSupported">{{ props.item.freq }}</td>
-          <td>{{ props.item.key }}</td>
+          <td class="caption">{{ props.item.dateStr }}</td>
+          <td v-if="freqSupported" class="caption">{{ props.item.freq }}</td>
+          <td class="body-2">{{ props.item.keyDisplay }}</td>
           <td>
-            <span>{{ props.item.context.before }}</span>
-            <span class="word-in-context">{{ props.item.context.word }}</span>
-            <span>{{ props.item.context.after }}</span>
-          </td>
-          <td>
-            <a :href="props.item.source.url" target="_blank">{{ props.item.source.title }}</a>
+            <div>
+              <span>{{ props.item.context.before }}</span>
+              <span class="word-in-context">{{ props.item.context.word }}</span>
+              <span>{{ props.item.context.after }}</span>
+            </div>
+            <div class="caption font-italic">
+              <a
+                class="source-link"
+                :href="props.item.source.url"
+                target="_blank"
+              >{{ props.item.source.title }}</a>
+            </div>
           </td>
         </tr>
       </template>
@@ -62,6 +68,7 @@ interface TableEntry {
   dateStr: string;
   freq: number;
   key: string;
+  keyDisplay: string;
   context: {
     before: string;
     word: string;
@@ -179,13 +186,12 @@ export default Vue.extend({
       getEntriesToShow(pkg.id).then(({ entries, entryToFreq }) => {
         let headers = [
           { text: "Date", value: "date" },
-          { text: "Key", value: "key" },
-          { text: "Context", value: "date", sortable: false },
-          { text: "Source", value: "date", sortable: false }
+          { text: "Key", value: "keyDisplay" },
+          { text: "Context", value: "date", sortable: false }
         ];
         this.freqSupported = entryToFreq !== null;
         if (entryToFreq !== null) {
-          headers.splice(1, 0, { text: "Frequency", value: "freq" });
+          headers.splice(1, 0, { text: "Freq.", value: "freq" });
         }
         this.headers = headers;
 
@@ -197,6 +203,7 @@ export default Vue.extend({
             dateStr: new Date(entry.date).toLocaleDateString(),
             freq,
             key: entry.key,
+            keyDisplay: pkg.tokenizeByWhiteSpace ? entry.key : entry.key.replace(/ /g, ''),
             context: splitContext(
               entry.context.text,
               entry.context.begin,
@@ -235,5 +242,12 @@ export default Vue.extend({
 .word-in-context {
   color: red;
   font-weight: bold;
+}
+a.source-link {
+  color: gray;
+  text-decoration: none;
+}
+a.source-link:hover {
+  text-decoration: underline;
 }
 </style>
