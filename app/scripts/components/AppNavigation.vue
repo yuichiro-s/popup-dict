@@ -1,8 +1,10 @@
 <template>
   <span>
-    <v-toolbar fixed app>
-      <v-btn flat to="/settings">Settings</v-btn>
-      <v-btn flat to="/wordlist">Word List</v-btn>
+    <v-toolbar fixed app dense color="primary" dark>
+      <v-toolbar-items>
+        <v-btn flat to="/settings">Settings</v-btn>
+        <v-btn flat to="/wordlist">Word List</v-btn>
+      </v-toolbar-items>
     </v-toolbar>
   </span>
 </template>

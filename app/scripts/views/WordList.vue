@@ -1,17 +1,25 @@
 <template>
   <div>
-    <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
-    <div>
-      <p>Known: {{ stats ? stats.knownCount : '???' }}</p>
-      <p>Marked: {{ stats ? stats.markedCount : '???' }}</p>
-    </div>
-    <v-text-field
-      append-icon="search"
-      label="Search"
-      single-line
-      hide-details
-      v-model="searchInput"
-    ></v-text-field>
+    <v-layout>
+      <v-flex xs4>
+        <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+      </v-flex>
+      <v-flex xs4>
+        <div>
+          <span>Known: {{ stats ? stats.knownCount : '???' }}</span>
+          <span>Marked: {{ stats ? stats.markedCount : '???' }}</span>
+        </div>
+      </v-flex>
+      <v-flex xs4>
+        <v-text-field
+          append-icon="search"
+          label="Search"
+          single-line
+          hide-details
+          v-model="searchInput"
+        ></v-text-field>
+      </v-flex>
+    </v-layout>
     <v-data-table
       :headers="headers"
       :items="entries"
@@ -203,7 +211,9 @@ export default Vue.extend({
             dateStr: new Date(entry.date).toLocaleDateString(),
             freq,
             key: entry.key,
-            keyDisplay: pkg.tokenizeByWhiteSpace ? entry.key : entry.key.replace(/ /g, ''),
+            keyDisplay: pkg.tokenizeByWhiteSpace
+              ? entry.key
+              : entry.key.replace(/ /g, ""),
             context: splitContext(
               entry.context.text,
               entry.context.begin,

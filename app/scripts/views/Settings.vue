@@ -1,8 +1,14 @@
 <template>
-  <span>
+  <div>
     <v-dialog v-model="deleteDialog" v-if="currentPackage" :persistent="deleting">
       <v-card>
-        <v-card-text>Are you sure you want to delete {{ this.currentPackage.name }}? This cannot be undone.</v-card-text>
+        <v-card-title primary-title>
+          <div class="headline">Delete package</div>
+        </v-card-title>
+        <v-card-text class="body-2">
+          Are you sure you want to delete
+          <span class="font-italic">{{ this.currentPackage.name }}</span>? This cannot be undone.
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="deleteDialog = false" :disabled="deleting" :loading="deleting">Cancel</v-btn>
@@ -44,14 +50,19 @@
     </v-dialog>
 
     <file-upload v-model="userDataFiles" :extensions="['json']" ref="uploadUserData"></file-upload>
+
+    <h1>User data</h1>
     <v-btn @click="importUserDataButton">Import User Data</v-btn>
     <v-btn @click="exportUserDataButton">Export User Data</v-btn>
-    <v-btn @click="importDialog = true">Import New Package</v-btn>
-    <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
 
+    <v-divider></v-divider>
+
+    <h1>Packages</h1>
+    <v-btn @click="importDialog = true">Import New Package</v-btn>
     <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+    <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
     <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
-  </span>
+  </div>
 </template>
 
 <script lang="ts">

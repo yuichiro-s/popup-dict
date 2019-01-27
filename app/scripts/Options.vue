@@ -3,9 +3,11 @@
     <v-app>
       <app-navigation></app-navigation>
       <v-content transition="slide-x-transition">
-        <keep-alive>
-          <router-view></router-view>
-        </keep-alive>
+        <v-container fluid>
+          <keep-alive>
+            <router-view></router-view>
+          </keep-alive>
+        </v-container>
       </v-content>
     </v-app>
   </div>

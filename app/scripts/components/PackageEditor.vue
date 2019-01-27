@@ -1,7 +1,6 @@
 <template>
   <span>
-    <h1>{{pkg.id}}</h1>
-    <v-text-field label="Name" v-model="pkg.name"></v-text-field>
+    <h1>ID: {{pkg.id}}</h1>
     <v-text-field label="Language Code (ISO 639-3)" v-model="pkg.languageCode"></v-text-field>
     <!-- TODO: edit capitalization option -->
     <v-select
@@ -9,6 +8,7 @@
       label="When to show the dictionary tooltip"
       v-model="pkg.showDictionary"
     ></v-select>
+
     <v-dialog v-model="dialog">
       <v-btn slot="activator">Add Dictionary</v-btn>
       <v-card>
