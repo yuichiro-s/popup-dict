@@ -31,7 +31,10 @@
       expand
     >
       <template slot="items" slot-scope="props">
-        <tr @click="props.expanded = !props.expanded; expand(props.item)">
+        <tr
+          @click="props.expanded = !props.expanded; expand(props.item)"
+          :class="{ known: props.item.known }"
+        >
           <td class="caption">{{ props.item.dateStr }}</td>
           <td v-if="freqSupported" class="caption">{{ props.item.freq }}</td>
           <td class="body-2">{{ props.item.keyDisplay }}</td>
@@ -52,12 +55,18 @@
         </tr>
       </template>
       <template slot="expand" slot-scope="props">
-        <v-card flat>
+        <v-card flat :color="props.item.known ? '#ddffdd' : undefined">
+          <v-checkbox
+            v-model="props.item.known"
+            label="I know this"
+            @change="changeKnown(props.item)"
+          ></v-checkbox>
           <v-card-text
             v-for="(lemma, index) in props.item.lemmas"
             :key="index"
           >{{ lemma }} {{ props.item.defs[index] }}</v-card-text>
         </v-card>
+        <v-divider></v-divider>
       </template>
     </v-data-table>
   </div>
@@ -69,7 +78,7 @@ import debounce from "lodash/debounce";
 import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import { PackageID } from "../packages";
-import { MarkedEntry, State } from "../entry";
+import { Entry, MarkedEntry, KnownEntry, State } from "../entry";
 
 interface TableEntry {
   date: number;
@@ -88,6 +97,8 @@ interface TableEntry {
   };
   lemmas: string[];
   defs: string[][];
+  known: boolean;
+  entry: MarkedEntry;
 }
 
 async function getEntriesToShow(pkgId: PackageID) {
@@ -221,7 +232,9 @@ export default Vue.extend({
             ),
             source: entry.source,
             defs: [],
-            lemmas: []
+            lemmas: [],
+            known: false,
+            entry
           });
         }
         this.entries = newEntries;
@@ -243,12 +256,28 @@ export default Vue.extend({
           entry.lemmas = item.lemmas;
         }
       );
+    },
+    changeKnown(entry: TableEntry) {
+      let originalEntry = entry.entry;
+      let newEntry: Entry;
+      if (entry.known) {
+        // change to known
+        newEntry = {
+          key: originalEntry.key,
+          pkgId: originalEntry.pkgId,
+          state: State.Known
+        };
+      } else {
+        // change to marked
+        newEntry = originalEntry;
+      }
+      sendCommand({ type: "update-entry", entry: newEntry });
     }
   }
 });
 </script>
 
-<style scoped>
+<style>
 .word-in-context {
   color: red;
   font-weight: bold;
@@ -259,5 +288,8 @@ a.source-link {
 }
 a.source-link:hover {
   text-decoration: underline;
+}
+.known {
+  background-color: #ddffdd;
 }
 </style>
