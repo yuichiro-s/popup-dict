@@ -1,12 +1,18 @@
 <template>
   <div>
     <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
-    <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
+    <v-text-field
+      append-icon="search"
+      label="Search"
+      single-line
+      hide-details
+      v-model="searchInput"
+    ></v-text-field>
     <v-data-table
       :headers="headers"
       :items="entries"
       :loading="loading"
-      :search="search"
+      :search="searchQuery"
       :rows-per-page-items="[100, 500, 1000, {'text': 'All', 'value': -1}]"
       :pagination.sync="pagination"
     >
@@ -29,6 +35,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import debounce from "lodash/debounce";
 import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import { PackageID } from "../packages";
@@ -99,10 +106,11 @@ export default Vue.extend({
     headers: [],
     loading: false,
     entries: [],
-    search: "",
+    searchInput: "",
+    searchQuery: "",
     pagination: {
-        'sortBy': 'date',
-        descending: true,
+      sortBy: "date",
+      descending: true
     }
   }),
   computed: {
@@ -171,9 +179,11 @@ export default Vue.extend({
         this.entries = newEntries;
         this.loading = false;
       });
-    }
-  },
-  methods: {}
+    },
+    searchInput: debounce(function() {
+      this.searchQuery = this.searchInput;
+    }, 300)
+  }
 });
 </script>
 
