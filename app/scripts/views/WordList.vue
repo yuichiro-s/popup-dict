@@ -1,6 +1,10 @@
 <template>
   <div>
     <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+    <div>
+      <p>Known: {{ stats ? stats.knownCount : '???' }}</p>
+      <p>Marked: {{ stats ? stats.markedCount : '???' }}</p>
+    </div>
     <v-text-field
       append-icon="search"
       label="Search"
@@ -100,8 +104,12 @@ function splitContext(text: string, begin: number, end: number) {
 
 export default Vue.extend({
   data: () => ({
+    // package info
     packages: {},
     currentPkgId: null,
+    stats: null,
+
+    // table
     freqSupported: false,
     headers: [],
     loading: false,
@@ -147,6 +155,13 @@ export default Vue.extend({
   watch: {
     currentPackage(pkg: Settings) {
       this.loading = true;
+      this.stats = null;
+      sendCommand({
+        type: "get-entry-stats",
+        pkgId: pkg.id
+      }).then(stats => {
+        this.stats = stats;
+      });
       getEntriesToShow(pkg.id).then(({ entries, entryToFreq }) => {
         let headers = [
           { text: "Date", value: "date" },
