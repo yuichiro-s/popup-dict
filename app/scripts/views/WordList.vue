@@ -15,23 +15,35 @@
     <v-data-table
       :headers="headers"
       :items="entries"
+      item-key="key"
       :loading="loading"
       :search="searchQuery"
       :rows-per-page-items="[100, 500, 1000, {'text': 'All', 'value': -1}]"
       :pagination.sync="pagination"
+      expand
     >
       <template slot="items" slot-scope="props">
-        <td>{{ props.item.dateStr }}</td>
-        <td v-if="freqSupported">{{ props.item.freq }}</td>
-        <td>{{ props.item.key }}</td>
-        <td>
-          <span>{{ props.item.context.before }}</span>
-          <span class="word-in-context">{{ props.item.context.word }}</span>
-          <span>{{ props.item.context.after }}</span>
-        </td>
-        <td>
-          <a :href="props.item.source.url" target="_blank">{{ props.item.source.title }}</a>
-        </td>
+        <tr @click="props.expanded = !props.expanded; expand(props.item)">
+          <td>{{ props.item.dateStr }}</td>
+          <td v-if="freqSupported">{{ props.item.freq }}</td>
+          <td>{{ props.item.key }}</td>
+          <td>
+            <span>{{ props.item.context.before }}</span>
+            <span class="word-in-context">{{ props.item.context.word }}</span>
+            <span>{{ props.item.context.after }}</span>
+          </td>
+          <td>
+            <a :href="props.item.source.url" target="_blank">{{ props.item.source.title }}</a>
+          </td>
+        </tr>
+      </template>
+      <template slot="expand" slot-scope="props">
+        <v-card flat>
+          <v-card-text
+            v-for="(lemma, index) in props.item.lemmas"
+            :key="index"
+          >{{ lemma }} {{ props.item.defs[index] }}</v-card-text>
+        </v-card>
       </template>
     </v-data-table>
   </div>
@@ -59,6 +71,8 @@ interface TableEntry {
     url: string;
     title: string;
   };
+  lemmas: string[];
+  defs: string[][];
 }
 
 async function getEntriesToShow(pkgId: PackageID) {
@@ -188,7 +202,9 @@ export default Vue.extend({
               entry.context.begin,
               entry.context.end
             ),
-            source: entry.source
+            source: entry.source,
+            defs: [],
+            lemmas: []
           });
         }
         this.entries = newEntries;
@@ -198,6 +214,19 @@ export default Vue.extend({
     searchInput: debounce(function() {
       this.searchQuery = this.searchInput;
     }, 300)
+  },
+  methods: {
+    expand(entry: TableEntry) {
+      const pkgId = this.currentPkgId;
+      const key = entry.key;
+      sendCommand({ type: "lookup-dictionary", pkgId, keys: [key] }).then(
+        items => {
+          const item = items[0];
+          entry.defs = item.defs;
+          entry.lemmas = item.lemmas;
+        }
+      );
+    }
   }
 });
 </script>
