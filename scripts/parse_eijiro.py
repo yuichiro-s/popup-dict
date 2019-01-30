@@ -40,6 +40,7 @@ def main():
                 lemma = word
 
             if word not in words:
+                # ignore words not included in Wiktionary dump
                 continue
 
             if '【変化】' in def_str:
@@ -75,29 +76,33 @@ def main():
     
     with open(dict_path, 'w') as f_dict:
         for word, v in entries.items():
-            lemmas = []
-            defs = []
+            entries = []
+            info = None
             for lemma, d in sorted(v.items(), key=lambda t: (','.join(t[0]) if isinstance(t[0], tuple) else t[0], t[1])):
-                if isinstance(lemma, tuple):
-                    lemma, pos = lemma
-                    #forms = []
-                    #if '動' in pos:
-                    #    forms.extend(verb_forms(word))
-                    #elif pos.startswith('名'):
-                    #    forms.extend(noun_forms(word))
-                    #for form in forms:
-                    #    if form not in inflection_dict:
-                    #        inflection_dict[form] = word
-                    #        print(f'ADDED: {form} -> {word}')
-                    lemma_str = f'{lemma} {{{pos}}}'
+                if len(d) == 1 and d[0].startswith('【'):
+                    info = d[0]
                 else:
-                    lemma_str = lemma
-                lemmas.append(lemma_str)
-                defs.append(d)
+                    if isinstance(lemma, tuple):
+                        lemma, pos = lemma
+                        #forms = []
+                        #if '動' in pos:
+                        #    forms.extend(verb_forms(word))
+                        #elif pos.startswith('名'):
+                        #    forms.extend(noun_forms(word))
+                        #for form in forms:
+                        #    if form not in inflection_dict:
+                        #        inflection_dict[form] = word
+                        #        print(f'ADDED: {form} -> {word}')
+                    else:
+                        pos = None
+                    entries.append({
+                        'pos': pos,
+                        'defs': d,
+                    })
             obj = {
                 'word': word,
-                'lemmas': lemmas,
-                'defs': defs,
+                'info': info,
+                'entries': entries,
             }
             print(json.dumps(obj), file=f_dict)
 
