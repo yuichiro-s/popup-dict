@@ -12,4 +12,5 @@ export type Settings = {
     tokenizeByWhiteSpace: boolean,
     dictionaries: DictionaryInfo[],
     showDictionary: ShowDictionary,
+    template: string,
 };

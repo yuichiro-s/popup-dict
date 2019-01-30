@@ -40,6 +40,8 @@
       </v-data-table>
     </v-container>
 
+    <v-textarea label="Template of dictionary tooltip" v-model="pkg.template" auto-grow></v-textarea>
+
     <v-btn @click="restoreDefault">Restore default settings</v-btn>
   </span>
 </template>
