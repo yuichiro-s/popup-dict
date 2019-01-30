@@ -27,6 +27,7 @@ highlighted.vocab-highlighted:hover {
 }
 
 .dictionary-entry-pos {
+  color: #003300;
   font-style: italic;
 }
 
