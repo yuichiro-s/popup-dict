@@ -26,6 +26,7 @@ export type Command =
 
     // stats
     { type: 'get-stats', pkgId: PackageID } |
+    { type: 'get-stats-history', pkgId: PackageID } |
 
     // package import
     { type: 'import-index', pkgId: PackageID, data: string } |

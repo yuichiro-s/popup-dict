@@ -4,6 +4,7 @@
       <v-toolbar-items>
         <v-btn flat to="/settings">Settings</v-btn>
         <v-btn flat to="/wordlist">Word List</v-btn>
+        <v-btn flat to="/history">History</v-btn>
       </v-toolbar-items>
     </v-toolbar>
   </span>

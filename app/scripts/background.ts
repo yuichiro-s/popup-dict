@@ -6,7 +6,7 @@ import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency, importFrequencyTable } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
-import { getStats, saveAllStats } from './stats';
+import { getStats, saveAllStats, getStatsHistory } from './stats';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
@@ -47,6 +47,8 @@ chrome.runtime.onMessage.addListener(
 
         } else if (request.type === 'get-stats') {
             getStats(request.pkgId).then(sendResponse);
+        } else if (request.type === 'get-stats-history') {
+            getStatsHistory(request.pkgId).then(sendResponse);
 
         } else if (request.type === 'import-trie') {
             importTrie(request.pkgId, request.data).then(sendResponse);

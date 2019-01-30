@@ -41,7 +41,7 @@ class Database extends Dexie {
     constructor() {
         super('entries');
         this.version(1).stores({
-            vocabulary: '[pkgId+key], [pkgId+state]'
+            vocabulary: '[pkgId+key], [pkgId+state], state'
         });
     }
 }
