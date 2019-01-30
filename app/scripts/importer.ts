@@ -1,3 +1,4 @@
+import toml from 'toml';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { sendCommand } from './command';
@@ -26,7 +27,7 @@ function gatherNecessaryFiles(files: File[]) {
     let subDictFiles: File[] = [];
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        if (file.name === 'settings.json') {
+        if (file.name === 'settings.toml') {
             settingsFile = file;
         } else if (file.name === 'trie.json') {
             trieFile = file;
@@ -67,7 +68,7 @@ export function validatePackage(files: File[]) {
         subDictFiles
     } = gatherNecessaryFiles(files);
 
-    if (settingsFile === null) errors.push('settings.json is not found.');
+    if (settingsFile === null) errors.push('settings.toml is not found.');
     if (trieFile === null) errors.push('trie.json is not found.');
     if (lemmatizerFile === null) errors.push('lemmatizer.json is not found.');
     if (entriesFile === null) errors.push('entries.json is not found.');
@@ -90,7 +91,7 @@ export async function importPackage(files: File[]) {
     } = gatherNecessaryFiles(files);
 
     // load settings
-    let settings = JSON.parse(await loadFile(settingsFile!));
+    let settings = toml.parse(await loadFile(settingsFile!));
 
     // save default settings
     settings.default = cloneDeep(settings);
