@@ -32,6 +32,10 @@ export async function getStats(pkgId: PackageID): Promise<Stats> {
     return { knownCount, markedCount };
 }
 
+export function deleteStats(pkgId: PackageID) {
+    return db.history.where('pkgId').equals(pkgId).delete();
+}
+
 export async function getStatsHistory(pkgId: PackageID): Promise<StatsHistoryEntry[]> {
     return db.history.where('pkgId').equals(pkgId).toArray();
 }

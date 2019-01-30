@@ -3,6 +3,8 @@ import { deleteAllDictionaries, deleteIndex } from './dictionary';
 import { deleteFrequencyTable } from './frequency';
 import { deleteLemmatizer } from './lemmatizer';
 import { deleteTrie } from './trie';
+import { deleteStats } from './stats';
+import { deleteEntries } from './entry';
 
 export type PackageID = string;
 
@@ -46,6 +48,8 @@ export async function deletePackage(pkgId: PackageID) {
                         deleteLemmatizer(pkgId),
                         deleteFrequencyTable(pkgId),
                         deleteTrie(pkgId),
+                        deleteStats(pkgId),
+                        deleteEntries(pkgId),
                     ]).then(resolve).catch(reject);
                 });
             } else {

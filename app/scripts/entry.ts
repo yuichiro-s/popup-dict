@@ -41,7 +41,7 @@ class Database extends Dexie {
     constructor() {
         super('entries');
         this.version(1).stores({
-            vocabulary: '[pkgId+key], [pkgId+state], state'
+            vocabulary: '[pkgId+key], [pkgId+state], pkgId, state'
         });
     }
 }
@@ -68,6 +68,10 @@ export function putEntries(entries: Entry[]) {
         }
         f(0);
     });
+}
+
+export function deleteEntries(pkgId: PackageID) {
+    return db.vocabulary.where('pkgId').equals(pkgId).delete();
 }
 
 export function lookUpEntries(pkgId: PackageID, keys: string[][]): Promise<Entry[]> {
@@ -147,31 +151,42 @@ export async function importUserData(data: string) {
     let { known, marked } = JSON.parse(data);
     let entries: Entry[] = [];
 
+    const cat = (tuple: [PackageID, string]) => {
+        return tuple.join('@');
+    };
+
+    const keys = await db.vocabulary.toCollection().primaryKeys();
+    let keySet = new Set(keys.map(cat));
+
     let packages = await getPackages();
     for (let pkgId in known) {
         if (pkgId in packages) {
             for (let key of known[pkgId]) {
-                let entry: KnownEntry = {
-                    pkgId,
-                    key,
-                    state: State.Known,
-                };
-                entries.push(entry);
+                if (keySet.has(cat([pkgId, key]))) {
+                    let entry: KnownEntry = {
+                        pkgId,
+                        key,
+                        state: State.Known,
+                    };
+                    entries.push(entry);
+                }
             }
         }
     }
     for (let pkgId in marked) {
         if (pkgId in packages) {
             for (let obj of marked[pkgId]) {
-                let entry: MarkedEntry = {
-                    pkgId,
-                    key: obj.key,
-                    state: State.Marked,
-                    date: obj.date,
-                    context: obj.context,
-                    source: obj.source,
-                };
-                entries.push(entry);
+                if (keySet.has(cat([pkgId, obj.key]))) {
+                    let entry: MarkedEntry = {
+                        pkgId,
+                        key: obj.key,
+                        state: State.Marked,
+                        date: obj.date,
+                        context: obj.context,
+                        source: obj.source,
+                    };
+                    entries.push(entry);
+                }
             }
         }
     }
