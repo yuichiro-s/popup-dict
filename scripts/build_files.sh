@@ -1,4 +1,4 @@
-for lang in GermanWiktionary Chinese; do
+for lang in EnglishEijiro GermanWiktionary Chinese; do
   # in
   dict=data/$lang/dict.json
   inflection=data/$lang/inflection
