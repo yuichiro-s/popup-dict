@@ -53,7 +53,7 @@ def decode_pinyin(s):
 
 def func(pron):
     pron = pron[1:-1]
-    return '[' + ' '.join(map(decode_pinyin, pron.split())) + ']'
+    return ' '.join(map(decode_pinyin, pron.split()))
 
 
 def main():
@@ -62,7 +62,7 @@ def main():
         for line in f:
             if line.startswith('#'):
                 continue
-            _, word, definition = line.strip().split(' ', 2)
+            traditional, word, definition = line.strip().split(' ', 2)
             pos = definition.find(']')
             pronunciation = definition[:pos + 1]
             definition = definition[pos + 2:]
@@ -72,8 +72,9 @@ def main():
                     definition_list.append(d)
             obj = {
                 'word': word,
-                'lemmas': ['{} {}'.format(word, func(pronunciation))],
-                'defs': [definition_list],
+                'traditional': traditional,
+                'pinyin': func(pronunciation),
+                'defs': definition_list,
             }
             print(json.dumps(obj))
 

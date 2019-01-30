@@ -1,6 +1,6 @@
-for lang in GermanDictcc English Chinese ChineseHanzi; do
+for lang in GermanWiktionary Chinese; do
   # in
-  dict=data/$lang/dict
+  dict=data/$lang/dict.json
   inflection=data/$lang/inflection
   frequency=data/$lang/frequency
 
@@ -14,10 +14,10 @@ for lang in GermanDictcc English Chinese ChineseHanzi; do
 
   mkdir -p $pkg
   (
-    python scripts/build_lemmatizer.py $lang $dict $inflection > $lemmatizer
+    python scripts/build_lemmatizer.py $dict $inflection > $lemmatizer
     python scripts/build_trie.py $lang $dict $lemmatizer > $trie
     python scripts/build_entries.py $lang $dict $lemmatizer > $entries
     python scripts/build_dictionary.py $lang $dict $lemmatizer $frequency $dictionary $frequency_out
-    cp data/$lang/settings.json $pkg
+    cp data/$lang/settings.toml $pkg
   )
 done

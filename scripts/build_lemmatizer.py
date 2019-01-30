@@ -6,7 +6,7 @@ import tqdm
 MAX_DEPTH = 10
 
 
-def main(lang, dict_path, inflection_path):
+def main(dict_path, inflection_path):
     # load dictionary
     d = load_dictionary(dict_path)
 
@@ -26,13 +26,15 @@ def main(lang, dict_path, inflection_path):
             form = original_form
             for _ in range(MAX_DEPTH):
                 if form in d:
+                    # do not lemmatize further if the current form is a lemma in the dictionary
                     if form != original_form:
                         lemmatizer[original_form] = form
                     break
-                if form not in patterns:
-                    break
                 else:
-                    form = patterns[form]
+                    if form not in patterns:
+                        break
+                    else:
+                        form = patterns[form]
 
     print(json.dumps(lemmatizer))
 

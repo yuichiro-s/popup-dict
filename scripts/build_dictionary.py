@@ -25,15 +25,8 @@ def main(args):
         lemmas = lemmatize(word, args.lang, args.lemmatizer_path)
         key = ' '.join(lemmas)
         freq_key = ' '.join(lemmatize(word, args.lang, args.lemmatizer_path, lower=not args.no_lower))
-        entry = {
-            'word': word,
-        }
         freqs[key] = freq_dict[freq_key]
-        if 'defs' in obj:
-            entry['defs'] = obj['defs']
-        if 'lemmas' in obj:
-            entry['lemmas'] = obj['lemmas']
-        entries[key] = entry
+        entries[key] = obj
     
     # split entries into chunks
     index = {}
@@ -66,6 +59,6 @@ if __name__ == '__main__':
     parser.add_argument('frequency_path')
     parser.add_argument('out')
     parser.add_argument('out_frequency')
-    parser.add_argument('--size', type=int, default=5000)
+    parser.add_argument('--size', type=int, default=1000)
     parser.add_argument('--no-lower', action='store_true', help='don\'t lowercase words when looking up frequency')
     main(parser.parse_args())

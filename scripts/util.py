@@ -40,15 +40,5 @@ def load_dictionary(path):
         for line in f:
             obj = json.loads(line)
             word = obj['word']
-            if word in result:
-                entry = result[word]
-
-                def merge(key):
-                    if key in obj:
-                        entry[key] = entry.get(key, []) + obj[key]
-
-                merge('lemmas')
-                merge('defs')
-            else:
-                result[word] = obj
+            result[word] = obj
     return result
