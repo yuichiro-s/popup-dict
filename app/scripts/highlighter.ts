@@ -81,7 +81,7 @@ async function mouseEnterListener(event: MouseEvent) {
 
             if (dictEntry) {
                 // show tooltip
-                let toolTip = createToolTip(dictEntry);
+                let toolTip = await createToolTip(pkg.id, dictEntry);
                 let tip = tippy.one(element, {
                     theme: 'light-border',
                     content: toolTip,

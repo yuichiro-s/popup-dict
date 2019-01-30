@@ -252,8 +252,9 @@ export default Vue.extend({
         items => {
           const item = items[0];
           if (item) {
-            let element = createToolTip(item);
-            entry.dictHTML = element.innerHTML;
+            createToolTip(pkgId, item).then(element => {
+              entry.dictHTML = element.innerHTML;
+            });
           }
         }
       );
