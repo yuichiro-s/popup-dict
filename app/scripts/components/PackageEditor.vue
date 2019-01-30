@@ -40,7 +40,8 @@
       </v-data-table>
     </v-container>
 
-    <v-textarea label="Template of dictionary tooltip" v-model="pkg.template" auto-grow></v-textarea>
+    <h2>Template</h2>
+    <codemirror :options="options" v-model="pkg.template"></codemirror>
 
     <v-btn @click="restoreDefault">Restore default settings</v-btn>
   </span>
@@ -51,6 +52,8 @@ import Vue from "vue";
 import debounce from "lodash/debounce";
 import { sendCommand } from "../command";
 import { Settings, DictionaryInfo } from "../settings";
+import { codemirror } from "vue-codemirror-lite";
+import "codemirror/mode/htmlembedded/htmlembedded";
 
 export default Vue.extend({
   name: "PackageEditor",
@@ -76,8 +79,16 @@ export default Vue.extend({
       defaultItem: {
         name: "",
         pattern: ""
+      },
+      options: {
+        mode: "htmlembedded",
+        lineNumbers: true,
+        extraKeys: { "Ctrl-Space": "autocomplete" }
       }
     };
+  },
+  components: {
+    codemirror
   },
   computed: {
     formTitle() {

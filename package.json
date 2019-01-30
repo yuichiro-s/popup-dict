@@ -72,6 +72,8 @@
     "typescript": "^3.0.3",
     "url-loader": "^1.1.2",
     "vinyl-named": "1.x.x",
+    "vue-codemirror": "^4.0.6",
+    "vue-codemirror-lite": "^1.0.4",
     "vue-loader": "^15.5.1",
     "vue-router": "^3.0.2",
     "vue-template-compiler": "^2.5.22",
