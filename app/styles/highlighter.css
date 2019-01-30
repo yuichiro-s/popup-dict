@@ -17,12 +17,22 @@ div.dictionary-entry {
   padding: 0px;
 }
 
-span.dictionary-entry-lemma {
+span.dictionary-entry-word {
   font-size: medium;
   font-weight: bold;
   color: navy;
   margin: 0px;
   padding: 0px;
+}
+
+span.dictionary-entry-pos {}
+
+span.dictionary-entry-gender {}
+
+span.dictionary-entry-bullet {
+  margin: 0px 2px 0px 4px;
+  padding: 0px;
+  color: rgb(50, 50, 170);
 }
 
 span.dictionary-entry-def {
@@ -35,18 +45,16 @@ span.dictionary-entry-def {
   color: #222222;
 }
 
-span.dictionary-entry-expand {
-  margin: 0px 0px 0px 3px;
+dd.dictionary-entry-example-original {
+    color: red;
 }
 
-span.dictionary-entry-expand:hover {
-  text-decoration: underline;
+dd.dictionary-entry-example-translation {
+    color: green;
 }
 
-span.dictionary-def-bullet {
-  margin: 0px 2px 0px 4px;
-  padding: 0px;
-  color: rgb(50, 50, 170);
+ol.dictionary-entry-defs {
+    margin-left: 10px;
 }
 
 hr.dictionary-entry-separator {

@@ -2,11 +2,7 @@ import { PackageID } from './packages';
 import { CachedMap } from './cachedmap';
 import { table } from './database';
 
-export type DictionaryItem = {
-    word: string,
-    defs?: string[][],
-    lemmas?: string[],
-};
+export interface DictionaryItem { }
 
 type Dictionary = { [key: string]: DictionaryItem };
 type Index = { [key: string]: number };

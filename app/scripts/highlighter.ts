@@ -11,6 +11,7 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/themes/light-border.css';
 import tippy from 'tippy.js';
 import debounce from 'lodash/debounce';
+import { DictionaryItem } from './dictionary';
 
 const PUNCTUATIONS = [
     '\n',
@@ -76,8 +77,9 @@ async function mouseEnterListener(event: MouseEvent) {
         let key = element.dataset.key!;
         if (pkg) {
             let dictEntries = await sendCommand({ type: 'lookup-dictionary', pkgId: pkg.id, keys: [key] });
-            let dictEntry = dictEntries[0];
-            if (dictEntry && dictEntry.defs && dictEntry.lemmas) {
+            let dictEntry: DictionaryItem = dictEntries[0];
+
+            if (dictEntry) {
                 // show tooltip
                 let toolTip = createToolTip(dictEntry);
                 let tip = tippy.one(element, {

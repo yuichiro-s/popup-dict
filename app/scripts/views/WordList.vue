@@ -61,10 +61,9 @@
             label="I know this"
             @change="changeKnown(props.item)"
           ></v-checkbox>
-          <v-card-text
-            v-for="(lemma, index) in props.item.lemmas"
-            :key="index"
-          >{{ lemma }} {{ props.item.defs[index] }}</v-card-text>
+          <v-card-text v-if="props.item.dictHTML">
+            <div v-html="props.item.dictHTML"></div>
+          </v-card-text>
         </v-card>
         <v-divider></v-divider>
       </template>
@@ -78,7 +77,9 @@ import debounce from "lodash/debounce";
 import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import { PackageID } from "../packages";
+import { DictionaryItem } from "../dictionary";
 import { Entry, MarkedEntry, KnownEntry, State } from "../entry";
+import { createToolTip } from "../tooltip";
 
 interface TableEntry {
   date: number;
@@ -95,8 +96,7 @@ interface TableEntry {
     url: string;
     title: string;
   };
-  lemmas: string[];
-  defs: string[][];
+  dictHTML: string | null;
   known: boolean;
   entry: MarkedEntry;
 }
@@ -231,8 +231,7 @@ export default Vue.extend({
               entry.context.end
             ),
             source: entry.source,
-            defs: [],
-            lemmas: [],
+            dictHTML: null,
             known: false,
             entry
           });
@@ -252,8 +251,10 @@ export default Vue.extend({
       sendCommand({ type: "lookup-dictionary", pkgId, keys: [key] }).then(
         items => {
           const item = items[0];
-          entry.defs = item.defs;
-          entry.lemmas = item.lemmas;
+          if (item) {
+            let element = createToolTip(item);
+            entry.dictHTML = element.innerHTML;
+          }
         }
       );
     },

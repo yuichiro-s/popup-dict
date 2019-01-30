@@ -78,7 +78,8 @@ gulp.task('scripts', (cb) => {
             'app/scripts/',
           ],
           alias: {
-            'vue$': 'vue/dist/vue.esm.js'
+            'vue$': 'vue/dist/vue.esm.js',
+            'handlebars': 'handlebars/dist/handlebars.js',
           }
         }
       },
