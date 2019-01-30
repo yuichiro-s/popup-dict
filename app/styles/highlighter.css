@@ -10,14 +10,15 @@ highlighted.vocab-highlighted:hover {
   filter: contrast(70%) brightness(130%);
 }
 
-div.dictionary-entry {
+.dictionary-tooltip {
+  font-size: small;
   text-align: left;
   font-family: sans-serif;
   margin: 0px;
   padding: 0px;
 }
 
-span.dictionary-entry-word {
+.dictionary-entry-word {
   font-size: medium;
   font-weight: bold;
   color: navy;
@@ -25,36 +26,42 @@ span.dictionary-entry-word {
   padding: 0px;
 }
 
-span.dictionary-entry-pos {}
+.dictionary-entry-pos {
+  font-style: italic;
+}
 
-span.dictionary-entry-gender {}
+.dictionary-entry-gender {
+  font-style: italic;
+}
 
-span.dictionary-entry-bullet {
+.dictionary-entry-bullet {
   margin: 0px 2px 0px 4px;
   padding: 0px;
   color: rgb(50, 50, 170);
 }
 
-span.dictionary-entry-def {
+.dictionary-entry-def {
   font-size: small;
   margin: 0px;
   padding: 0px;
-  border-style: none none solid none;
-  border-width: 0px 0px 1px 0px;
-  border-color: white white #eeeeee white;
   color: #222222;
 }
 
-dd.dictionary-entry-example-original {
-    color: red;
+.dictionary-entry-example {
+  background-color: #eeeeee;
 }
 
-dd.dictionary-entry-example-translation {
-    color: green;
+.dictionary-entry-example-original {
+  font-size: smaller;
+}
+
+.dictionary-entry-example-translation {
+  font-size: smaller;
+  color: #444444;
 }
 
 ol.dictionary-entry-defs {
-    margin-left: 10px;
+  margin-left: 14px;
 }
 
 hr.dictionary-entry-separator {
