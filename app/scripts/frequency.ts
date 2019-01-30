@@ -20,7 +20,7 @@ export function getFrequency(tokens: string[], lang: PackageID): Promise<number[
     });
 }
 
-let frequencyTable = table('frequencyTables');
+let frequencyTable = table('frequency-tables');
 let frequencyTables = new CachedMap<PackageID, FrequencyTable>(frequencyTable.loader);
 let importFrequencyTable = frequencyTable.importer;
 let deleteFrequencyTable = frequencyTable.deleter;

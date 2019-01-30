@@ -5,7 +5,8 @@ import { lemmatize, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency, importFrequencyTable } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
-import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, getEntryStats } from './entry';
+import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
+import { getStats, saveAllStats } from './stats';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
@@ -39,12 +40,13 @@ chrome.runtime.onMessage.addListener(
             clearEntries().then(sendResponse);
         } else if (request.type === 'list-entries') {
             listEntries(request.pkgId, request.state).then(sendResponse);
-        } else if (request.type === 'get-entry-stats') {
-            getEntryStats(request.pkgId).then(sendResponse);
         } else if (request.type === 'import-user-data') {
             importUserData(request.data).then(sendResponse);
         } else if (request.type === 'export-user-data') {
             exportUserData().then(sendResponse);
+
+        } else if (request.type === 'get-stats') {
+            getStats(request.pkgId).then(sendResponse);
 
         } else if (request.type === 'import-trie') {
             importTrie(request.pkgId, request.data).then(sendResponse);
@@ -97,3 +99,6 @@ chrome.runtime.onInstalled.addListener(() => {
 
 addBrowserAction();
 createContextMenu();
+
+// record number of known/marked words on start-up
+saveAllStats();

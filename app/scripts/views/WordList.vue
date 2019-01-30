@@ -197,7 +197,7 @@ export default Vue.extend({
       this.loading = true;
       this.stats = null;
       sendCommand({
-        type: "get-entry-stats",
+        type: "get-stats",
         pkgId: pkg.id
       }).then(stats => {
         this.stats = stats;

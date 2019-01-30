@@ -41,7 +41,7 @@ class Database extends Dexie {
     constructor() {
         super('entries');
         this.version(1).stores({
-            vocabulary: '[pkgId+key], state'
+            vocabulary: '[pkgId+key], [pkgId+state]'
         });
     }
 }
@@ -98,7 +98,12 @@ export function updateEntry(entry: Entry) {
     return db.vocabulary.put(entry);
 }
 
-export function listEntries(pkgId?: PackageID, state?: State) {
+export function countEntries(pkgId: PackageID, state: State): Promise<number> {
+    const c = db.vocabulary.where({ pkgId, state });
+    return c.count();
+}
+
+export function listEntries(pkgId?: PackageID, state?: State): Promise<Entry[]> {
     let c;
     if (state === undefined) {
         c = db.vocabulary.where('state').equals(State.Known).or('state').equals(State.Marked);
@@ -109,12 +114,6 @@ export function listEntries(pkgId?: PackageID, state?: State) {
         c = c.and(entry => entry.pkgId === pkgId);
     }
     return c.toArray();
-}
-
-export async function getEntryStats(pkgId: PackageID) {
-    let knownCount = (await listEntries(pkgId, State.Known)).length;
-    let markedCount = (await listEntries(pkgId, State.Marked)).length;
-    return { knownCount, markedCount };
 }
 
 export function importEntries(pkgId: PackageID, data: string) {

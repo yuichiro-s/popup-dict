@@ -21,9 +21,11 @@ export type Command =
     { type: 'update-entry', entry: Entry } |
     { type: 'clear-entries' } |
     { type: 'list-entries', pkgId?: PackageID, state?: State } |
-    { type: 'get-entry-stats', pkgId: PackageID } |
     { type: 'import-user-data', data: string } |
     { type: 'export-user-data' } |
+
+    // stats
+    { type: 'get-stats', pkgId: PackageID } |
 
     // package import
     { type: 'import-index', pkgId: PackageID, data: string } |
