@@ -2,6 +2,7 @@ import toml from 'toml';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { sendCommand } from './command';
+import { Settings, validateAndInit } from './settings';
 
 export function loadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -91,7 +92,10 @@ export async function importPackage(files: File[]) {
     } = gatherNecessaryFiles(files);
 
     // load settings
-    let settings = toml.parse(await loadFile(settingsFile!));
+    let settings: Settings = toml.parse(await loadFile(settingsFile!));
+
+    // validate
+    validateAndInit(settings);
 
     // save default settings
     settings.default = cloneDeep(settings);
