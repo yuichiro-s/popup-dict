@@ -22,25 +22,37 @@
         <v-card-title primary-title>
           <div class="headline">Import package</div>
         </v-card-title>
-        <div v-if="files.length > 0">
-          <v-alert
-            v-model="messages.errors[idx]"
-            type="error"
-            v-for="(msg, idx) in messages.errors"
-            :key="msg"
-          >{{ msg }}</v-alert>
-          <v-alert
-            v-model="messages.warnings[idx]"
-            type="warning"
-            v-for="(msg, idx) in messages.warnings"
-            :key="msg"
-          >{{ msg }}</v-alert>
+        <div v-if="!importing">
+          <div v-if="files.length > 0">
+            <v-alert
+              v-model="messages.errors[idx]"
+              type="error"
+              v-for="(msg, idx) in messages.errors"
+              :key="msg"
+            >{{ msg }}</v-alert>
+            <v-alert
+              v-model="messages.warnings[idx]"
+              type="warning"
+              v-for="(msg, idx) in messages.warnings"
+              :key="msg"
+            >{{ msg }}</v-alert>
+          </div>
+          <v-btn @click="selectPackageDirectoryButton">Select directory</v-btn>
+          <file-upload directory multiple v-model="files" ref="upload"></file-upload>
+          <ul>
+            <li v-for="file in files" :key="file.id">{{ file.name }}</li>
+          </ul>
         </div>
-        <v-btn @click="selectPackageDirectoryButton">Select directory</v-btn>
-        <file-upload directory multiple v-model="files" ref="upload"></file-upload>
-        <ul>
-          <li v-for="file in files" :key="file.id">{{ file.name }}</li>
-        </ul>
+        <div v-else>
+          <div class="text-xs-center">
+            <v-progress-linear
+              :value="importProgress"
+              color="primary"
+              :height="30"
+            ></v-progress-linear>
+            <h2>{{ importMessage }}</h2>
+          </div>
+        </div>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="importDialog = false" :disabled="importing">Cancel</v-btn>
@@ -72,6 +84,7 @@ import { Settings } from "../settings";
 import PackageEditor from "../components/PackageEditor.vue";
 import FileUpload from "vue-upload-component";
 import { importPackage, validatePackage, loadFile } from "../importer";
+import { setInterval } from "timers";
 
 export default Vue.extend({
   data: () => ({
@@ -82,7 +95,9 @@ export default Vue.extend({
     packages: {},
     currentPkgId: null,
     files: [],
-    userDataFiles: []
+    userDataFiles: [],
+    importProgress: 0,
+    importMessage: ""
   }),
   computed: {
     items() {
@@ -138,11 +153,16 @@ export default Vue.extend({
     },
     importPackage() {
       this.importing = true;
+      this.importMessage = "";
+      this.importProgress = 0;
       let files = this.files.map((f: any) => f.file);
-      importPackage(files)
+      importPackage(files, (progress: number, msg: string) => {
+        this.importProgress = Math.round(progress * 100);
+        this.importMessage = msg;
+      })
         .then(pkg => {
           this.reloadPackages().then(() => {
-            alert(`Successfully imported.`);
+            alert(`Successfully imported ${pkg.name}.`);
             this.currentPkgId = pkg.id;
             this.importing = false;
             this.importDialog = false;
