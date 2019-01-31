@@ -1,0 +1,216 @@
+highlighted.vocab-highlighted[data-state='unknown'] {
+  background-color: rgba(238, 238, 119, 0.5);
+}
+
+highlighted.vocab-highlighted[data-state='marked'] {
+  background-color: rgba(238, 119, 119, 0.5);
+}
+
+highlighted.vocab-highlighted:hover {
+  filter: contrast(70%) brightness(130%);
+}
+
+.popup-dictionary {
+
+  /* css reset */
+  html,
+  body,
+  div,
+  span,
+  applet,
+  object,
+  iframe,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote,
+  pre,
+  a,
+  abbr,
+  acronym,
+  address,
+  big,
+  cite,
+  code,
+  del,
+  dfn,
+  em,
+  img,
+  ins,
+  kbd,
+  q,
+  s,
+  samp,
+  small,
+  strike,
+  strong,
+  sub,
+  sup,
+  tt,
+  var,
+  b,
+  u,
+  i,
+  center,
+  dl,
+  dt,
+  dd,
+  ol,
+  ul,
+  li,
+  fieldset,
+  form,
+  label,
+  legend,
+  table,
+  caption,
+  tbody,
+  tfoot,
+  thead,
+  tr,
+  th,
+  td,
+  article,
+  aside,
+  canvas,
+  details,
+  embed,
+  figure,
+  figcaption,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  output,
+  ruby,
+  section,
+  summary,
+  time,
+  mark,
+  audio,
+  video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+  }
+
+  /* HTML5 display-role reset for older browsers */
+  article,
+  aside,
+  details,
+  figcaption,
+  figure,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  section {
+    display: block;
+  }
+
+  body {
+    line-height: 1;
+  }
+
+  ol,
+  ul {
+    list-style: none;
+  }
+
+  blockquote,
+  q {
+    quotes: none;
+  }
+
+  blockquote:before,
+  blockquote:after,
+  q:before,
+  q:after {
+    content: '';
+    content: none;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* default */
+
+  .dictionary-tooltip {
+    font-size: small;
+    text-align: left;
+    font-family: sans-serif;
+  }
+
+  .dictionary-entry-word {
+    font-size: medium;
+    font-weight: bold;
+    color: navy;
+  }
+
+  .dictionary-entry-pos {
+    color: #003300;
+    font-style: italic;
+  }
+
+  .dictionary-entry-gender {
+    font-style: italic;
+  }
+
+  .dictionary-entry-bullet {
+    color: rgb(50, 50, 170);
+  }
+
+  .dictionary-entry-def {
+    font-size: small;
+    color: #222222;
+  }
+
+  .dictionary-entry-example {
+    background-color: #eeeeee;
+  }
+
+  .dictionary-entry-example-original {
+    font-size: smaller;
+  }
+
+  .dictionary-entry-example-translation {
+    font-size: smaller;
+    color: #444444;
+  }
+
+  dl {
+    margin-top: 2px;
+    margin-left: 16px;
+  }
+
+  hr.dictionary-entry-separator {
+    margin: 3px 0px;
+    border-style: solid;
+    border-width: 1px;
+    height: 0px;
+    border-color: gray;
+  }
+
+  ul {
+    list-style-type: circle;
+    list-style-position: outside;
+    margin-left: 16px;
+  }
+
+  ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin-left: 16px;
+  }
+}
