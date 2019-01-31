@@ -1,5 +1,6 @@
 import { PackageID, getPackages } from './packages';
 import Dexie from 'dexie';
+import { exportStats, StatsHistoryEntry, importStats } from './stats';
 
 export enum State {
     Unknown,
@@ -148,7 +149,8 @@ export interface MarkedEntryFields {
 }
 
 export async function importUserData(data: string) {
-    let { known, marked } = JSON.parse(data);
+    let { known, marked, stats } = JSON.parse(data);
+
     let entries: Entry[] = [];
 
     const cat = (tuple: [PackageID, string]) => {
@@ -190,7 +192,7 @@ export async function importUserData(data: string) {
             }
         }
     }
-    return putEntries(entries);
+    return Promise.all([putEntries(entries), importStats(stats)]);
 }
 
 export async function exportUserData() {
@@ -221,6 +223,8 @@ export async function exportUserData() {
         }
     }
 
-    let obj = { known, marked };
+    const stats: StatsHistoryEntry[] = await exportStats();
+
+    let obj = { known, marked, stats };
     return JSON.stringify(obj);
 }

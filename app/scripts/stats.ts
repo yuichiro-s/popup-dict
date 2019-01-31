@@ -1,6 +1,5 @@
 import Dexie from 'dexie';
 
-import { table } from './database';
 import { PackageID, getPackages } from './packages';
 import { State, countEntries } from './entry';
 
@@ -10,7 +9,7 @@ interface Stats {
     markedCount: number;
 }
 
-interface StatsHistoryEntry extends Stats {
+export interface StatsHistoryEntry extends Stats {
     pkgId: PackageID;
     date: number;
 }
@@ -40,7 +39,7 @@ export async function getStatsHistory(pkgId: PackageID): Promise<StatsHistoryEnt
     return db.history.where('pkgId').equals(pkgId).toArray();
 }
 
-export async function saveAllStats() {
+export async function saveStats() {
     const packages = await getPackages();
     const date = Date.now();
     for (const pkgId in packages) {
@@ -53,4 +52,14 @@ export async function saveAllStats() {
         };
         db.history.put(entry);
     }
+}
+
+export async function importStats(items: StatsHistoryEntry[]) {
+    db.history.bulkPut(items).then(() => {
+        console.log(`Imported ${items.length} stats history items.`);
+    });
+}
+
+export function exportStats() {
+    return db.history.toArray();
 }

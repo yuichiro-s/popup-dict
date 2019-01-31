@@ -6,7 +6,7 @@ import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency, importFrequencyTable } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
-import { getStats, saveAllStats, getStatsHistory } from './stats';
+import { getStats, saveStats, getStatsHistory } from './stats';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
 /**
@@ -103,4 +103,4 @@ addBrowserAction();
 createContextMenu();
 
 // record number of known/marked words on start-up
-saveAllStats();
+saveStats();
