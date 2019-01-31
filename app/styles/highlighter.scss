@@ -147,70 +147,70 @@ highlighted.vocab-highlighted:hover {
   /* default */
 
   .dictionary-tooltip {
-    font-size: small;
-    text-align: left;
-    font-family: sans-serif;
-  }
+    font-size: small !important;
+    text-align: left !important;
+    font-family: sans-serif !important;
 
-  .dictionary-entry-word {
-    font-size: medium;
-    font-weight: bold;
-    color: navy;
-  }
+    .dictionary-entry-word {
+      font-size: medium !important;
+      font-weight: bold !important;
+      color: navy !important;
+    }
 
-  .dictionary-entry-pos {
-    color: #003300;
-    font-style: italic;
-  }
+    .dictionary-entry-pos {
+      color: #003300 !important;
+      font-style: italic !important;
+    }
 
-  .dictionary-entry-gender {
-    font-style: italic;
-  }
+    .dictionary-entry-gender {
+      font-style: italic !important;
+    }
 
-  .dictionary-entry-bullet {
-    color: rgb(50, 50, 170);
-  }
+    .dictionary-entry-bullet {
+      color: rgb(50, 50, 170) !important;
+    }
 
-  .dictionary-entry-def {
-    font-size: small;
-    color: #222222;
-  }
+    .dictionary-entry-def {
+      font-size: small !important;
+      color: #222222 !important;
+    }
 
-  .dictionary-entry-example {
-    background-color: #eeeeee;
-  }
+    .dictionary-entry-example {
+      background-color: #eeeeee !important;
+    }
 
-  .dictionary-entry-example-original {
-    font-size: smaller;
-  }
+    .dictionary-entry-example-original {
+      font-size: smaller !important;
+    }
 
-  .dictionary-entry-example-translation {
-    font-size: smaller;
-    color: #444444;
-  }
+    .dictionary-entry-example-translation {
+      font-size: smaller !important;
+      color: #444444 !important;
+    }
 
-  dl {
-    margin-top: 2px;
-    margin-left: 16px;
-  }
+    dl {
+      margin-top: 2px !important;
+      margin-left: 16px !important;
+    }
 
-  hr.dictionary-entry-separator {
-    margin: 3px 0px;
-    border-style: solid;
-    border-width: 1px;
-    height: 0px;
-    border-color: gray;
-  }
+    hr.dictionary-entry-separator {
+      margin: 3px 0px !important;
+      border-style: solid !important;
+      border-width: 1px !important;
+      height: 0px !important;
+      border-color: gray !important;
+    }
 
-  ul {
-    list-style-type: circle;
-    list-style-position: outside;
-    margin-left: 16px;
-  }
+    ul {
+      list-style-type: circle !important;
+      list-style-position: outside !important;
+      margin-left: 16px !important;
+    }
 
-  ol {
-    list-style-type: decimal;
-    list-style-position: outside;
-    margin-left: 16px;
+    ol {
+      list-style-type: decimal !important;
+      list-style-position: outside !important;
+      margin-left: 16px !important;
+    }
   }
 }
