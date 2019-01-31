@@ -1,9 +1,26 @@
 import { sendCommand, ContentCommand } from './command';
 import { disable, enable, toggleMarked, toggleKnown } from './highlighter';
-import { setPackageID } from './package';
+import { setPackageID, getPackage } from './package';
 
-function isEnabled() {
-    return sendCommand({ 'type': 'is-enabled' });
+
+function notMatch(url: string, pattern: string): boolean {
+    const matched = url.match(new RegExp(`^${pattern}$`)) !== null;
+    if (matched) {
+        console.log(`Pattern ${pattern} matched to ${url}.`);
+    }
+    return !matched;
+}
+
+async function isEnabled(): Promise<boolean> {
+    const enabled = await sendCommand({ 'type': 'is-enabled' });
+    if (enabled) {
+        const tab = await sendCommand({ type: 'get-tab' });
+        const url = tab.url;
+        let pkg = await getPackage();
+        return pkg !== null && pkg.blacklist.every(pattern => notMatch(url, pattern));
+    } else {
+        return false;
+    }
 }
 
 /**
