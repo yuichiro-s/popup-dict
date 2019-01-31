@@ -40,7 +40,7 @@
       </v-data-table>
     </v-container>
 
-    <h2>Template</h2>
+    <h2>Template for popup dictionary (handlebars)</h2>
     <codemirror :options="options" v-model="pkg.template"></codemirror>
 
     <v-btn @click="restoreDefault">Restore default settings</v-btn>
@@ -53,7 +53,7 @@ import debounce from "lodash/debounce";
 import { sendCommand } from "../command";
 import { Settings, DictionaryInfo } from "../settings";
 import { codemirror } from "vue-codemirror-lite";
-import "codemirror/mode/htmlembedded/htmlembedded";
+import "codemirror/mode/handlebars/handlebars";
 
 export default Vue.extend({
   name: "PackageEditor",
@@ -81,9 +81,8 @@ export default Vue.extend({
         pattern: ""
       },
       options: {
-        mode: "htmlembedded",
-        lineNumbers: true,
-        extraKeys: { "Ctrl-Space": "autocomplete" }
+        mode: "handlebars",
+        lineNumbers: true
       }
     };
   },
