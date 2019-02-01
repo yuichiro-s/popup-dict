@@ -36,13 +36,11 @@
 import Vue from "vue";
 import debounce from "lodash/debounce";
 
-import { sendCommand } from "../command";
-import { Settings } from "../settings";
-import { PackageID } from "../packages";
-import { DictionaryItem } from "../dictionary";
-import { Entry, MarkedEntry, KnownEntry, State } from "../entry";
-import { createToolTip } from "../tooltip";
-
+import { Package, PackageID } from "../../common/package";
+import { DictionaryItem } from "../../common/dictionary";
+import { Entry, MarkedEntry, KnownEntry, State } from "../../common/entry";
+import { sendCommand } from "../../content/command";
+import { createToolTip } from "../../content/tooltip";
 import PackageSelector from "../components/PackageSelector.vue";
 
 interface TableEntry {
@@ -88,7 +86,7 @@ export default Vue.extend({
   }),
   components: { PackageSelector },
   watch: {
-    currentPackage(pkg: Settings) {
+    currentPackage(pkg: Package) {
       this.loading = true;
       getEntriesToShow(pkg.id).then(({ entries, entryToFreq }) => {
         const entriesWithFreq = [];

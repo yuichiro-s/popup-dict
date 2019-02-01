@@ -1,6 +1,5 @@
-import { PackageID } from './packages';
 import { State, Entry } from './entry';
-import { Settings } from './settings';
+import { Package, PackageID } from './package';
 
 export type Command =
     { type: 'is-enabled' } |
@@ -41,14 +40,8 @@ export type Command =
     { type: 'get-package', pkgId: PackageID } |
     { type: 'set-last-package', pkgId: PackageID } |
     { type: 'get-last-package-id' } |
-    { type: 'update-package', pkg: Settings } |
+    { type: 'update-package', pkg: Package } |
     { type: 'delete-package', pkgId: PackageID };
-
-export function sendCommand(command: Command): Promise<any> {
-    return new Promise((resolve) => {
-        chrome.runtime.sendMessage(command, (result) => resolve(result));
-    });
-}
 
 export type ContentCommand =
     { type: 'enable' } |
@@ -56,9 +49,3 @@ export type ContentCommand =
     { type: 'toggle-marked' } |
     { type: 'toggle-known' } |
     { type: 'set-package-id', pkgId: PackageID };
-
-export function sendContentCommand(command: ContentCommand, tabId: number): Promise<any> {
-    return new Promise((resolve) => {
-        chrome.tabs.sendMessage(tabId, command, resolve);
-    });
-}

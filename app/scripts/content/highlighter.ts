@@ -1,17 +1,16 @@
-import { State } from './entry';
-import { Span } from './trie';
-import { tokenize, Token } from './tokenizer';
-import { sendCommand } from './command';
-import { PackageID } from './packages';
-import { getPackage } from './package';
-import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
-import { Settings } from './settings';
-
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/themes/light-border.css';
 import tippy from 'tippy.js';
 import debounce from 'lodash/debounce';
-import { DictionaryItem } from './dictionary';
+
+import { State } from '../common/entry';
+import { PackageID, Package } from '../common/package';
+import { DictionaryItem } from '../common/dictionary';
+import { Span } from '../common/trie';
+import { tokenize, Token } from './tokenizer';
+import { sendCommand } from './command';
+import { getPackage } from './package';
+import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
 
 const PUNCTUATIONS = [
     '\n',
@@ -50,7 +49,7 @@ function stringToState(str: string) {
     return state;
 }
 
-function isTooltipEnabled(pkg: Settings | null, state: State) {
+function isTooltipEnabled(pkg: Package | null, state: State) {
     if (pkg) {
         if (pkg.showDictionary === 'always') {
             return true;
@@ -172,7 +171,7 @@ function unhighlight(root?: Element) {
     root.normalize();
 }
 
-function enumerateTextNodes(root: Element, pkg: Settings) {
+function enumerateTextNodes(root: Element, pkg: Package) {
     let nodes: Node[] = [];
     function process(element: Element) {
         let rect = element.getBoundingClientRect();
@@ -209,7 +208,7 @@ function enumerateTextNodes(root: Element, pkg: Settings) {
 }
 
 async function highlight(root?: Element) {
-    let pkg: Settings | null = await getPackage();
+    let pkg: Package | null = await getPackage();
     if (pkg) {
         if (root === undefined) root = document.body;
         let textNodes = enumerateTextNodes(root, pkg);
@@ -241,7 +240,7 @@ async function highlight(root?: Element) {
 
 const highlightDebounced = debounce(highlight, 150);
 
-async function lemmatizeBatch(textNodes: Node[], pkg: Settings) {
+async function lemmatizeBatch(textNodes: Node[], pkg: Package) {
     let tokensBatch = [];
     let tokensList = [];
     let boundaries = [0];
@@ -291,7 +290,7 @@ async function getSpanEntry(pkgId: PackageID, node: HTMLElement) {
     return entry;
 }
 
-export async function toggle(pkg: Settings, newState: State) {
+export async function toggle(pkg: Package, newState: State) {
     if (currentSpanNode !== null) {
         let node = currentSpanNode;
         let entry = await getSpanEntry(pkg.id, node);

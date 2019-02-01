@@ -1,7 +1,8 @@
-import { PackageID } from './packages';
-import { lookUpEntries, Entry } from './entry';
-import { CachedMap } from './cachedmap';
+import { PackageID } from '../common/package';
+import { CachedMap } from '../common/cachedmap';
+import { Span } from '../common/trie';
 import { table } from './database';
+import { lookUpEntries } from './entry';
 
 type TrieNode = {
     n: { [c: string]: TrieNode }; // NEXT
@@ -11,13 +12,6 @@ type TrieNode = {
 function isEnd(node: TrieNode) {
     return node.e;
 }
-
-export type Span = {
-    begin: number,
-    end: number,
-    key: string[],
-    entry: Entry,
-};
 
 export async function searchAllBatch(pkgId: PackageID, lemmasBatch: string[][]) {
     let results = [];

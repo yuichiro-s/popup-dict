@@ -1,8 +1,8 @@
 import toml from 'toml';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { sendCommand } from './command';
-import { Settings, validateAndInit } from './settings';
+import { Package } from '../common/package';
+import { sendCommand } from '../content/command';
 
 export function loadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -16,6 +16,22 @@ export function loadFile(file: File): Promise<string> {
         reader.onerror = reject;
         reader.readAsText(file);
     });
+}
+
+function validateAndInit(pkg: Package) {
+    function check(field: string) {
+        if (!(field in pkg)) {
+            throw new Error(`${field} does not exist!`);
+        }
+    }
+    check('id');
+    check('name');
+    check('languageCode');
+    check('tokenizeByWhiteSpace');
+    if (!pkg.dictionaries) pkg.dictionaries = [];
+    if (!pkg.showDictionary) pkg.showDictionary = 'unknown-or-marked';
+    if (!pkg.template) pkg.template = '';
+    if (!pkg.blacklist) pkg.blacklist = [];
 }
 
 function gatherNecessaryFiles(files: File[]) {
@@ -103,7 +119,7 @@ export async function importPackage(files: File[], progressFn: (progress: number
 
     /* STEP 1: load settings */
     progressFn(size / totalSize, 'Loading settings...');
-    let settings: Settings = toml.parse(await loadFile(settingsFile!));
+    let settings: Package = toml.parse(await loadFile(settingsFile!));
     validateAndInit(settings);  // validate
     settings.default = cloneDeep(settings);  // save default settings
     let pkgId = settings.id;

@@ -75,12 +75,12 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { sendCommand } from "../command";
-import { Settings } from "../settings";
-import PackageEditor from "../components/PackageEditor.vue";
 import FileUpload from "vue-upload-component";
+
+import { sendCommand } from "../../content/command";
+import { Package } from "../../common/package";
+import PackageEditor from "../components/PackageEditor.vue";
 import { importPackage, validatePackage, loadFile } from "../importer";
-import { setInterval } from "timers";
 
 export default Vue.extend({
   data: () => ({

@@ -1,7 +1,9 @@
 import Dexie from 'dexie';
 
-import { PackageID, getPackages } from './packages';
-import { State, countEntries } from './entry';
+import { PackageID } from '../common/package';
+import { State } from '../common/entry';
+import { getPackages } from './packages';
+import { countEntries } from './entry';
 
 
 interface Stats {

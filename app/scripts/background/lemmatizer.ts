@@ -1,5 +1,5 @@
-import { PackageID } from './packages';
-import { CachedMap } from './cachedmap';
+import { PackageID } from '../common/package';
+import { CachedMap } from '../common/cachedmap';
 import { table } from './database';
 
 type Lemmatizer = { [key: string]: string };

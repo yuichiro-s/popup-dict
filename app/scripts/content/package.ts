@@ -1,9 +1,8 @@
-import { PackageID } from './packages';
+import { PackageID, Package } from '../common/package';
 import { sendCommand } from './command';
-import { Settings } from './settings';
 import { all } from 'franc';
 
-let currentPackage: Promise<Settings | null> | null = null;
+let currentPackage: Promise<Package | null> | null = null;
 
 const PACKAGE_SPECIFIER_ID = 'highlighter-package-specifier';
 
@@ -29,11 +28,11 @@ function getText() {
     return text;
 }
 
-async function guessPackage(): Promise<Settings | null> {
+async function guessPackage(): Promise<Package | null> {
     let packages = await sendCommand({ type: 'get-packages' });
-    let codeToPackage = new Map<string, Settings>();
+    let codeToPackage = new Map<string, Package>();
     for (let pkgId in packages) {
-        let pkg: Settings = packages[pkgId];
+        let pkg: Package = packages[pkgId];
         codeToPackage.set(pkg.languageCode, pkg);
     }
     let supportedLanguageCodes = Array.from(codeToPackage.keys());
@@ -60,7 +59,7 @@ export async function setPackageID(pkgId: PackageID) {
     currentPackage = await sendCommand({ type: 'get-package', pkgId });
 }
 
-export async function getPackage(): Promise<Settings | null> {
+export async function getPackage(): Promise<Package | null> {
     // TODO: when can the result be none?
     if (currentPackage === null) {
         // currentPackage has not been initialized

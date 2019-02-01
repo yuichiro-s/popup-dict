@@ -1,41 +1,9 @@
-import { PackageID, getPackages } from './packages';
 import Dexie, { IndexableType } from 'dexie';
+
+import { Entry, State, UnknownEntry, KnownEntry, MarkedEntry } from '../common/entry';
+import { PackageID } from '../common/package';
+import { getPackages } from './packages';
 import { exportStats, StatsHistoryEntry, importStats } from './stats';
-
-export enum State {
-    Unknown,
-    Marked,
-    Known,
-}
-
-interface EntryKey {
-    pkgId: PackageID;
-    key: string;
-}
-
-export interface UnknownEntry extends EntryKey {
-    state: State.Unknown;
-}
-
-export interface MarkedEntry extends EntryKey {
-    state: State.Marked;
-    date: number;
-    source: {
-        url: string;
-        title: string;
-    };
-    context: {
-        begin: number;
-        end: number;
-        text: string;
-    };
-}
-
-export interface KnownEntry extends EntryKey {
-    state: State.Known;
-}
-
-export type Entry = UnknownEntry | MarkedEntry | KnownEntry;
 
 class Database extends Dexie {
     vocabulary: Dexie.Table<Entry, [PackageID, string]>;

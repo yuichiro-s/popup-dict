@@ -5,8 +5,8 @@
 <script lang="ts">
 import Vue from "vue";
 
-import { sendCommand } from "../command";
-import { Settings } from "../settings";
+import { Package } from '../../common/package';
+import { sendCommand } from '../../content/command';
 
 export default Vue.extend({
   props: ["value"],
@@ -37,7 +37,7 @@ export default Vue.extend({
     });
   },
   watch: {
-    currentPackage(newValue: Settings) {
+    currentPackage(newValue: Package) {
       this.$emit("input", newValue);
     }
   }

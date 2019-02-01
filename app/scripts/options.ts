@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import router from './router';
-import Options from './Options.vue';
+import router from './options/router';
+import Options from './options/Options.vue';
 import Vuetify from 'vuetify';
 import 'vuetify/dist/vuetify.min.css';
 import '@mdi/font/css/materialdesignicons.css';

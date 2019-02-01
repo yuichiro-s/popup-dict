@@ -1,8 +1,9 @@
 import handlebars, { Template, TemplateDelegate } from 'handlebars';
 
-import { DictionaryItem } from './dictionary';
-import { PackageID, getPackage } from './packages';
-import { CachedMap } from './cachedmap';
+import { DictionaryItem } from '../common/dictionary';
+import { PackageID } from '../common/package';
+import { CachedMap } from '../common/cachedmap';
+import { sendCommand } from './command';
 
 handlebars.registerHelper('ifString', function (text, options) {
     if (typeof text === 'string') {
@@ -18,7 +19,7 @@ let templates = new CachedMap<PackageID, TemplateDelegate>(loader);
 
 function loader(pkgId: PackageID): Promise<Template> {
     return new Promise((resolve, reject) => {
-        getPackage(pkgId).then(pkg => {
+        sendCommand({ type: 'get-package', pkgId: pkgId }).then(pkg => {
             try {
                 const template = handlebars.compile(pkg.template);
                 resolve(template);
@@ -27,7 +28,6 @@ function loader(pkgId: PackageID): Promise<Template> {
             }
         });
     });
-
 }
 
 export async function createToolTip(pkgId: PackageID, item: DictionaryItem) {

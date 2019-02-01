@@ -1,8 +1,7 @@
-import { PackageID } from './packages';
-import { CachedMap } from './cachedmap';
+import { PackageID } from '../common/package';
+import { CachedMap } from '../common/cachedmap';
+import { DictionaryItem } from '../common/dictionary';
 import { table } from './database';
-
-export interface DictionaryItem { }
 
 type Dictionary = { [key: string]: DictionaryItem };
 type Index = { [key: string]: number };

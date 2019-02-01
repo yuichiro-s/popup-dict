@@ -58,11 +58,12 @@
 
 <script lang="ts">
 import Vue from "vue";
-import debounce from "lodash/debounce";
-import { sendCommand } from "../command";
-import { Settings, DictionaryInfo } from "../settings";
 import { codemirror } from "vue-codemirror-lite";
 import "codemirror/mode/handlebars/handlebars";
+import debounce from "lodash/debounce";
+
+import { Package, DictionaryInfo } from '../../common/package';
+import { sendCommand } from '../../content/command';
 
 export default Vue.extend({
   name: "PackageEditor",

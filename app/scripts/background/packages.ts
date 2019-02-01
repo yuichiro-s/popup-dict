@@ -1,4 +1,4 @@
-import { Settings } from './settings';
+import { Package, PackageID } from '../common/package';
 import { deleteAllDictionaries, deleteIndex } from './dictionary';
 import { deleteFrequencyTable } from './frequency';
 import { deleteLemmatizer } from './lemmatizer';
@@ -6,9 +6,7 @@ import { deleteTrie } from './trie';
 import { deleteStats } from './stats';
 import { deleteEntries } from './entry';
 
-export type PackageID = string;
-
-export function updatePackage(pkg: Settings) {
+export function updatePackage(pkg: Package) {
     return new Promise(resolve => {
         let pkgId = pkg.id;
         getPackages().then(packages => {
@@ -23,7 +21,7 @@ export async function getPackage(pkgId: PackageID) {
     return packages && packages[pkgId];
 }
 
-export function getPackages(): Promise<{ [pkgId: string]: Settings }> {
+export function getPackages(): Promise<{ [pkgId: string]: Package }> {
     // TODO: cache packages
     return new Promise(resolve => {
         chrome.storage.local.get('packages', result => {

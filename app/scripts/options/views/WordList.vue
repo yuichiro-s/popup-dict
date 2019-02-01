@@ -78,14 +78,12 @@
 <script lang="ts">
 import Vue from "vue";
 import debounce from "lodash/debounce";
-import { createToolTip } from "../tooltip";
 
-import { sendCommand } from "../command";
-import { Settings } from "../settings";
-import { PackageID } from "../packages";
-import { DictionaryItem } from "../dictionary";
-import { Entry, MarkedEntry, KnownEntry, State } from "../entry";
-
+import { createToolTip } from "../../content/tooltip";
+import { sendCommand } from "../../content/command";
+import { Package, PackageID } from "../../common/package";
+import { DictionaryItem } from "../../common/dictionary";
+import { Entry, MarkedEntry, KnownEntry, State } from "../../common/entry";
 import PackageSelector from "../components/PackageSelector.vue";
 
 interface TableEntry {
@@ -169,7 +167,7 @@ export default Vue.extend({
   }),
   components: { PackageSelector },
   watch: {
-    currentPackage(pkg: Settings) {
+    currentPackage(pkg: Package) {
       this.loading = true;
       this.stats = null;
       sendCommand({
@@ -222,7 +220,7 @@ export default Vue.extend({
   },
   methods: {
     expand(entry: TableEntry) {
-      const pkgId = this.currentPkgId;
+      const pkgId = this.currentPackage.id;
       const key = entry.key;
       sendCommand({ type: "lookup-dictionary", pkgId, keys: [key] }).then(
         items => {
