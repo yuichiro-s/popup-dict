@@ -1,5 +1,5 @@
 import { PackageID, getPackages } from './packages';
-import Dexie from 'dexie';
+import Dexie, { IndexableType } from 'dexie';
 import { exportStats, StatsHistoryEntry, importStats } from './stats';
 
 export enum State {
@@ -103,22 +103,24 @@ export function updateEntry(entry: Entry) {
     return db.vocabulary.put(entry);
 }
 
+export function updateEntries(entries: Entry[]) {
+    return db.vocabulary.bulkPut(entries);
+}
+
 export function countEntries(pkgId: PackageID, state: State): Promise<number> {
     const c = db.vocabulary.where({ pkgId, state });
     return c.count();
 }
 
 export function listEntries(pkgId?: PackageID, state?: State): Promise<Entry[]> {
-    let c;
-    if (state === undefined) {
-        c = db.vocabulary.where('state').equals(State.Known).or('state').equals(State.Marked);
-    } else {
-        c = db.vocabulary.where('state').equals(state);
+    let q: { [key: string]: IndexableType } = {};
+    if (state) {
+        q.state = state;
     }
     if (pkgId) {
-        c = c.and(entry => entry.pkgId === pkgId);
+        q.pkgId = pkgId;
     }
-    return c.toArray();
+    return db.vocabulary.where(q).toArray();
 }
 
 export function importEntries(pkgId: PackageID, data: string) {
@@ -196,30 +198,31 @@ export async function importUserData(data: string) {
 }
 
 export async function exportUserData() {
-    let entries = await listEntries();
+    let knownEntries = listEntries(undefined, State.Known) as Promise<KnownEntry[]>;
+    let markedEntries = listEntries(undefined, State.Marked) as Promise<MarkedEntry[]>;
 
     let known: { [pkgId: string]: string[] } = {};
+    for (let entry of await knownEntries) {
+        let key = entry.key;
+        if (entry.pkgId in known) {
+            known[entry.pkgId].push(key);
+        } else {
+            known[entry.pkgId] = [key];
+        }
+    }
+
     let marked: { [pkgId: string]: MarkedEntryFields[] } = {};
-    for (let entry of entries) {
-        if (entry.state === State.Known) {
-            let key = entry.key;
-            if (entry.pkgId in known) {
-                known[entry.pkgId].push(key);
-            } else {
-                known[entry.pkgId] = [key];
-            }
-        } else if (entry.state === State.Marked) {
-            let serializedEntry = {
-                key: entry.key,
-                date: entry.date,
-                source: entry.source,
-                context: entry.context,
-            };
-            if (entry.pkgId in marked) {
-                marked[entry.pkgId].push(serializedEntry);
-            } else {
-                marked[entry.pkgId] = [serializedEntry];
-            }
+    for (let entry of await markedEntries) {
+        let serializedEntry = {
+            key: entry.key,
+            date: entry.date,
+            source: entry.source,
+            context: entry.context,
+        };
+        if (entry.pkgId in marked) {
+            marked[entry.pkgId].push(serializedEntry);
+        } else {
+            marked[entry.pkgId] = [serializedEntry];
         }
     }
 

@@ -12,7 +12,7 @@ export default Vue.extend({
   props: ["value"],
   data: () => ({
     packages: {},
-    currentPackage: null
+    currentPackage: null,
   }),
   computed: {
     items() {

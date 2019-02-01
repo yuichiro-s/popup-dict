@@ -5,7 +5,7 @@ import { lemmatize, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency, importFrequencyTable } from './frequency';
 import { search, searchAllBatch, importTrie } from './trie';
-import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData } from './entry';
+import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, updateEntries } from './entry';
 import { getStats, saveStats, getStatsHistory } from './stats';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 
@@ -36,6 +36,8 @@ chrome.runtime.onMessage.addListener(
 
         } else if (request.type === 'update-entry') {
             updateEntry(request.entry).then(sendResponse);
+        } else if (request.type === 'update-entries') {
+            updateEntries(request.entries).then(sendResponse);
         } else if (request.type === 'clear-entries') {
             clearEntries().then(sendResponse);
         } else if (request.type === 'list-entries') {

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import WordList from './views/WordList.vue';
 import Settings from './views/Settings.vue';
 import History from './views/History.vue';
+import Filter from './views/Filter.vue';
 
 Vue.use(VueRouter);
 
@@ -22,6 +23,11 @@ export default new VueRouter({
             path: '/history',
             name: 'history',
             component: History,
+        },
+        {
+            path: '/filter',
+            name: 'filter',
+            component: Filter,
         },
     ]
 });

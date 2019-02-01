@@ -19,6 +19,7 @@ export type Command =
 
     // entry info
     { type: 'update-entry', entry: Entry } |
+    { type: 'update-entries', entries: Entry[] } |
     { type: 'clear-entries' } |
     { type: 'list-entries', pkgId?: PackageID, state?: State } |
     { type: 'import-user-data', data: string } |
