@@ -2,7 +2,7 @@
   <div>
     <div>
       <h1>History</h1>
-      <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+      <package-selector v-model="currentPackage"></package-selector>
     </div>
     <v-data-table :headers="headers" :items="entries" item-key="key" :loading="loading">
       <template slot="items" slot-scope="props">
@@ -16,18 +16,20 @@
 
 <script lang="ts">
 import Vue from "vue";
+import FileUpload from "vue-upload-component";
+
 import { sendCommand } from "../command";
 import { Settings } from "../settings";
-import PackageEditor from "../components/PackageEditor.vue";
-import FileUpload from "vue-upload-component";
 import { importPackage, validatePackage, loadFile } from "../importer";
 import { PackageID } from "../packages";
 import { getStatsHistory } from "../stats";
 
+import PackageEditor from "../components/PackageEditor.vue";
+import PackageSelector from "../components/PackageSelector.vue";
+
 export default Vue.extend({
   data: () => ({
-    packages: {},
-    currentPkgId: null,
+    currentPackage: null,
     headers: [
       { text: "Date", value: "date" },
       { text: "Known", value: "known" },
@@ -36,41 +38,11 @@ export default Vue.extend({
     entries: [],
     loading: false
   }),
-  computed: {
-    items() {
-      const items = [];
-      for (const pkgId in this.packages) {
-        let pkg = this.packages[pkgId];
-        items.push({
-          text: pkg.name,
-          value: pkgId
-        });
-      }
-      return items;
-    }
-  },
-  created() {
-    this.reloadPackages().then(() => {
-      let pkgIds = Object.keys(this.packages);
-      if (pkgIds.length > 0) {
-        this.currentPkgId = pkgIds[0];
-      }
-    });
-  },
-  methods: {
-    reloadPackages() {
-      return new Promise(resolve => {
-        sendCommand({ type: "get-packages" }).then(packages => {
-          this.packages = packages;
-          resolve();
-        });
-      });
-    }
-  },
+  components: { PackageSelector },
   watch: {
-    currentPkgId(pkgId: PackageID) {
+    currentPackage(pkg: Settings) {
       this.loading = true;
-      getStatsHistory(pkgId).then(res => {
+      getStatsHistory(pkg.id).then(res => {
         const entries = [];
         for (let stats of res) {
           entries.push({

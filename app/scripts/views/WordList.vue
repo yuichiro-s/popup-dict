@@ -2,14 +2,16 @@
   <div>
     <v-layout>
       <v-flex xs4>
-        <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+        <package-selector v-model="currentPackage"></package-selector>
       </v-flex>
+
       <v-flex xs4>
         <div>
           <span>Known: {{ stats ? stats.knownCount : '???' }}</span>
           <span>Marked: {{ stats ? stats.markedCount : '???' }}</span>
         </div>
       </v-flex>
+
       <v-flex xs4>
         <v-text-field
           append-icon="search"
@@ -20,6 +22,7 @@
         ></v-text-field>
       </v-flex>
     </v-layout>
+
     <v-data-table
       :headers="headers"
       :items="entries"
@@ -54,6 +57,7 @@
           </td>
         </tr>
       </template>
+
       <template slot="expand" slot-scope="props">
         <v-card flat :color="props.item.known ? '#ddffdd' : undefined">
           <v-checkbox
@@ -74,12 +78,15 @@
 <script lang="ts">
 import Vue from "vue";
 import debounce from "lodash/debounce";
+import { createToolTip } from "../tooltip";
+
 import { sendCommand } from "../command";
 import { Settings } from "../settings";
 import { PackageID } from "../packages";
 import { DictionaryItem } from "../dictionary";
 import { Entry, MarkedEntry, KnownEntry, State } from "../entry";
-import { createToolTip } from "../tooltip";
+
+import PackageSelector from "../components/PackageSelector.vue";
 
 interface TableEntry {
   date: number;
@@ -145,8 +152,7 @@ function splitContext(text: string, begin: number, end: number) {
 export default Vue.extend({
   data: () => ({
     // package info
-    packages: {},
-    currentPkgId: null,
+    currentPackage: null,
     stats: null,
 
     // table
@@ -161,37 +167,7 @@ export default Vue.extend({
       descending: true
     }
   }),
-  computed: {
-    items() {
-      const items = [];
-      for (const pkgId in this.packages) {
-        const pkg = this.packages[pkgId];
-        items.push({
-          text: pkg.name,
-          value: pkgId
-        });
-      }
-      return items;
-    },
-    currentPackage() {
-      return this.packages[this.currentPkgId];
-    }
-  },
-  created() {
-    (async () => {
-      const packages = await sendCommand({ type: "get-packages" });
-      let lastPkgId = await sendCommand({ type: "get-last-package-id" });
-      this.packages = packages;
-      if (lastPkgId) {
-        this.currentPkgId = lastPkgId;
-      } else {
-        let pkgIds = Object.keys(packages);
-        if (pkgIds.length > 0) {
-          this.currentPkgId = pkgIds[0];
-        }
-      }
-    })();
-  },
+  components: { PackageSelector },
   watch: {
     currentPackage(pkg: Settings) {
       this.loading = true;

@@ -4,9 +4,7 @@
       <app-navigation></app-navigation>
       <v-content transition="slide-x-transition">
         <v-container fluid>
-          <keep-alive>
-            <router-view></router-view>
-          </keep-alive>
+          <router-view></router-view>
         </v-container>
       </v-content>
     </v-app>
