@@ -45,11 +45,7 @@
         </div>
         <div v-else>
           <div class="text-xs-center">
-            <v-progress-linear
-              :value="importProgress"
-              color="primary"
-              :height="30"
-            ></v-progress-linear>
+            <v-progress-linear :value="importProgress" color="primary" :height="30"></v-progress-linear>
             <h2>{{ importMessage }}</h2>
           </div>
         </div>
