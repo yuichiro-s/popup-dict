@@ -144,73 +144,73 @@ highlighted.vocab-highlighted:hover {
     border-spacing: 0;
   }
 
-  /* default */
+}
 
-  .dictionary-tooltip {
+/* default */
+.dictionary-tooltip {
+  font-size: small !important;
+  text-align: left !important;
+  font-family: sans-serif !important;
+
+  .dictionary-entry-word {
+    font-size: medium !important;
+    font-weight: bold !important;
+    color: navy !important;
+  }
+
+  .dictionary-entry-pos {
+    color: #003300 !important;
+    font-style: italic !important;
+  }
+
+  .dictionary-entry-gender {
+    font-style: italic !important;
+  }
+
+  .dictionary-entry-bullet {
+    color: rgb(50, 50, 170) !important;
+  }
+
+  .dictionary-entry-def {
     font-size: small !important;
-    text-align: left !important;
-    font-family: sans-serif !important;
+    color: #222222 !important;
+  }
 
-    .dictionary-entry-word {
-      font-size: medium !important;
-      font-weight: bold !important;
-      color: navy !important;
-    }
+  .dictionary-entry-example {
+    background-color: #eeeeee !important;
+  }
 
-    .dictionary-entry-pos {
-      color: #003300 !important;
-      font-style: italic !important;
-    }
+  .dictionary-entry-example-original {
+    font-size: smaller !important;
+  }
 
-    .dictionary-entry-gender {
-      font-style: italic !important;
-    }
+  .dictionary-entry-example-translation {
+    font-size: smaller !important;
+    color: #444444 !important;
+  }
 
-    .dictionary-entry-bullet {
-      color: rgb(50, 50, 170) !important;
-    }
+  dl {
+    margin-top: 2px !important;
+    margin-left: 16px !important;
+  }
 
-    .dictionary-entry-def {
-      font-size: small !important;
-      color: #222222 !important;
-    }
+  hr.dictionary-entry-separator {
+    margin: 3px 0px !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    height: 0px !important;
+    border-color: gray !important;
+  }
 
-    .dictionary-entry-example {
-      background-color: #eeeeee !important;
-    }
+  ul {
+    list-style-type: circle !important;
+    list-style-position: outside !important;
+    margin-left: 16px !important;
+  }
 
-    .dictionary-entry-example-original {
-      font-size: smaller !important;
-    }
-
-    .dictionary-entry-example-translation {
-      font-size: smaller !important;
-      color: #444444 !important;
-    }
-
-    dl {
-      margin-top: 2px !important;
-      margin-left: 16px !important;
-    }
-
-    hr.dictionary-entry-separator {
-      margin: 3px 0px !important;
-      border-style: solid !important;
-      border-width: 1px !important;
-      height: 0px !important;
-      border-color: gray !important;
-    }
-
-    ul {
-      list-style-type: circle !important;
-      list-style-position: outside !important;
-      margin-left: 16px !important;
-    }
-
-    ol {
-      list-style-type: decimal !important;
-      list-style-position: outside !important;
-      margin-left: 16px !important;
-    }
+  ol {
+    list-style-type: decimal !important;
+    list-style-position: outside !important;
+    margin-left: 16px !important;
   }
 }
