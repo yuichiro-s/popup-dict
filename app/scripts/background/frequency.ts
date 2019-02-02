@@ -2,7 +2,7 @@ import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { table } from './database';
 
-type FrequencyTable = { [key: string]: number };
+export type FrequencyTable = { [key: string]: number };
 
 export function getFrequency(tokens: string[], lang: PackageID): Promise<number[] | null> {
     return new Promise(resolve => {
