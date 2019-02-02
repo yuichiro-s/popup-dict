@@ -18,7 +18,7 @@ export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) 
 async function searchAll(pkgId: PackageID, tokens: string[]) {
     let trie = await tries.get(pkgId);
     const lemmas = await lemmatizeWithPackage(tokens, pkgId);
-    const keys = findAllOccurrences(trie, lemmas);
+    const keys = findAllOccurrences(trie, lemmas, true);
 
     let spans: Span[] = [];
     let entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
