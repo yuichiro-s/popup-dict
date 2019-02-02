@@ -38,7 +38,6 @@ function gatherNecessaryFiles(files: File[]) {
     let settingsFile = null;
     let trieFile = null;
     let lemmatizerFile = null;
-    let entriesFile = null;
     let indexFile = null;
     let frequencyFile = null;
     let subDictFiles: File[] = [];
@@ -52,8 +51,6 @@ function gatherNecessaryFiles(files: File[]) {
             trieFile = file;
         } else if (file.name === 'lemmatizer.json') {
             lemmatizerFile = file;
-        } else if (file.name === 'entries.json') {
-            entriesFile = file;
         } else if (file.name === 'index.json') {
             indexFile = file;
         } else if (file.name === 'frequency.json') {
@@ -71,7 +68,6 @@ function gatherNecessaryFiles(files: File[]) {
         settingsFile,
         trieFile,
         lemmatizerFile,
-        entriesFile,
         indexFile,
         frequencyFile,
         subDictFiles,
@@ -87,7 +83,6 @@ export function validatePackage(files: File[]) {
         settingsFile,
         trieFile,
         lemmatizerFile,
-        entriesFile,
         indexFile,
         frequencyFile,
         subDictFiles,
@@ -96,7 +91,6 @@ export function validatePackage(files: File[]) {
     if (settingsFile === null) errors.push('settings.toml is not found.');
     if (trieFile === null) errors.push('trie.json is not found.');
     if (lemmatizerFile === null) errors.push('lemmatizer.json is not found.');
-    if (entriesFile === null) errors.push('entries.json is not found.');
     if (frequencyFile === null) warnings.push('frequency.json is not found.');
     if (indexFile === null) warnings.push('index.json is not found.');
     if (subDictFiles.length === 0) warnings.push('No dictionary files are found.');
@@ -109,7 +103,6 @@ export async function importPackage(files: File[], progressFn: (progress: number
         settingsFile,
         trieFile,
         lemmatizerFile,
-        entriesFile,
         indexFile,
         frequencyFile,
         subDictFiles,
@@ -135,8 +128,7 @@ export async function importPackage(files: File[], progressFn: (progress: number
 
     /* STEP 3: import entries */
     progressFn(size / totalSize, 'Importing entries...');
-    await sendCommand({ type: 'import-entries', pkgId, data: await loadFile(entriesFile!) });
-    size += entriesFile!.size;
+    await sendCommand({ type: 'import-entries', pkgId });
 
     /* STEP 4: import lemmatizer */
     progressFn(size / totalSize, 'Importing lemmatizer...');

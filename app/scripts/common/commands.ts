@@ -33,7 +33,7 @@ export type Command =
     { type: 'import-dictionary', pkgId: PackageID, n: number, data: string } |
     { type: 'import-lemmatizer', pkgId: PackageID, data: string } |
     { type: 'import-trie', pkgId: PackageID, data: string } |
-    { type: 'import-entries', pkgId: PackageID, data: string } |
+    { type: 'import-entries', pkgId: PackageID } |
     { type: 'import-frequency', pkgId: PackageID, data: string } |
 
     { type: 'get-packages' } |

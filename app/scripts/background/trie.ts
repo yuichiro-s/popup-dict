@@ -1,96 +1,58 @@
-import { PackageID } from '../common/package';
-import { CachedMap } from '../common/cachedmap';
-import { Span } from '../common/trie';
-import { table } from './database';
-import { lookUpEntries } from './entry';
+export const NEXT = 'n';
+export const EXISTS = 'e';
 
-type TrieNode = {
-    n: { [c: string]: TrieNode }; // NEXT
-    e: boolean; // EXISTS
+export type TrieNode = {
+    [NEXT]: { [c: string]: TrieNode };
+    [EXISTS]: boolean;
 };
 
-function isEnd(node: TrieNode) {
-    return node.e;
+export function createEmptyNode(): TrieNode {
+    return { [NEXT]: {}, [EXISTS]: false };
 }
 
-export async function searchAllBatch(pkgId: PackageID, lemmasBatch: string[][]) {
-    let results = [];
-    for (let lemmas of lemmasBatch) {
-        results.push(await searchAll(pkgId, lemmas));
+export function add(root: TrieNode, key: string[]) {
+    let node = root;
+    for (const lemma of key) {
+        if (!(lemma in node[NEXT])) {
+            node[NEXT][lemma] = createEmptyNode();
+        }
+        node = node[NEXT][lemma];
     }
-    return results;
+    node[EXISTS] = true;
 }
 
-async function searchAll(pkgId: PackageID, lemmas: string[]) {
-    let trie = await tries.get(pkgId);
-    let spans: Span[] = [];
-    let keys = [];
-    let start = 0;
-    while (start < lemmas.length) {
-        let node = trie;
-        let cursor = start;
-        let lastMatch = 0;
-        while (cursor < lemmas.length) {
-            const lemma = lemmas[cursor];
-            if (!(lemma in node.n)) {
-                break;
-            }
-            node = node.n[lemma];
-            cursor++;
-            if (isEnd(node)) {
-                lastMatch = cursor;
-            }
-        }
-
-        if (lastMatch > 0) {
-            // Note that `text` is normalized
-            // TODO: batch lookups
-            const key = lemmas.slice(start, lastMatch);
-            keys.push({ begin: start, end: lastMatch, key });
-            start = lastMatch;
-        } else {
-            start++;
-        }
-    }
-    let entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
-    for (let i = 0; i < keys.length; i++) {
-        let key = keys[i];
-        let entry = entries[i];
-        if (entry) {
-            let span: Span = {
-                begin: key.begin,
-                end: key.end,
-                key: key.key,
-                entry,
-            };
-            spans.push(span);
-        }
-    }
-
-    return spans;
+export function isEnd(node: TrieNode) {
+    return node[EXISTS];
 }
 
-export async function search(pkgId: PackageID, key: string[]) {
-    let trie = await tries.get(pkgId);
+export function exists(trie: TrieNode, key: string[]): boolean {
     const length = key.length;
     function dfs(node: TrieNode, i: number): boolean {
         if (i >= length) {
-            return node.e;
+            return isEnd(node);
         } else {
             const token = key[i];
-            return dfs(node.n[token], i + 1);
+            const next = node[NEXT][token];
+            if (next === undefined) {
+                return false;
+            } else {
+                return dfs(next, i + 1);
+            }
         }
     }
-    if (dfs(trie, 0)) {
-        let entry = (await lookUpEntries(pkgId, [key]))[0];
-        return entry;
-    } else {
-        return null;
-    }
+    return dfs(trie, 0);
 }
 
-let trieTable = table('tries');
-let tries = new CachedMap<PackageID, TrieNode>(trieTable.loader);
-let importTrie = trieTable.importer;
-let deleteTrie = trieTable.deleter;
-export { importTrie, deleteTrie };
+export function getKeys(root: TrieNode): string[][] {
+    const keys: string[][] = [];
+    function dfs(node: TrieNode, prefix: string[]) {
+        if (isEnd(node)) {
+            keys.push(prefix);
+        }
+        for (const [c, next] of Object.entries(node[NEXT])) {
+            dfs(next, prefix.concat([c]));
+        }
+    }
+    dfs(root, []);
+    return keys;
+}

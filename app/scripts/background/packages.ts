@@ -2,7 +2,7 @@ import { Package, PackageID } from '../common/package';
 import { deleteAllDictionaries, deleteIndex } from './dictionary';
 import { deleteFrequencyTable } from './frequency';
 import { deleteLemmatizer } from './lemmatizer';
-import { deleteTrie } from './trie';
+import { deleteTrie } from './search';
 import { deleteStats } from './stats';
 import { deleteEntries } from './entry';
 

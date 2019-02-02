@@ -1,6 +1,6 @@
 import { buildLemmatizer } from './lemmatizer';
 
-test('lemmatizer', () => {
+test('buildLemmatizer', () => {
     const dict = {
         'AAAAA': true,
         'AA': true,
@@ -27,16 +27,17 @@ test('lemmatizer', () => {
     const lemmatizer = buildLemmatizer(dict, inflection);
     expect(lemmatizer['AAAAAAA']).toBe('AAAAA');
     expect(lemmatizer['AAAAAA']).toBe('AAAAA');
-    expect(lemmatizer['AAAAA']).toBe(undefined);
+    expect(lemmatizer['AAAAA']).toBeUndefined();
     expect(lemmatizer['AAAA']).toBe('AA');
     expect(lemmatizer['AAA']).toBe('AA');
-    expect(lemmatizer['AA']).toBe(undefined);
-    expect(lemmatizer['A']).toBe(undefined);
-    expect(lemmatizer['BBB']).toBe(undefined);
+    expect(lemmatizer['AA']).toBeUndefined();
+    expect(lemmatizer['A']).toBeUndefined();
+    expect(lemmatizer['BBB']).toBeUndefined();
     expect(lemmatizer['BB']).toBe('CC');
+    expect(lemmatizer['XYZ']).toBeUndefined();
 
-    expect(lemmatizer['make']).toBe(undefined);
+    expect(lemmatizer['make']).toBeUndefined();
     expect(lemmatizer['made']).toBe('make');
-    expect(lemmatizer['making']).toBe(undefined);
+    expect(lemmatizer['making']).toBeUndefined();
     expect(lemmatizer['makings']).toBe('making');
 });

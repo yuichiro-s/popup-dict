@@ -3,8 +3,11 @@ import { CachedMap } from '../common/cachedmap';
 import { DictionaryItem } from '../common/dictionary';
 import { table } from './database';
 
-type Dictionary = { [key: string]: DictionaryItem };
-type Index = { [key: string]: number };
+// lemma -> dictionary item
+export type Dictionary = { [key: string]: DictionaryItem };
+
+// lemma -> index
+export type Index = { [key: string]: number };
 
 export async function lookUpDictionary(keys: string[], pkg: PackageID) {
     let index = await indexes.get(pkg);

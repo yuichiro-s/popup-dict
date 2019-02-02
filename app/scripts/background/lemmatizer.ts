@@ -2,16 +2,26 @@ import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { table } from './database';
 
-type Lemmatizer = { [key: string]: string };
+// word form -> lemma
+export type Lemmatizer = { [key: string]: string };
 
-export async function lemmatize(tokens: string[], lang: PackageID): Promise<string[]> {
-    let lemmatizer = await lemmatizers.get(lang);
+export function lemmatizeKeyStr(keyStr: string, lemmatizer: Lemmatizer): string[] {
+    const tokens = keyStr.split(' ');
+    return lemmatize(tokens, lemmatizer);
+}
+
+export function lemmatize(tokens: string[], lemmatizer: Lemmatizer): string[] {
     let lemmas = [];
     for (const token of tokens) {
         let lemma = lemmatizer[token] || token;
         lemmas.push(lemma);
     }
     return lemmas;
+}
+
+export async function lemmatizeWithPackage(tokens: string[], lang: PackageID): Promise<string[]> {
+    let lemmatizer = await lemmatizers.get(lang);
+    return lemmatize(tokens, lemmatizer);
 }
 
 let lemmatizerTable = table('lemmatizers');

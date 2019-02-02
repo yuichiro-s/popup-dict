@@ -4,6 +4,8 @@ import { Entry, State, UnknownEntry, KnownEntry, MarkedEntry } from '../common/e
 import { PackageID } from '../common/package';
 import { getPackages } from './packages';
 import { exportStats, StatsHistoryEntry, importStats } from './stats';
+import { getTrie } from './search';
+import { getKeys } from './trie';
 
 class Database extends Dexie {
     vocabulary: Dexie.Table<Entry, [PackageID, string]>;
@@ -91,10 +93,12 @@ export function listEntries(pkgId?: PackageID, state?: State): Promise<Entry[]> 
     return db.vocabulary.where(q).toArray();
 }
 
-export function importEntries(pkgId: PackageID, data: string) {
-    let keys = JSON.parse(data);
+// create entries from already imported trie
+export async function importEntries(pkgId: PackageID) {
+    let keys = getKeys(await getTrie(pkgId));
     let entries = [];
-    for (let key of keys) {
+    for (let lemmas of keys) {
+        const key = lemmas.join(' ');
         let entry: UnknownEntry = {
             pkgId,
             key,

@@ -1,8 +1,8 @@
 import { ContentCommand, Command } from '../common/commands';
-import { lemmatize, importLemmatizer } from './lemmatizer';
+import { lemmatizeWithPackage, importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency, importFrequencyTable } from './frequency';
-import { search, searchAllBatch, importTrie } from './trie';
+import { searchWithPackage, searchAllBatch, importTrie } from './search';
 import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, updateEntries } from './entry';
 import { getStats, getStatsHistory } from './stats';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
@@ -19,7 +19,7 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
         isEnabled().then(sendResponse);
 
     } else if (request.type === 'lemmatize') {
-        lemmatize(request.tokens, request.pkgId).then(sendResponse);
+        lemmatizeWithPackage(request.tokens, request.pkgId).then(sendResponse);
 
     } else if (request.type === 'lookup-dictionary') {
         lookUpDictionary(request.keys, request.pkgId).then(sendResponse);
@@ -31,7 +31,7 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
             sendResponse(tabs[0]);
         });
     } else if (request.type === 'search') {
-        search(request.pkgId, request.key).then(sendResponse);
+        searchWithPackage(request.pkgId, request.key).then(sendResponse);
     } else if (request.type === 'search-all-batch') {
         searchAllBatch(request.pkgId, request.lemmasBatch).then(sendResponse);
 
@@ -63,7 +63,7 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
     } else if (request.type === 'import-lemmatizer') {
         importLemmatizer(request.pkgId, request.data).then(sendResponse);
     } else if (request.type === 'import-entries') {
-        importEntries(request.pkgId, request.data).then(sendResponse);
+        importEntries(request.pkgId).then(sendResponse);
     } else if (request.type === 'import-frequency') {
         importFrequencyTable(request.pkgId, request.data).then(sendResponse);
 

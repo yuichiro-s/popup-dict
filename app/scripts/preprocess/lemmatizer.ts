@@ -1,4 +1,7 @@
-import { Dictionary, Inflection, Lemmatizer } from './types';
+import { Dictionary } from '../background/dictionary';
+import { Lemmatizer } from '../background/lemmatizer';
+
+type Inflection = { [form: string]: string };
 
 const MAX_DEPTH = 10;
 
