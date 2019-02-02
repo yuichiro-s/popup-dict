@@ -37,6 +37,7 @@
     "@types/jest": "^23.3.13",
     "@types/lodash": "^4.14.120",
     "@types/node": "^10.11.6",
+    "argparse": "^1.0.10",
     "babel-loader": "8.x.x",
     "babel-plugin-css-modules-transform": "^1.6.1",
     "chai": "4.x.x",
