@@ -1,5 +1,5 @@
 import { ContentCommand, Command } from '../common/commands';
-import { lemmatizeWithPackage, importLemmatizer } from './lemmatizer';
+import { importLemmatizer } from './lemmatizer';
 import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
 import { getFrequency, importFrequencyTable } from './frequency';
 import { searchWithPackage, searchAllBatch, importTrie } from './search';
@@ -18,9 +18,6 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
     if (request.type === 'is-enabled') {
         isEnabled().then(sendResponse);
 
-    } else if (request.type === 'lemmatize') {
-        lemmatizeWithPackage(request.tokens, request.pkgId).then(sendResponse);
-
     } else if (request.type === 'lookup-dictionary') {
         lookUpDictionary(request.keys, request.pkgId).then(sendResponse);
     } else if (request.type === 'get-frequency') {
@@ -33,7 +30,7 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
     } else if (request.type === 'search') {
         searchWithPackage(request.pkgId, request.key).then(sendResponse);
     } else if (request.type === 'search-all-batch') {
-        searchAllBatch(request.pkgId, request.lemmasBatch).then(sendResponse);
+        searchAllBatch(request.pkgId, request.tokensBatch).then(sendResponse);
 
     } else if (request.type === 'update-entry') {
         updateEntry(request.entry).then(sendResponse);

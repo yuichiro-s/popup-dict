@@ -4,8 +4,6 @@ import { Package, PackageID } from './package';
 export type Command =
     { type: 'is-enabled' } |
 
-    { type: 'lemmatize', tokens: string[], pkgId: PackageID } |
-
     // dictionary
     { type: 'lookup-dictionary', keys: string[], pkgId: PackageID } |
     { type: 'get-frequency', keys: string[], pkgId: PackageID } |
@@ -14,7 +12,7 @@ export type Command =
 
     // search
     { type: 'search', pkgId: PackageID, key: string[] } |
-    { type: 'search-all-batch', pkgId: PackageID, lemmasBatch: string[][] } |
+    { type: 'search-all-batch', pkgId: PackageID, tokensBatch: string[][] } |
 
     // entry info
     { type: 'update-entry', entry: Entry } |

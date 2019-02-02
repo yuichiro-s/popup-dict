@@ -6,17 +6,20 @@ import { get, has } from '../common/objectmap';
 import { table } from './database';
 import { lookUpEntries } from './entry';
 import { NEXT, isEnd, exists, TrieNode } from './trie';
+import { lemmatizeWithPackage } from './lemmatizer';
 
-export async function searchAllBatch(pkgId: PackageID, lemmasBatch: string[][]) {
+export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) {
     let results = [];
-    for (let lemmas of lemmasBatch) {
-        results.push(await searchAll(pkgId, lemmas));
+    for (let tokens of tokensBatch) {
+        results.push(await searchAll(pkgId, tokens));
     }
     return results;
 }
 
-async function searchAll(pkgId: PackageID, lemmas: string[]) {
+async function searchAll(pkgId: PackageID, tokens: string[]) {
     let trie = await tries.get(pkgId);
+    const lemmas = await lemmatizeWithPackage(tokens, pkgId);
+
     let spans: Span[] = [];
     let keys = [];
     let start = 0;

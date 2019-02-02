@@ -212,62 +212,39 @@ async function highlight(root?: Element) {
     if (pkg) {
         if (root === undefined) root = document.body;
         let textNodes = enumerateTextNodes(root, pkg);
-        let { tokensBatch, lemmasBatch } = await lemmatizeBatch(textNodes, pkg);
+
+        let tokensBatch = [];
+        for (let textNode of textNodes) {
+            let text = textNode.textContent!;
+            let tokens = tokenize(text, pkg.tokenizeByWhiteSpace);
+            tokensBatch.push(tokens);
+        }
 
         // TODO: allow for multilple lemmas
         let spansBatch = await sendCommand({
             type: 'search-all-batch',
             pkgId: pkg.id,
-            lemmasBatch,
+            tokensBatch: tokensBatch.map(tokens => tokens.map(tok => tok.form)),
         });
 
         let modification = [];
-        for (let i = 0; i < lemmasBatch.length; i++) {
+        for (let i = 0; i < tokensBatch.length; i++) {
             let textNode = textNodes[i];
             let tokens = tokensBatch[i];
             let spans = spansBatch[i];
             if (spans.length > 0) {
                 // match found
-                modification.push([textNode, tokens, spans]);
+                modification.push({ textNode, tokens, spans });
             }
         }
 
-        for (const [node, tokens, spans] of modification) {
-            replaceTextWithSpans(node, tokens, spans);
+        for (const { textNode, tokens, spans } of modification) {
+            replaceTextWithSpans(textNode, tokens, spans);
         }
     }
 }
 
 const highlightDebounced = debounce(highlight, 150);
-
-async function lemmatizeBatch(textNodes: Node[], pkg: Package) {
-    let tokensBatch = [];
-    let tokensList = [];
-    let boundaries = [0];
-    let cursor = 0;
-    for (let textNode of textNodes) {
-        let text = textNode.textContent!;
-        let tokens = tokenize(text, pkg.tokenizeByWhiteSpace);
-        tokensList.push(tokens);
-        tokensBatch.push(...tokens);
-        cursor += tokens.length;
-        boundaries.push(cursor);
-    }
-    let lemmasBatch: string[] = await sendCommand({
-        type: 'lemmatize',
-        tokens: tokensBatch.map((tok) => tok.form),
-        pkgId: pkg.id,
-    });
-    let lemmasList: string[][] = [];
-    for (let i = 0; i < boundaries.length - 1; i++) {
-        let lemmas = lemmasBatch.slice(boundaries[i], boundaries[i + 1]);
-        lemmasList.push(lemmas);
-    }
-    return {
-        tokensBatch: tokensList,
-        lemmasBatch: lemmasList,
-    };
-}
 
 async function rehighlight(keys: string[], state: State) {
     let root = document.body;
