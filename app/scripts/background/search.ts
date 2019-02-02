@@ -2,6 +2,7 @@ import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { Entry } from '../common/entry';
 import { Span } from '../common/search';
+import { get, has } from '../common/objectmap';
 import { table } from './database';
 import { lookUpEntries } from './entry';
 import { NEXT, isEnd, exists, TrieNode } from './trie';
@@ -25,10 +26,10 @@ async function searchAll(pkgId: PackageID, lemmas: string[]) {
         let lastMatch = 0;
         while (cursor < lemmas.length) {
             const lemma = lemmas[cursor];
-            if (!(lemma in node[NEXT])) {
+            if (!(has(node[NEXT], lemma))) {
                 break;
             }
-            node = node[NEXT][lemma];
+            node = get(node[NEXT], lemma)!;
             cursor++;
             if (isEnd(node)) {
                 lastMatch = cursor;

@@ -1,5 +1,6 @@
 import { Dictionary } from '../background/dictionary';
 import { Lemmatizer } from '../background/lemmatizer';
+import { has } from '../common/objectmap';
 
 type Inflection = { [form: string]: string };
 
@@ -14,7 +15,7 @@ export function buildLemmatizer(dict: Dictionary, inflection: Inflection): Lemma
             let form = originalForm;
             // recursively lemmatize
             for (let i = 0; i < MAX_DEPTH; i++) {
-                if (form in dict) {
+                if (has(dict, form)) {
                     // stop lemmatizing when the current form is in the dictionary
                     if (form !== originalForm) {
                         // register only when the original form differs from the current form
@@ -22,7 +23,7 @@ export function buildLemmatizer(dict: Dictionary, inflection: Inflection): Lemma
                     }
                     break;
                 } else {
-                    if (form in inflection) {
+                    if (has(inflection, form)) {
                         // lemmatize further
                         form = inflection[form];
                     } else {

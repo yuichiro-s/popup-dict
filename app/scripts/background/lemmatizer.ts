@@ -1,5 +1,6 @@
 import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
+import { get } from '../common/objectmap';
 import { table } from './database';
 
 // word form -> lemma
@@ -13,7 +14,7 @@ export function lemmatizeKeyStr(keyStr: string, lemmatizer: Lemmatizer): string[
 export function lemmatize(tokens: string[], lemmatizer: Lemmatizer): string[] {
     let lemmas = [];
     for (const token of tokens) {
-        let lemma = lemmatizer[token] || token;
+        let lemma = get(lemmatizer, token) || token;
         lemmas.push(lemma);
     }
     return lemmas;

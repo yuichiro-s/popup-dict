@@ -1,3 +1,5 @@
+import { has, get } from '../common/objectmap';
+
 export const NEXT = 'n';
 export const EXISTS = 'e';
 
@@ -13,10 +15,10 @@ export function createEmptyNode(): TrieNode {
 export function add(root: TrieNode, key: string[]) {
     let node = root;
     for (const lemma of key) {
-        if (!(lemma in node[NEXT])) {
+        if (!(has(node[NEXT], lemma))) {
             node[NEXT][lemma] = createEmptyNode();
         }
-        node = node[NEXT][lemma];
+        node = get(node[NEXT], lemma)!;
     }
     node[EXISTS] = true;
 }
@@ -32,7 +34,7 @@ export function exists(trie: TrieNode, key: string[]): boolean {
             return isEnd(node);
         } else {
             const token = key[i];
-            const next = node[NEXT][token];
+            const next = get(node[NEXT], token);
             if (next === undefined) {
                 return false;
             } else {

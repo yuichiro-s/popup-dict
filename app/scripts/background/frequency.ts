@@ -1,5 +1,6 @@
 import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
+import { get } from '../common/objectmap';
 import { table } from './database';
 
 export type FrequencyTable = { [key: string]: number };
@@ -9,7 +10,7 @@ export function getFrequency(tokens: string[], lang: PackageID): Promise<number[
         frequencyTables.get(lang).then(table => {
             let frequencies = [];
             for (const token of tokens) {
-                let frequency = table[token] || 0;
+                let frequency = get(table, token) || 0;
                 frequencies.push(frequency);
             }
             resolve(frequencies);

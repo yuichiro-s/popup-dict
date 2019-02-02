@@ -11,6 +11,8 @@ test('buildDictionaryAndFrequency', () => {
         'abc def xxx yyy': true,
         'abc def zzz': true,
 
+        'constructor': true,
+
         'makes': true,
         'make': true,
         'making': true,
@@ -22,6 +24,7 @@ test('buildDictionaryAndFrequency', () => {
         'made': 'make',
         'makes': 'make',
         'makings': 'making',
+        'constructors': 'constructor',
     };
 
     const rawFrequencyTable = {
@@ -54,6 +57,7 @@ test('buildDictionaryAndFrequency', () => {
         'abc def xxx yyy': 20,
         'abc def zzz': 10,
         'making XXX': 0,
+        'constructor': 0,
     });
 
     expect(index).toEqual({
@@ -67,6 +71,7 @@ test('buildDictionaryAndFrequency', () => {
         'abc def xxx yyy': 2,
         'abc def zzz': 2,
         'making XXX': 3,
+        'constructor': 3,
     });
 
     expect(dictionaryChunks.get(0)).toEqual({
@@ -86,5 +91,6 @@ test('buildDictionaryAndFrequency', () => {
     });
     expect(dictionaryChunks.get(3)).toEqual({
         'making XXX': true,
+        'constructor': true,
     });
 });

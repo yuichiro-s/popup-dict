@@ -1,6 +1,7 @@
 import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { DictionaryItem } from '../common/dictionary';
+import { get } from '../common/objectmap';
 import { table } from './database';
 
 // lemma -> dictionary item
@@ -14,12 +15,12 @@ export async function lookUpDictionary(keys: string[], pkg: PackageID) {
     let results = [];
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
-        let n = index[key];
+        let n = get(index, key);
         let item;
         if (n !== undefined) {
             let dictionaryKey = pkg + ',' + n;
             let dict = await dictionaries.get(dictionaryKey);
-            item = dict[key];
+            item = get(dict, key);
         } else {
             item = null;
         }

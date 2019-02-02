@@ -1,6 +1,7 @@
 import { Dictionary, Index } from '../background/dictionary';
 import { FrequencyTable } from '../background/frequency';
 import { Lemmatizer, lemmatizeKeyStr } from '../background/lemmatizer';
+import { get } from '../common/objectmap';
 
 export function buildDictionaryAndFrequency(dict: Dictionary, lemmatizer: Lemmatizer, rawFrequencyTable: FrequencyTable, chunkSize: number) {
     // Note: keys in rawFrequencyTable are assumed to be lowercased
@@ -9,7 +10,7 @@ export function buildDictionaryAndFrequency(dict: Dictionary, lemmatizer: Lemmat
     const frequencyTable: FrequencyTable = {};
     for (const [keyStr, freq] of Object.entries(rawFrequencyTable)) {
         let key = lemmatizeKeyStr(keyStr, lemmatizer).join(' ');
-        frequencyTable[key] = (frequencyTable[key] || 0) + freq;
+        frequencyTable[key] = (get(frequencyTable, key) || 0) + freq;
     }
 
     const dictWithKeysLemmatized: Dictionary = {};
@@ -17,7 +18,7 @@ export function buildDictionaryAndFrequency(dict: Dictionary, lemmatizer: Lemmat
     for (const [keyStr, dictionaryItem] of Object.entries(dict)) {
         const key = lemmatizeKeyStr(keyStr, lemmatizer).join(' ');
         const freqKey = key.toLowerCase();
-        freqs[key] = frequencyTable[freqKey] || 0;
+        freqs[key] = get(frequencyTable, freqKey) || 0;
         dictWithKeysLemmatized[key] = dictionaryItem;
     }
 
@@ -30,7 +31,7 @@ export function buildDictionaryAndFrequency(dict: Dictionary, lemmatizer: Lemmat
         const key = keys[i];
         const chunkIndex = Math.floor(i / chunkSize);
         index[key] = chunkIndex;
-        const dictionaryItem = dictWithKeysLemmatized[key];
+        const dictionaryItem = get(dictWithKeysLemmatized, key)!;
         if (!dictionaryChunks.has(chunkIndex)) {
             dictionaryChunks.set(chunkIndex, {});
         }

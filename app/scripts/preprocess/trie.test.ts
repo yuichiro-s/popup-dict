@@ -12,6 +12,8 @@ test('buildTrie', () => {
         'abc def xxx yyy': true,
         'abc def zzz': true,
 
+        'constructor': true,
+
         'makes': true,
         'make': true,
         'making': true,
@@ -23,6 +25,7 @@ test('buildTrie', () => {
         'made': 'make',
         'makes': 'make',
         'makings': 'making',
+        'constructors': 'constructor',
     };
 
     const trie = buildTrie(dict, lemmatizer);
@@ -43,6 +46,9 @@ test('buildTrie', () => {
     expect(e('makings XXX')).toBeFalsy();
     expect(e('making XXX')).toBeTruthy();
 
+    expect(e('constructor')).toBeTruthy();
+    expect(e('toString')).toBeFalsy();
+
     const keys = getKeys(trie);
     expect(keys.sort()).toEqual([
         ['abc', 'def'],
@@ -55,5 +61,6 @@ test('buildTrie', () => {
         ['make'],
         ['making'],
         ['making', 'XXX'],
+        ['constructor'],
     ].sort());
 });
