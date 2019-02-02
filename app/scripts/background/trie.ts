@@ -58,3 +58,32 @@ export function getKeys(root: TrieNode): string[][] {
     dfs(root, []);
     return keys;
 }
+
+export function findAllOccurrences(trie: TrieNode, tokens: string[]) {
+    let keys = [];
+    let start = 0;
+    while (start < tokens.length) {
+        let node = trie;
+        let cursor = start;
+        let lastMatch = 0;
+        while (cursor < tokens.length) {
+            const lemma = tokens[cursor];
+            if (!(has(node[NEXT], lemma))) {
+                break;
+            }
+            node = get(node[NEXT], lemma)!;
+            cursor++;
+            if (isEnd(node)) {
+                lastMatch = cursor;
+            }
+        }
+        if (lastMatch > 0) {
+            const key = tokens.slice(start, lastMatch);
+            keys.push({ begin: start, end: lastMatch, key });
+            start = lastMatch;
+        } else {
+            start++;
+        }
+    }
+    return keys;
+}

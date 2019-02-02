@@ -2,10 +2,9 @@ import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { Entry } from '../common/entry';
 import { Span } from '../common/search';
-import { get, has } from '../common/objectmap';
 import { table } from './database';
 import { lookUpEntries } from './entry';
-import { NEXT, isEnd, exists, TrieNode } from './trie';
+import { exists, TrieNode, findAllOccurrences } from './trie';
 import { lemmatizeWithPackage } from './lemmatizer';
 
 export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) {
@@ -19,36 +18,9 @@ export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) 
 async function searchAll(pkgId: PackageID, tokens: string[]) {
     let trie = await tries.get(pkgId);
     const lemmas = await lemmatizeWithPackage(tokens, pkgId);
+    const keys = findAllOccurrences(trie, lemmas);
 
     let spans: Span[] = [];
-    let keys = [];
-    let start = 0;
-    while (start < lemmas.length) {
-        let node = trie;
-        let cursor = start;
-        let lastMatch = 0;
-        while (cursor < lemmas.length) {
-            const lemma = lemmas[cursor];
-            if (!(has(node[NEXT], lemma))) {
-                break;
-            }
-            node = get(node[NEXT], lemma)!;
-            cursor++;
-            if (isEnd(node)) {
-                lastMatch = cursor;
-            }
-        }
-        if (lastMatch > 0) {
-            // Note that `text` is normalized
-            // TODO: batch lookups
-            const key = lemmas.slice(start, lastMatch);
-            keys.push({ begin: start, end: lastMatch, key });
-            start = lastMatch;
-        }
-        else {
-            start++;
-        }
-    }
     let entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
