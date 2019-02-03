@@ -34,7 +34,7 @@ export function getPackages(): Promise<{ [pkgId: string]: Package }> {
     });
 }
 
-export async function deletePackage(pkgId: PackageID) {
+export function deletePackage(pkgId: PackageID) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get('packages', result => {
             if (result && result.packages && pkgId in result.packages) {

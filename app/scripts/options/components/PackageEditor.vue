@@ -62,8 +62,8 @@ import { codemirror } from "vue-codemirror-lite";
 import "codemirror/mode/handlebars/handlebars";
 import debounce from "lodash/debounce";
 
-import { Package, DictionaryInfo } from '../../common/package';
-import { sendCommand } from '../../content/command';
+import { Package, DictionaryInfo, createPackage } from "../../common/package";
+import { sendCommand } from "../../content/command";
 
 export default Vue.extend({
   name: "PackageEditor",
@@ -151,9 +151,7 @@ export default Vue.extend({
           `Are you sure you want to restore the default settings of ${name}?`
         )
       ) {
-        for (const key in this.pkg.default) {
-          this.pkg[key] = this.pkg.default[key];
-        }
+        this.pkg = createPackage(this.pkg.default);
       }
     }
   }

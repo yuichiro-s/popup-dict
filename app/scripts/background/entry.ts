@@ -42,7 +42,9 @@ export function putEntries(entries: Entry[]) {
 }
 
 export function deleteEntries(pkgId: PackageID) {
-    return db.vocabulary.where('pkgId').equals(pkgId).delete();
+    return db.vocabulary.where({ pkgId }).delete().then(() => {
+        console.log(`Deleted ${pkgId} from entries.`);
+    });
 }
 
 export function lookUpEntries(pkgId: PackageID, keys: string[][]): Promise<Entry[]> {

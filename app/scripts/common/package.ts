@@ -16,5 +16,29 @@ export type Package = {
     showDictionary: ShowDictionary;
     template: string;
     blacklist: string[];
-    default: Package;
+    default: Settings;
 };
+
+export type Settings = {
+    id: PackageID;
+    name: string;
+    languageCode: string;
+    tokenizeByWhiteSpace: boolean;
+    dictionaries: DictionaryInfo[];
+    showDictionary: ShowDictionary;
+    template: string;
+};
+
+export function createPackage(settings: Settings): Package {
+    return {
+        id: settings.id,
+        name: settings.name,
+        languageCode: settings.languageCode,
+        tokenizeByWhiteSpace: settings.tokenizeByWhiteSpace,
+        dictionaries: settings.dictionaries || [],
+        showDictionary: settings.showDictionary || 'unknown-or-marked',
+        template: settings.template,
+        blacklist: [],
+        default: settings,
+    };
+}

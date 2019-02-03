@@ -22,6 +22,7 @@
         <v-card-title primary-title>
           <div class="headline">Import package</div>
         </v-card-title>
+
         <div v-if="!importing">
           <div v-if="files.length > 0">
             <v-alert
@@ -43,12 +44,14 @@
             <li v-for="file in files" :key="file.id">{{ file.name }}</li>
           </ul>
         </div>
+
         <div v-else>
           <div class="text-xs-center">
             <v-progress-linear :value="importProgress" color="primary" :height="30"></v-progress-linear>
             <h2>{{ importMessage }}</h2>
           </div>
         </div>
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="importDialog = false" :disabled="importing">Cancel</v-btn>
@@ -67,6 +70,9 @@
 
     <h1>Packages</h1>
     <v-btn @click="importDialog = true">Import New Package</v-btn>
+    <v-btn @click="eijiroDialog = true">Import EIJIRO</v-btn>
+    <eijiro-importer :dialog="eijiroDialog" @cancel="eijiroDialog = false" @done="eijiroImportDone"></eijiro-importer>
+
     <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
     <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
     <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
@@ -78,15 +84,17 @@ import Vue from "vue";
 import FileUpload from "vue-upload-component";
 
 import { sendCommand } from "../../content/command";
-import { Package } from "../../common/package";
+import { Package, PackageID } from "../../common/package";
 import PackageEditor from "../components/PackageEditor.vue";
-import { importPackage, validatePackage, loadFile } from "../importer";
+import EijiroImporter from "../components/EijiroImporter.vue";
+import { importPackageFromFiles, validatePackage, loadFile } from "../importer";
 
 export default Vue.extend({
   data: () => ({
     deleteDialog: false,
     deleting: false,
     importDialog: false,
+    eijiroDialog: false,
     importing: false,
     packages: {},
     currentPkgId: null,
@@ -129,7 +137,8 @@ export default Vue.extend({
   },
   components: {
     PackageEditor,
-    FileUpload
+    FileUpload,
+    EijiroImporter
   },
   methods: {
     deletePackage() {
@@ -152,7 +161,7 @@ export default Vue.extend({
       this.importMessage = "";
       this.importProgress = 0;
       let files = this.files.map((f: any) => f.file);
-      importPackage(files, (progress: number, msg: string) => {
+      importPackageFromFiles(files, (progress: number, msg: string) => {
         this.importProgress = Math.round(progress * 100);
         this.importMessage = msg;
       })
@@ -216,6 +225,13 @@ export default Vue.extend({
           null
         );
         a.dispatchEvent(e);
+      });
+    },
+    eijiroImportDone(pkg: Package) {
+      this.reloadPackages().then(() => {
+        alert(`Successfully imported ${pkg.name}.`);
+        this.currentPkgId = pkg.id;
+        this.eijiroDialog = false;
       });
     }
   },

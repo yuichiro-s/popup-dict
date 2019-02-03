@@ -1,10 +1,11 @@
 const fs = require('fs');
-const path = require('path');
 const readline = require('readline');
 const stream = require('stream');
 const { buildLemmatizer } = require('../app/scripts/preprocess/lemmatizer');
 const { buildTrie } = require('../app/scripts/preprocess/trie');
 const { buildDictionaryAndFrequency } = require('../app/scripts/preprocess/dictionary');
+const { loadInflection, loadFrequency } = require('../app/scripts/preprocess/loader');
+const { writePackage } = require('./util');
 
 function parseArgs() {
     const argparse = require('argparse');
@@ -36,7 +37,7 @@ function parseArgs() {
     return parser.parseArgs();
 }
 
-function loadEjdic(path: string): Promise<{word: string, entries: string[]}[]> {
+function loadEjdic(path: string): Promise<{ word: string, entries: string[] }[]> {
     const d: { word: string, entries: string[] }[] = [];
     return new Promise((resolve) => {
         const instream = fs.createReadStream(path);
@@ -56,40 +57,13 @@ function loadEjdic(path: string): Promise<{word: string, entries: string[]}[]> {
     });
 }
 
-async function loadInflection(path: string) {
-    const content = await (await fs.promises.readFile(path)).toString();
-    const inflection: { [form: string]: string } = {};
-    for (const line of content.split('\n')) {
-        const [orig, form] = line.split('\t');
-        inflection[form] = orig;
-    }
-    return inflection;
-}
-
-async function loadFrequency(path: string) {
-    const content = await (await fs.promises.readFile(path)).toString();
-    const rawFrequencyTable: { [form: string]: number } = {};
-    for (const line of content.split('\n')) {
-        const [form, freqStr] = line.split(' ');
-        rawFrequencyTable[form] = parseInt(freqStr);
-    }
-    return rawFrequencyTable;
-}
-
-function writeJSON(obj: Object, path: string) {
-    console.log(`Writing to ${path} ...`);
-    return new Promise(resolve => {
-        fs.writeFile(path, JSON.stringify(obj), 'utf8', resolve);
-    });
-}
-
 async function main() {
     const args = parseArgs();
 
     console.log(`Loading ${args.ejdic} ...`);
     const ejdic = await loadEjdic(args.ejdic);
 
-    const dict: {[key: string]: any} = {};
+    const dict: { [key: string]: any } = {};
     for (const item of ejdic) {
         // note that 'constructor' key is already defined
         if (!(Array.isArray(dict[item.word]))) {
@@ -98,11 +72,14 @@ async function main() {
         dict[item.word].push(item);
     }
 
+    const inflectionContent = fs.promises.readFile(args.inflection);
+    const rawFrequencyTableContent = fs.promises.readFile(args.frequency);
+
     console.log(`Loading ${args.inflection} ...`);
-    const inflection = await loadInflection(args.inflection);
+    const inflection = await loadInflection(await (await inflectionContent).toString());
 
     console.log(`Loading ${args.frequency} ...`);
-    const rawFrequencyTable = await loadFrequency(args.frequency);
+    const rawFrequencyTable = await loadFrequency(await (await rawFrequencyTableContent).toString());
 
     console.log(`Building lemmatizer...`);
     const lemmatizer = buildLemmatizer(dict, inflection);
@@ -113,29 +90,7 @@ async function main() {
     console.log(`Building dictionary and frequency ...`);
     const { index, dictionaryChunks, freqs } = buildDictionaryAndFrequency(
         dict, lemmatizer, rawFrequencyTable, args.chunk_size);
-
-    if (!fs.existsSync(args.out)) {
-        await fs.promises.mkdir(args.out, { recursive: true });
-    }
-
-    const dictPath = path.join(args.out, 'dictionary');
-    if (!fs.existsSync(dictPath)) {
-        await fs.promises.mkdir(dictPath, { recursive: true });
-    }
-
-    const p = (name: string) => path.join(args.out, name);
-    const d = (name: string) => path.join(dictPath, name);
-    await Promise.all([
-        fs.promises.copyFile(args.settings, p('settings.toml')),
-        writeJSON(lemmatizer, p('lemmatizer.json')),
-        writeJSON(trie, p('trie.json')),
-        writeJSON(freqs, p('frequency.json')),
-        writeJSON(index, d('index.json')),
-        Promise.all(
-            Array.from(dictionaryChunks.entries()).map(([chunkIndex, dict]) =>
-                writeJSON(dict, d(`subdict${chunkIndex}.json`)))
-        ),
-    ]);
+    await writePackage(args.out, lemmatizer, trie, freqs, index, dictionaryChunks, args.settings);
 
     console.log('Done.');
 }

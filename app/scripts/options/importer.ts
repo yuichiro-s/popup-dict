@@ -1,7 +1,6 @@
 import toml from 'toml';
-import cloneDeep from 'lodash/cloneDeep';
 
-import { Package } from '../common/package';
+import { Package, Settings, createPackage } from '../common/package';
 import { sendCommand } from '../content/command';
 
 export function loadFile(file: File): Promise<string> {
@@ -18,9 +17,9 @@ export function loadFile(file: File): Promise<string> {
     });
 }
 
-function validateAndInit(pkg: Package) {
+function validateAndInit(settings: Settings): Package {
     function check(field: string) {
-        if (!(field in pkg)) {
+        if (!(field in settings)) {
             throw new Error(`${field} does not exist!`);
         }
     }
@@ -28,10 +27,7 @@ function validateAndInit(pkg: Package) {
     check('name');
     check('languageCode');
     check('tokenizeByWhiteSpace');
-    if (!pkg.dictionaries) pkg.dictionaries = [];
-    if (!pkg.showDictionary) pkg.showDictionary = 'unknown-or-marked';
-    if (!pkg.template) pkg.template = '';
-    if (!pkg.blacklist) pkg.blacklist = [];
+    return createPackage(settings);
 }
 
 function gatherNecessaryFiles(files: File[]) {
@@ -98,7 +94,80 @@ export function validatePackage(files: File[]) {
     return { errors, warnings };
 }
 
-export async function importPackage(files: File[], progressFn: (progress: number, msg: string) => void) {
+type PromiseOr<T> = Promise<T> | T;
+type PromiseOrString = PromiseOr<string>;
+
+export async function importPackage(
+    settings: PromiseOr<Settings>,
+    trieJSON: PromiseOrString,
+    lemmatizerJSON: PromiseOrString,
+    indexJSON: PromiseOrString,
+    subDictJSONs: Map<number, PromiseOrString>,
+    frequencyJSON: PromiseOrString,
+    progressFn: (progress: number, msg: string) => void,
+) {
+    const TOTAL = 7;
+
+    /* STEP 1: import settings */
+    progressFn(0 / TOTAL, 'Importing trie...');
+    const pkg = validateAndInit(await settings);  // validate
+    const pkgId = pkg.id;
+    if (await sendCommand({ type: 'get-package', pkgId })) {
+        throw new Error(`Package ${pkgId} already exists!`);
+    }
+
+    const makePromise = (type: any, jsonPromise: PromiseOrString, obj?: Object) => {
+        return (async () => {
+            const json = await jsonPromise;
+            let args = { type, pkgId, data: json };
+            if (obj) {
+                args = Object.assign(args, obj);
+            }
+            await sendCommand(args);
+        })();
+    };
+
+    /* STEP 2: import trie */
+    /* STEP 3: import entries */
+    progressFn(1 / TOTAL, 'Importing trie...');
+    progressFn(2 / TOTAL, 'Importing entries...');
+    const trie = makePromise('import-trie', trieJSON).then(() => {
+        return sendCommand({ type: 'import-entries', pkgId });
+    });
+
+    /* STEP 4: import lemmatizer */
+    progressFn(3 / TOTAL, 'Importing lemmatizer...');
+    const lemmatizer = makePromise('import-lemmatizer', lemmatizerJSON);
+
+    /* STEP 5: import dictionary index */
+    progressFn(4 / TOTAL, 'Importing dictionary index...');
+    const index = makePromise('import-index', indexJSON);
+
+    /* STEP 6: import dictionary */
+    const ps: Promise<any>[] = [];
+    let i = 0;
+    subDictJSONs.forEach((json: Promise<string>, n: number) => {
+        const progress = (5 + i / subDictJSONs.size) / TOTAL;
+        progressFn(progress, `Importing dictionary [${i + 1}/${subDictJSONs.size}]...`);
+        const p = makePromise('import-dictionary', json, { n });
+        ps.push(p);
+    });
+
+    /* STEP 7: import frequency */
+    progressFn(6 / TOTAL, 'Importing frequency list...');
+    const frequency = makePromise('import-frequency', frequencyJSON);
+
+    await Promise.all([trie, lemmatizer, index, ...ps, frequency]);
+
+    // import completed
+    progressFn(1., 'Done.');
+    await sendCommand({ type: 'update-package', pkg });
+    console.log(`Imported ${pkg.name}.`);
+
+    return pkg;
+}
+
+export async function importPackageFromFiles(files: File[], progressFn: (progress: number, msg: string) => void) {
     const {
         settingsFile,
         trieFile,
@@ -106,64 +175,29 @@ export async function importPackage(files: File[], progressFn: (progress: number
         indexFile,
         frequencyFile,
         subDictFiles,
-        totalSize,
     } = gatherNecessaryFiles(files);
-    let size = 0;
 
-    /* STEP 1: load settings */
-    progressFn(size / totalSize, 'Loading settings...');
-    let settings: Package = toml.parse(await loadFile(settingsFile!));
-    validateAndInit(settings);  // validate
-    settings.default = cloneDeep(settings);  // save default settings
-    let pkgId = settings.id;
-    if (await sendCommand({ type: 'get-package', pkgId })) {
-        throw new Error(`Package ${pkgId} already exists!`);
-    }
-    size += settingsFile!.size;
+    const settings = loadFile(settingsFile!).then(toml.parse);
+    const trieJSON = loadFile(trieFile!);
+    const lemmatizerJSON = lemmatizerFile ? loadFile(lemmatizerFile) : '{}';
+    const frequencyJSON = frequencyFile ? loadFile(frequencyFile) : '{}';
 
-    /* STEP 2: import trie */
-    progressFn(size / totalSize, 'Importing trie...');
-    await sendCommand({ type: 'import-trie', pkgId, data: await loadFile(trieFile!) });
-    size += trieFile!.size;
-
-    /* STEP 3: import entries */
-    progressFn(size / totalSize, 'Importing entries...');
-    await sendCommand({ type: 'import-entries', pkgId });
-
-    /* STEP 4: import lemmatizer */
-    progressFn(size / totalSize, 'Importing lemmatizer...');
-    let lemmatizerData = lemmatizerFile ? await loadFile(lemmatizerFile) : '{}';
-    await sendCommand({ type: 'import-lemmatizer', pkgId, data: lemmatizerData });
-    size += lemmatizerFile!.size;
-
-    /* STEP 5: import dictionary index */
-    progressFn(size / totalSize, 'Importing dictionary index...');
-    let indexData = indexFile ? await loadFile(indexFile) : '{}';
-    await sendCommand({ type: 'import-index', pkgId, data: indexData });
-    size += indexFile!.size;
-
-    /* STEP 6: import dictionary */
+    const indexJSON = indexFile ? loadFile(indexFile) : '{}';
+    const subDictJSONs = new Map<number, Promise<string>>();
     for (let i = 0; i < subDictFiles.length; i++) {
         const file = subDictFiles[i];
-        progressFn(size / totalSize, `Importing dictionary [${i + 1}/${subDictFiles.length}]...`);
         let n = Number.parseInt(file.name.replace('subdict', '').replace('.json', ''));
-        await sendCommand({ type: 'import-dictionary', pkgId, n, data: await loadFile(file) });
-        size += file.size;
+        const json = loadFile(file);
+        subDictJSONs.set(n, json);
     }
 
-    /* STEP 7: import frequency */
-    progressFn(size / totalSize, 'Importing frequency list...');
-    if (frequencyFile) {
-        // if frequency.json does not exist, do not import any frequency info
-        let frequencyData = await loadFile(frequencyFile);
-        await sendCommand({ type: 'import-frequency', pkgId, data: frequencyData });
-        size += frequencyFile.size;
-    }
-
-    // import completed
-    progressFn(1., 'Done.');
-    await sendCommand({ type: 'update-package', pkg: settings });
-    console.log(`Imported ${settings.name}.`);
-
-    return settings;
+    return await importPackage(
+        settings,
+        trieJSON,
+        lemmatizerJSON,
+        indexJSON,
+        subDictJSONs,
+        frequencyJSON,
+        progressFn,
+    );
 }
