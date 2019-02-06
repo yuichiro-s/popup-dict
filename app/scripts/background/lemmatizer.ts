@@ -8,21 +8,29 @@ export type Lemmatizer = { [key: string]: string };
 
 export function lemmatizeKeyStr(keyStr: string, lemmatizer: Lemmatizer): string[] {
     const tokens = keyStr.split(' ');
-    return lemmatize(tokens, lemmatizer);
+    return lemmatizeTokens(tokens, lemmatizer);
 }
 
-export function lemmatize(tokens: string[], lemmatizer: Lemmatizer): string[] {
+export function lemmatize(token: string, lemmatizer: Lemmatizer): string {
+    return get(lemmatizer, token) || token;
+}
+
+export function lemmatizeTokens(tokens: string[], lemmatizer: Lemmatizer): string[] {
     let lemmas = [];
     for (const token of tokens) {
-        let lemma = get(lemmatizer, token) || token;
+        let lemma = lemmatize(token, lemmatizer);
         lemmas.push(lemma);
     }
     return lemmas;
 }
 
-export async function lemmatizeWithPackage(tokens: string[], lang: PackageID): Promise<string[]> {
-    let lemmatizer = await lemmatizers.get(lang);
-    return lemmatize(tokens, lemmatizer);
+export async function lemmatizeWithPackage(tokens: string[], pkgId: PackageID): Promise<string[]> {
+    let lemmatizer = await lemmatizers.get(pkgId);
+    return lemmatizeTokens(tokens, lemmatizer);
+}
+
+export function getLammatizer(pkgId: PackageID): Promise<Lemmatizer> {
+    return lemmatizers.get(pkgId);
 }
 
 let lemmatizerTable = table('lemmatizers');

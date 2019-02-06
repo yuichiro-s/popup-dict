@@ -59,57 +59,56 @@ export function getKeys(root: TrieNode): string[][] {
     return keys;
 }
 
-// TODO: support non-English alphabets
-function isUpper(lemma: string): boolean {
-    return lemma[0].toLowerCase() !== lemma[0];
-}
+export function findAllOccurrences(trie: TrieNode, tokens: (string | string[])[]) {
+    // alternatives of only the first token are considered
 
-function lowerCaseFirstLetter(lemma: string): string {
-    return lemma[0].toLowerCase() + lemma.slice(1);
-}
-
-export function findAllOccurrences(trie: TrieNode, tokens: string[], retryWithLowerCase: boolean) {
     let keys = [];
     let start = 0;
     while (start < tokens.length) {
-        let retry = false;
-        while (true) {
+        let alternatives: string[];
+        if (typeof tokens[start] === 'string') {
+            alternatives = [<string>tokens[start]];
+        } else {
+            alternatives = <string[]>tokens[start];
+        }
+
+        let notFound = true;
+        for (const first of alternatives) {
             let node = trie;
             let cursor = start;
             let lastMatch = 0;
+            const lemmas = [];
             while (cursor < tokens.length) {
-                let lemma = tokens[cursor];
-                if (retry && cursor === start) {
-                    // if it's the second trial, lowercase the first token
-                    lemma = lowerCaseFirstLetter(lemma);
+                let lemma;
+                if (cursor === start) {
+                    lemma = first;
+                } else {
+                    if (typeof tokens[cursor] === 'string') {
+                        lemma = <string>tokens[cursor];
+                    } else {
+                        // only try with the first alternative
+                        lemma = <string>tokens[cursor][0];
+                    }
                 }
                 if (!(has(node[NEXT], lemma))) {
                     break;
                 }
                 node = get(node[NEXT], lemma)!;
                 cursor++;
+                lemmas.push(lemma);
                 if (isEnd(node)) {
                     lastMatch = cursor;
                 }
             }
             if (lastMatch > 0) {
-                const key = tokens.slice(start, lastMatch);
-                if (retry) {
-                    key[0] = lowerCaseFirstLetter(key[0]);
-                }
+                const key = lemmas.slice(0, lastMatch - start);
                 keys.push({ begin: start, end: lastMatch, key });
                 start = lastMatch;
-                retry = false;
-            } else {
-                if (retryWithLowerCase && !retry && isUpper(tokens[start])) {
-                    retry = true;
-                } else {
-                    start++;
-                    retry = false;
-                }
+                notFound = false;
+                break;
             }
-            if (!retry) break;
         }
+        if (notFound) start++;
     }
     return keys;
 }

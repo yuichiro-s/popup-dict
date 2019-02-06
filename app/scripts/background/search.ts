@@ -5,7 +5,7 @@ import { Span } from '../common/search';
 import { table } from './database';
 import { lookUpEntries } from './entry';
 import { exists, TrieNode, findAllOccurrences } from './trie';
-import { lemmatizeWithPackage } from './lemmatizer';
+import { lemmatize, getLammatizer } from './lemmatizer';
 
 export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) {
     let results = [];
@@ -15,10 +15,28 @@ export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) 
     return results;
 }
 
+// TODO: support non-English alphabets
+function isUpper(lemma: string): boolean {
+    return lemma[0].toLowerCase() !== lemma[0];
+}
+
 async function searchAll(pkgId: PackageID, tokens: string[]) {
     let trie = await tries.get(pkgId);
-    const lemmas = await lemmatizeWithPackage(tokens, pkgId);
-    const keys = findAllOccurrences(trie, lemmas, true);
+    let lemmatizer = await getLammatizer(pkgId);
+
+    const lemmasWithAlternatives = [];
+    for (const token of tokens) {
+        const lemma = lemmatize(token, lemmatizer);
+        if (isUpper(token)) {
+            // try first with the original form, then one with the first letter lowercased
+            const alternative = lemmatize(token.toLowerCase(), lemmatizer);
+            lemmasWithAlternatives.push([lemma, alternative]);
+        } else {
+            lemmasWithAlternatives.push(lemma);
+        }
+    }
+
+    const keys = findAllOccurrences(trie, lemmasWithAlternatives);
 
     let spans: Span[] = [];
     let entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
