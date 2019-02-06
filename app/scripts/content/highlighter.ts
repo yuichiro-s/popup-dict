@@ -7,7 +7,7 @@ import { State } from '../common/entry';
 import { PackageID, Package } from '../common/package';
 import { DictionaryItem } from '../common/dictionary';
 import { Span } from '../common/search';
-import { tokenize, Token } from './tokenizer';
+import { tokenize, Token } from '../common/tokenizer';
 import { sendCommand } from './command';
 import { getPackage } from './package';
 import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';

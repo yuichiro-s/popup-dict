@@ -6,11 +6,6 @@ import { table } from './database';
 // word form -> lemma
 export type Lemmatizer = { [key: string]: string };
 
-export function lemmatizeKeyStr(keyStr: string, lemmatizer: Lemmatizer): string[] {
-    const tokens = keyStr.split(' ');
-    return lemmatizeTokens(tokens, lemmatizer);
-}
-
 export function lemmatize(token: string, lemmatizer: Lemmatizer): string {
     return get(lemmatizer, token) || token;
 }

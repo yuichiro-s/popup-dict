@@ -167,7 +167,14 @@ const SETTINGS: Settings = {
     template: TEMPLATE,
 };
 
-export async function loadEijiro(eijiroContent: Promise<string>, inflectionContent: Promise<string>, frequencyContent: Promise<string>, whitelistContent: Promise<string>, chunkSize: number, progressFn: (progress: number, msg: string) => void) {
+export async function loadEijiro(
+    eijiroContent: Promise<string>,
+    inflectionContent: Promise<string>,
+    frequencyContent: Promise<string>,
+    whitelistContent: Promise<string>,
+    chunkSize: number,
+    progressFn: (progress: number, msg: string) => void) {
+
     progressFn(0, `Loading inflection patterns...`);
     const inflection = loadInflection(await inflectionContent);
 

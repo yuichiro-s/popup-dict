@@ -1,6 +1,7 @@
 import { Dictionary, Index } from '../background/dictionary';
 import { FrequencyTable } from '../background/frequency';
-import { Lemmatizer, lemmatizeKeyStr } from '../background/lemmatizer';
+import { Lemmatizer } from '../background/lemmatizer';
+import { lemmatizeKeyStr } from './util';
 import { get } from '../common/objectmap';
 
 export function buildDictionaryAndFrequency(dict: Dictionary, lemmatizer: Lemmatizer, rawFrequencyTable: FrequencyTable, chunkSize: number) {
