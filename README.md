@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/yuichiro-s/popup-dict.svg?branch=master)](https://travis-ci.com/yuichiro-s/popup-dict)
+
 # popup dict
 
 Popup dictionary.
