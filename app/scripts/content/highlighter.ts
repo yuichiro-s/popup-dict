@@ -171,40 +171,68 @@ function unhighlight(root?: Element) {
     root.normalize();
 }
 
-function enumerateTextNodes(root: Element, pkg: Package) {
-    let nodes: Node[] = [];
-    function process(element: Element) {
-        let rect = element.getBoundingClientRect();
-        let h = window.innerHeight || document.documentElement!.clientHeight;
-        if (rect.bottom >= 0 && rect.top <= h) {
-            if (TAG_LIST.includes(element.nodeName) && !element.classList.contains(HIGHLIGHTED_CLASS)) {
-                let children = Array.from(element.childNodes);
-                for (let j = 0; j < children.length; j++) {
-                    let child = children[j];
-                    if (child.nodeType === 3) {
-                        // text node
-                        let text = child.textContent;
-                        if (text) {
-                            if (!pkg.tokenizeByWhiteSpace || text.trim().length > 1) {
-                                nodes.push(child);
-                            }
-                        }
+function* enumerateTextNodes(root: Element, pkg: Package) {
+    let h = window.innerHeight || document.documentElement!.clientHeight;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (element: Element) => {
+            let rect = element.getBoundingClientRect();
+            if ((window.getComputedStyle(element).display === 'none') ||
+                element.classList.contains(CLASS_POPUP_DICTIONARY) ||
+                rect.height === 0) {
+                return NodeFilter.FILTER_REJECT;
+            }
+            if (0 <= rect.bottom && rect.top <= h) {
+                if (TAG_LIST.includes(element.nodeName) && !element.classList.contains(HIGHLIGHTED_CLASS)) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            }
+            return NodeFilter.FILTER_SKIP;
+        }
+    });
+
+    let element;
+    while ((element = walker.nextNode())) {
+        let children = Array.from(element.childNodes);
+        for (let j = 0; j < children.length; j++) {
+            let child = children[j];
+            if (child.nodeType === 3) {
+                // text node
+                let text = child.textContent;
+                if (text) {
+                    if (!pkg.tokenizeByWhiteSpace || text.trim().length > 1) {
+                        yield child;
                     }
                 }
             }
         }
     }
-    function dfs(element: Element) {
-        if (!element.classList.contains(CLASS_POPUP_DICTIONARY)) {
-            // exclude content of popup
-            for (let i = 0; i < element.children.length; i++) {
-                dfs(element.children[i]);
-            }
-            process(element);
+}
+
+const TIMEOUT = 50;
+
+async function highlightNodes(nodes: Node[], tokensBatch: Token[][], pkg: Package) {
+
+    // TODO: allow for multilple lemmas
+    let spansBatch = await sendCommand({
+        type: 'search-all-batch',
+        pkgId: pkg.id,
+        tokensBatch: tokensBatch.map(tokens => tokens.map(tok => tok.form)),
+    });
+
+    let modification = [];
+    for (let i = 0; i < tokensBatch.length; i++) {
+        let textNode = nodes[i];
+        let tokens = tokensBatch[i];
+        let spans = spansBatch[i];
+        if (spans.length > 0) {
+            // match found
+            modification.push({ textNode, tokens, spans });
         }
     }
-    dfs(root);
-    return nodes;
+
+    for (const { textNode, tokens, spans } of modification) {
+        replaceTextWithSpans(textNode, tokens, spans);
+    }
 }
 
 async function highlight(root?: Element) {
@@ -213,33 +241,28 @@ async function highlight(root?: Element) {
         if (root === undefined) root = document.body;
         let textNodes = enumerateTextNodes(root, pkg);
 
-        let tokensBatch = [];
-        for (let textNode of textNodes) {
-            let text = textNode.textContent!;
+        const currentNodes: Node[] = [];
+        const tokensBatch = [];
+        let lastTime = Date.now();
+        while (true) {
+            let { value: node, done } = textNodes.next();
+            if (done) break;
+
+            // tokenize
+            currentNodes.push(node);
+            let text = node.textContent!;
             let tokens = tokenize(text, pkg.tokenizeByWhiteSpace);
             tokensBatch.push(tokens);
-        }
 
-        // TODO: allow for multilple lemmas
-        let spansBatch = await sendCommand({
-            type: 'search-all-batch',
-            pkgId: pkg.id,
-            tokensBatch: tokensBatch.map(tokens => tokens.map(tok => tok.form)),
-        });
-
-        let modification = [];
-        for (let i = 0; i < tokensBatch.length; i++) {
-            let textNode = textNodes[i];
-            let tokens = tokensBatch[i];
-            let spans = spansBatch[i];
-            if (spans.length > 0) {
-                // match found
-                modification.push({ textNode, tokens, spans });
+            if (Date.now() - lastTime > TIMEOUT) {
+                await highlightNodes(currentNodes, tokensBatch, pkg);
+                currentNodes.length = 0;
+                tokensBatch.length = 0;
+                lastTime = Date.now();
             }
         }
-
-        for (const { textNode, tokens, spans } of modification) {
-            replaceTextWithSpans(textNode, tokens, spans);
+        if (currentNodes.length > 0) {
+            highlightNodes(currentNodes, tokensBatch, pkg);
         }
     }
 }
@@ -386,18 +409,6 @@ let scrollListener = (event: Event) => {
     highlightDebounced();
 };
 
-function insideTooltip(originalElement: Element) {
-    // recursively check if the node is inside the tooltip
-    let element: Element | null = originalElement;
-    while (element) {
-        if (element.classList.contains(CLASS_POPUP_DICTIONARY)) {
-            return true;
-        }
-        element = element.parentElement;
-    }
-    return false;
-}
-
 let observer = new MutationObserver(async (records: MutationRecord[]) => {
     // enumerate all newly added nodes
     let addedNodes = new Set();
@@ -411,7 +422,7 @@ let observer = new MutationObserver(async (records: MutationRecord[]) => {
 
     // run highlighter on the newly added nodes
     addedNodes.forEach(element => {
-        if (element.classList && !element.classList.contains(HIGHLIGHTED_CLASS) && !insideTooltip(element)) {
+        if (element.classList && !element.classList.contains(HIGHLIGHTED_CLASS)) {
             highlight(element);
         }
     });
