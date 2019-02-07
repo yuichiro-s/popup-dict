@@ -1,14 +1,8 @@
 import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
-import { DictionaryItem } from '../common/dictionary';
 import { get } from '../common/objectmap';
 import { table } from './database';
-
-// lemma -> dictionary item
-export type Dictionary = { [key: string]: DictionaryItem };
-
-// lemma -> index
-export type Index = { [key: string]: number };
+import { Index, Dictionary } from '../common/dictionary';
 
 export async function lookUpDictionary(keys: string[], pkg: PackageID) {
     let index = await indexes.get(pkg);

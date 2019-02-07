@@ -39,8 +39,7 @@ export function table<K, V>(tableName: string) {
         });
     };
 
-    let importer = (key: K, data: string) => {
-        let value: V = JSON.parse(data);
+    let importer = (key: K, value: V) => {
         return table.put({ key, value }).then(() => {
             console.log(`Imported data into ${tableName} for ${key}.`);
         });

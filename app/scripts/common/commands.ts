@@ -26,14 +26,6 @@ export type Command =
     { type: 'get-stats', pkgId: PackageID } |
     { type: 'get-stats-history', pkgId: PackageID } |
 
-    // package import
-    { type: 'import-index', pkgId: PackageID, data: string } |
-    { type: 'import-dictionary', pkgId: PackageID, n: number, data: string } |
-    { type: 'import-lemmatizer', pkgId: PackageID, data: string } |
-    { type: 'import-trie', pkgId: PackageID, data: string } |
-    { type: 'import-entries', pkgId: PackageID } |
-    { type: 'import-frequency', pkgId: PackageID, data: string } |
-
     { type: 'get-packages' } |
     { type: 'get-package', pkgId: PackageID } |
     { type: 'set-last-package', pkgId: PackageID } |

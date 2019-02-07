@@ -1,9 +1,10 @@
 import { loadInflection, loadFrequency, loadWhitelist } from './loader';
-import { Dictionary } from '../background/dictionary';
+import { Dictionary } from '../common/dictionary';
 import { buildLemmatizer } from './lemmatizer';
 import { buildTrie } from './trie';
 import { buildDictionaryAndFrequency } from './dictionary';
 import { Settings } from '../common/package';
+import { Progress } from '../common/importer';
 
 function isNumeric(n: string): boolean {
     return !isNaN(parseFloat(n));
@@ -173,18 +174,14 @@ export async function loadEijiro(
     frequencyContent: Promise<string>,
     whitelistContent: Promise<string>,
     chunkSize: number,
-    progressFn: (progress: number, msg: string) => void) {
+    progressFn: (progress: Progress) => void) {
 
-    progressFn(0, `Loading inflection patterns...`);
     const inflection = loadInflection(await inflectionContent);
 
-    progressFn(.05, `Loading frequency list...`);
     const frequency = loadFrequency(await frequencyContent);
 
-    progressFn(.10, `Loading whitelist...`);
     const whitelist = loadWhitelist(await whitelistContent);
 
-    progressFn(.15, `Loading EIJIRO...`);
     const lines = (await eijiroContent).split('\r\n');
 
     const entries = new Map<string, { pos: string | null, defStr: MarkedString }[]>();
@@ -192,7 +189,6 @@ export async function loadEijiro(
     for (let i = 0; i < lines.length; i++) {
         if (i % 10000 === 0) {
             const p = .2 + (.85 - .2) * i / lines.length;
-            progressFn(p, `Parsing EIJIRO... ${Math.ceil(i / lines.length * 100)}% done.`);
         }
         const line = lines[i];
         if (line.trim().length === 0) continue;
@@ -254,17 +250,12 @@ export async function loadEijiro(
         dict[word] = item;
     });
 
-    progressFn(.85, `Building lemmatizer...`);
     const lemmatizer = buildLemmatizer(dict, inflection);
 
-    progressFn(.90, `Building trie...`);
     const trie = buildTrie(dict, lemmatizer);
 
-    progressFn(.95, `Building dictionary...`);
     const { index, dictionaryChunks, freqs } = buildDictionaryAndFrequency(
         dict, lemmatizer, frequency, chunkSize);
-
-    progressFn(1., `Done.`);
 
     return { lemmatizer, trie, index, dictionaryChunks, freqs, settings: SETTINGS };
 }

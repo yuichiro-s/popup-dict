@@ -42,7 +42,7 @@
           <v-card class="mb-5" color="grey lighten-1" height="200px"></v-card>
 
           <div class="text-xs-center">
-            <v-progress-linear :value="importProgress" color="primary" :height="30"></v-progress-linear>
+            <v-progress-linear :value="importProgressToShow" color="primary" :height="30"></v-progress-linear>
             <h2>{{ importMessage }}</h2>
           </div>
         </v-stepper-content>
@@ -54,8 +54,10 @@
 <script lang="ts">
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
+import throttle from "lodash/throttle";
 
 import { Package, DictionaryInfo } from "../../common/package";
+import { Progress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 import { loadEijiroFromFiles } from "../../options/eijiro";
 
@@ -66,6 +68,7 @@ export default Vue.extend({
     return {
       e1: 1,
       importProgress: 0,
+      importProgressToShow: 0,
       importMessage: "",
       eijiroFileData: [],
       auxiliaryFilesData: [],
@@ -109,7 +112,6 @@ export default Vue.extend({
     }
   },
   methods: {
-    done() {},
     cancel() {
       this.e1 = 1;
       this.eijiroFileData = [];
@@ -131,9 +133,9 @@ export default Vue.extend({
         this.inflectionFile,
         this.frequencyFile,
         this.whitelistFile,
-        (progress: number, msg: string) => {
-          this.importProgress = progress;
-          this.importMessage = msg;
+        (progress: Progress) => {
+          this.importProgress = Math.round(progress.ratio * 100);
+          this.importMessage = progress.msg;
         }
       )
         .then(pkg => {
@@ -152,6 +154,11 @@ export default Vue.extend({
       }
       return null;
     }
+  },
+  watch: {
+    importProgress: throttle(function() {
+      this.importProgressToShow = this.importProgress;
+    }, 1000)
   }
 });
 </script>

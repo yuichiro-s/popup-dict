@@ -1,12 +1,5 @@
 import { has, get } from '../common/objectmap';
-
-export const NEXT = 'n';
-export const EXISTS = 'e';
-
-export type TrieNode = {
-    [NEXT]: { [c: string]: TrieNode };
-    [EXISTS]: boolean;
-};
+import { TrieNode, NEXT, EXISTS } from '../common/trie';
 
 export function createEmptyNode(): TrieNode {
     return { [NEXT]: {}, [EXISTS]: false };

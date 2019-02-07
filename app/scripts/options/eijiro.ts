@@ -1,7 +1,10 @@
 import { loadFile, importPackage } from './importer';
 import { loadEijiro } from '../preprocess/eijiro';
+import { Dictionary } from '../common/dictionary';
+import { Progress } from '../common/importer';
 
-export async function loadEijiroFromFiles(eijiroFile: File, inflectionFile: File, frequencyFile: File, whitelistFile: File, progressFn: (progress: number, msg: string) => void) {
+
+export async function loadEijiroFromFiles(eijiroFile: File, inflectionFile: File, frequencyFile: File, whitelistFile: File, progressFn: (progress: Progress) => void) {
     const inflectionContent = loadFile(inflectionFile);
     const frequencyContent = loadFile(frequencyFile);
     const eijiroContent = loadFile(eijiroFile);
@@ -10,18 +13,21 @@ export async function loadEijiroFromFiles(eijiroFile: File, inflectionFile: File
     const { lemmatizer, trie, index, dictionaryChunks, freqs, settings }
         = await loadEijiro(eijiroContent, inflectionContent, frequencyContent, whitelistContent, 1000, progressFn);
 
-    const subDictJSONs = new Map<number, string>();
-    dictionaryChunks.forEach((value, key) => {
-        subDictJSONs.set(key, JSON.stringify(value));
+    const subDicts: { [n: number]: Dictionary } = {};
+    dictionaryChunks.forEach((value: Dictionary, key: number) => {
+        subDicts[key] = value;
     });
 
     return importPackage(
-        settings,
-        JSON.stringify(trie),
-        JSON.stringify(lemmatizer),
-        JSON.stringify(index),
-        subDictJSONs,
-        JSON.stringify(freqs),
+        {
+            type: 'import-objects',
+            settings,
+            trie,
+            lemmatizer,
+            index,
+            subDicts,
+            frequency: freqs,
+        },
         progressFn,
     );
 }

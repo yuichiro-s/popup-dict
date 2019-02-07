@@ -1,0 +1,126 @@
+import { Settings, createPackage } from '../common/package';
+import { FrequencyTable } from '../common/frequency';
+import { Lemmatizer } from '../common/lemmatizer';
+import { TrieNode } from '../common/trie';
+import { Index, Dictionary } from '../common/dictionary';
+import { ImportMessage, Progress } from '../common/importer';
+import { updatePackage } from './packages';
+import { importTrie } from './search';
+import { importEntries } from './entry';
+import { importLemmatizer } from './lemmatizer';
+import { importDictionary, importIndex } from './dictionary';
+import { importFrequencyTable } from './frequency';
+
+function loadFile(url: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        console.log(`Loading ${url} ...`);
+        const x = new XMLHttpRequest();
+        x.onload = () => {
+            console.log(`Loaded ${url} .`);
+            resolve(x.response);
+        };
+        x.onerror = reject;
+        x.open('GET', url);
+        x.responseType = 'json';
+        x.send();
+    });
+}
+
+type PromiseOr<T> = Promise<T> | T;
+
+async function importPackage(
+    settings: Settings,
+    trie: PromiseOr<TrieNode>,
+    lemmatizer: PromiseOr<Lemmatizer>,
+    index: PromiseOr<Index>,
+    subDicts: { [index: number]: PromiseOr<Dictionary> },
+    frequency: PromiseOr<FrequencyTable>,
+    progressFn: (progress: Progress) => void,
+) {
+    const pkg = createPackage(settings);
+    const pkgId = pkg.id;
+
+    const TOTAL = 7;
+    let step = 0;
+
+    const p = async (p: Promise<any>, msg: string, delta?: number) => {
+        const result = await p;
+        if (delta === undefined) delta = 1;
+        step += delta;
+        progressFn({ msg, ratio: step / TOTAL });
+        return result;
+    };
+
+    await Promise.all([
+        p(
+            importTrie(pkgId, await trie),
+            'Imported trie.')
+            .then(() => p(
+                importEntries(pkgId),
+                'Imported entries.')),
+        p(
+            importLemmatizer(pkgId, await lemmatizer),
+            'Imported lemmatizer.'),
+        p(
+            importIndex(pkgId, await index),
+            'Imported index.'
+        ),
+        Promise.all(Object.entries(subDicts).map(async ([n, subDict]) => {
+            const key = [pkgId, n].join(',');
+            const total = Object.entries(subDicts).length;
+            return p(
+                importDictionary(key, await subDict),
+                `Imported dictionary (${n} of ${total})`,
+                1 / total);
+        })),
+        p(
+            importFrequencyTable(pkgId, await frequency),
+            'Imported frequency.'),
+    ]);
+
+    // import completed
+    await p(updatePackage(pkg),
+        'Done.');
+
+    return pkg;
+}
+
+export const importerHandler = (port: chrome.runtime.Port) => {
+    port.onMessage.addListener(async (msg: ImportMessage) => {
+        const progressFn = (progress: Progress) => {
+            port.postMessage({ type: 'progress', progress });
+        };
+        let pkg;
+
+        if (msg.type === 'import-objects') {
+            pkg = await importPackage(
+                msg.settings,
+                msg.trie,
+                msg.lemmatizer,
+                msg.index,
+                msg.subDicts,
+                msg.frequency,
+                progressFn);
+
+        } else if (msg.type === 'import-files') {
+            const pTrie = loadFile(msg.trie);
+            const pLemmatizer = loadFile(msg.lemmatizer);
+            const pIndex = loadFile(msg.index);
+            const pFrequency = loadFile(msg.frequency);
+            const pSubDicts: { [n: string]: Promise<Dictionary> } = {};
+            for (const [n, url] of Object.entries(msg.subDicts)) {
+                pSubDicts[n] = loadFile(url);
+            }
+            pkg = await importPackage(
+                msg.settings,
+                pTrie,
+                pLemmatizer,
+                pIndex,
+                pSubDicts,
+                pFrequency,
+                progressFn);
+        }
+
+        port.postMessage({ type: 'done', pkg });
+    });
+};

@@ -2,9 +2,10 @@ import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { Entry } from '../common/entry';
 import { Span } from '../common/search';
+import { TrieNode } from '../common/trie';
 import { table } from './database';
 import { lookUpEntries } from './entry';
-import { exists, TrieNode, findAllOccurrences } from './trie';
+import { exists, findAllOccurrences } from './trie';
 import { lemmatize, getLammatizer } from './lemmatizer';
 
 export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) {

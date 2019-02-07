@@ -1,6 +1,6 @@
-import { Dictionary, Index } from '../background/dictionary';
-import { FrequencyTable } from '../background/frequency';
-import { Lemmatizer } from '../background/lemmatizer';
+import { Dictionary, Index } from '../common/dictionary';
+import { FrequencyTable } from '../common/frequency';
+import { Lemmatizer } from '../common/lemmatizer';
 import { lemmatizeKeyStr } from './util';
 import { get } from '../common/objectmap';
 

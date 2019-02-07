@@ -47,7 +47,7 @@
 
         <div v-else>
           <div class="text-xs-center">
-            <v-progress-linear :value="importProgress" color="primary" :height="30"></v-progress-linear>
+            <v-progress-linear :value="importProgressToShow" color="primary" :height="30"></v-progress-linear>
             <h2>{{ importMessage }}</h2>
           </div>
         </div>
@@ -82,7 +82,8 @@
 <script lang="ts">
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
-
+import throttle from "lodash/throttle";
+import { Progress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 import { Package, PackageID } from "../../common/package";
 import PackageEditor from "../components/PackageEditor.vue";
@@ -100,7 +101,10 @@ export default Vue.extend({
     currentPkgId: null,
     files: [],
     userDataFiles: [],
+
+    // progress
     importProgress: 0,
+    importProgressToShow: 0,
     importMessage: ""
   }),
   computed: {
@@ -138,7 +142,7 @@ export default Vue.extend({
   components: {
     PackageEditor,
     FileUpload,
-    EijiroImporter
+    EijiroImporter,
   },
   methods: {
     deletePackage() {
@@ -156,27 +160,30 @@ export default Vue.extend({
         });
       });
     },
+    importDone() {
+      this.importDialog = false;
+      this.importing = false;
+    },
     importPackage() {
-      this.importing = true;
       this.importMessage = "";
       this.importProgress = 0;
+      this.importing = true;
+
       let files = this.files.map((f: any) => f.file);
-      importPackageFromFiles(files, (progress: number, msg: string) => {
-        this.importProgress = Math.round(progress * 100);
-        this.importMessage = msg;
+      importPackageFromFiles(files, (progress: Progress) => {
+        this.importProgress = Math.round(progress.ratio * 100);
+        this.importMessage = progress.msg;
       })
-        .then(pkg => {
+        .then((pkg: Package) => {
           this.reloadPackages().then(() => {
             alert(`Successfully imported ${pkg.name}.`);
             this.currentPkgId = pkg.id;
-            this.importing = false;
-            this.importDialog = false;
+            this.importDone();
           });
         })
-        .catch(err => {
+        .catch((err: Error) => {
           alert(err);
-          this.importing = false;
-          this.importDialog = false;
+          this.importDone();
         });
     },
     reloadPackages() {
@@ -252,7 +259,10 @@ export default Vue.extend({
           })
           .catch(alert);
       }
-    }
+    },
+    importProgress: throttle(function() {
+      this.importProgressToShow = this.importProgress;
+    }, 1000)
   }
 });
 </script>

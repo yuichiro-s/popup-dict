@@ -1,9 +1,8 @@
 import { ContentCommand, Command } from '../common/commands';
-import { importLemmatizer } from './lemmatizer';
-import { lookUpDictionary, importIndex, importDictionary } from './dictionary';
-import { getFrequency, importFrequencyTable } from './frequency';
-import { searchWithPackage, searchAllBatch, importTrie } from './search';
-import { updateEntry, listEntries, clearEntries, importEntries, importUserData, exportUserData, updateEntries } from './entry';
+import { lookUpDictionary } from './dictionary';
+import { getFrequency } from './frequency';
+import { searchWithPackage, searchAllBatch } from './search';
+import { updateEntry, listEntries, clearEntries, importUserData, exportUserData, updateEntries } from './entry';
 import { getStats, getStatsHistory } from './stats';
 import { getPackages, updatePackage, deletePackage, getPackage, getLastPackageID, setLastPackage } from './packages';
 import { isEnabled } from './enabled';
@@ -49,20 +48,6 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
         getStats(request.pkgId).then(sendResponse);
     } else if (request.type === 'get-stats-history') {
         getStatsHistory(request.pkgId).then(sendResponse);
-
-    } else if (request.type === 'import-trie') {
-        importTrie(request.pkgId, request.data).then(sendResponse);
-    } else if (request.type === 'import-index') {
-        importIndex(request.pkgId, request.data).then(sendResponse);
-    } else if (request.type === 'import-dictionary') {
-        let key = [request.pkgId, request.n].join(',');
-        importDictionary(key, request.data).then(sendResponse);
-    } else if (request.type === 'import-lemmatizer') {
-        importLemmatizer(request.pkgId, request.data).then(sendResponse);
-    } else if (request.type === 'import-entries') {
-        importEntries(request.pkgId).then(sendResponse);
-    } else if (request.type === 'import-frequency') {
-        importFrequencyTable(request.pkgId, request.data).then(sendResponse);
 
     } else if (request.type === 'get-packages') {
         getPackages().then(sendResponse);

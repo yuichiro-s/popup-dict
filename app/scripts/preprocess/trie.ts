@@ -1,7 +1,8 @@
-import { Dictionary } from '../background/dictionary';
-import { Lemmatizer } from '../background/lemmatizer';
+import { Dictionary } from '../common/dictionary';
+import { Lemmatizer } from '../common/lemmatizer';
 import { lemmatizeKeyStr } from './util';
-import { TrieNode, add, createEmptyNode } from '../background/trie';
+import { add, createEmptyNode } from '../background/trie';
+import { TrieNode } from '../common/trie';
 
 export function buildTrie(dict: Dictionary, lemmatizer: Lemmatizer): TrieNode {
     const trie: TrieNode = createEmptyNode();

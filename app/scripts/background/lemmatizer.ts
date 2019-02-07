@@ -2,9 +2,7 @@ import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { get } from '../common/objectmap';
 import { table } from './database';
-
-// word form -> lemma
-export type Lemmatizer = { [key: string]: string };
+import { Lemmatizer } from '../common/lemmatizer';
 
 export function lemmatize(token: string, lemmatizer: Lemmatizer): string {
     return get(lemmatizer, token) || token;

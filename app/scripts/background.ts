@@ -2,8 +2,10 @@ import { createContextMenu } from './background/contextmenu';
 import { enable, addBrowserAction } from './background/enabled';
 import { messageHandler } from './background/command';
 import { saveStats } from './background/stats';
+import { importerHandler } from './background/importer';
 
 chrome.runtime.onMessage.addListener(messageHandler);
+chrome.runtime.onConnect.addListener(importerHandler);
 
 // handlers of commands
 chrome.commands.onCommand.addListener((command: string) => {

@@ -1,5 +1,5 @@
-import { Dictionary } from '../background/dictionary';
-import { Lemmatizer } from '../background/lemmatizer';
+import { Dictionary } from '../common/dictionary';
+import { Lemmatizer } from '../common/lemmatizer';
 import { has } from '../common/objectmap';
 
 type Inflection = { [form: string]: string };

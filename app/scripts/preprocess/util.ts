@@ -1,4 +1,5 @@
-import { Lemmatizer, lemmatizeTokens } from '../background/lemmatizer';
+import { lemmatizeTokens } from '../background/lemmatizer';
+import { Lemmatizer } from '../common/lemmatizer';
 import { tokenize } from '../common/tokenizer';
 
 export function lemmatizeKeyStr(keyStr: string, lemmatizer: Lemmatizer): string[] {
