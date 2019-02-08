@@ -60,7 +60,10 @@ async function guessPackage(): Promise<Package | null> {
     } else {
         const text = getText();
         const lang = franc(text, { whitelist: supportedLanguageCodes });
-        if (blacklistedLanguages.includes(lang)) {
+        if (lang === 'und') {
+            console.log(`Unable to determine language.`);
+            return null;
+        } else if (blacklistedLanguages.includes(lang)) {
             console.log(`Blacklisted language: ${lang}`);
             return null;
         } else {
