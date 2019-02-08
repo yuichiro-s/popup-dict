@@ -3,6 +3,7 @@ import toml from 'toml';
 import { Settings } from '../common/package';
 import { sendCommand } from '../content/command';
 import { ImportMessage, Progress } from '../common/importer';
+import { PKG_ID } from '../preprocess/eijiro';
 
 export function loadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -99,12 +100,17 @@ export function importPackage(
     progressFn: (progress: Progress) => void,
 ) {
     return new Promise((resolve, reject) => {
-        try {
-            validate(msg.settings);
-        } catch (e) {
-            reject(e);
+        let pkgId: string;
+        if (msg.type === 'import-eijiro') {
+            pkgId = PKG_ID;
+        } else {
+            try {
+                validate(msg.settings);
+            } catch (e) {
+                reject(e);
+            }
+            pkgId = msg.settings.id;
         }
-        const pkgId = msg.settings.id;
         sendCommand({ type: 'get-package', pkgId }).then(pkg => {
             if (pkg) {
                 reject(new Error(`Package ${pkgId} already exists!`));
@@ -114,6 +120,7 @@ export function importPackage(
                     if (msg.type === 'progress') {
                         progressFn(msg.progress);
                     } else if (msg.type === 'done') {
+                        port.disconnect();
                         resolve(msg.pkg);
                     }
                 });

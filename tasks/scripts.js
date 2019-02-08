@@ -22,6 +22,7 @@ gulp.task('scripts', (cb) => {
       'app/scripts/background.ts',
       'app/scripts/content.ts',
       'app/scripts/options.ts',
+      'app/scripts/preprocess/eijiro.worker.ts',
     ])
     .pipe(plumber({
       // Webpack will log the errors

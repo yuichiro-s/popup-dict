@@ -142,7 +142,7 @@ export default Vue.extend({
   components: {
     PackageEditor,
     FileUpload,
-    EijiroImporter,
+    EijiroImporter
   },
   methods: {
     deletePackage() {
@@ -171,8 +171,9 @@ export default Vue.extend({
 
       let files = this.files.map((f: any) => f.file);
       importPackageFromFiles(files, (progress: Progress) => {
-        this.importProgress = Math.round(progress.ratio * 100);
-        this.importMessage = progress.msg;
+        const p = Math.round(progress.ratio * 100);
+        this.importProgress = p;
+        this.importMessage = `[${p}%] ${progress.msg}`;
       })
         .then((pkg: Package) => {
           this.reloadPackages().then(() => {

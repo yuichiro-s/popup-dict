@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-import { Lemmatizer } from '../app/scripts/background/lemmatizer';
-import { TrieNode } from '../app/scripts/background/trie';
-import { FrequencyTable } from '../app/scripts/background/frequency';
-import { Index, Dictionary } from '../app/scripts/background/dictionary';
+import { Lemmatizer } from '../app/scripts/common/lemmatizer';
+import { TrieNode } from '../app/scripts/common/trie';
+import { FrequencyTable } from '../app/scripts/common/frequency';
+import { Index, Dictionary } from '../app/scripts/common/dictionary';
 
 function writeJSON(obj: Object, path: string) {
     console.log(`Writing to ${path} ...`);

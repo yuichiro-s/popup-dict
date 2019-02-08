@@ -10,21 +10,8 @@ import { importEntries } from './entry';
 import { importLemmatizer } from './lemmatizer';
 import { importDictionary, importIndex } from './dictionary';
 import { importFrequencyTable } from './frequency';
-
-function loadFile(url: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-        console.log(`Loading ${url} ...`);
-        const x = new XMLHttpRequest();
-        x.onload = () => {
-            console.log(`Loaded ${url} .`);
-            resolve(x.response);
-        };
-        x.onerror = reject;
-        x.open('GET', url);
-        x.responseType = 'json';
-        x.send();
-    });
-}
+import { loadEijiro } from '../preprocess/eijiro';
+import { loadJSON } from '../preprocess/loader';
 
 type PromiseOr<T> = Promise<T> | T;
 
@@ -70,7 +57,7 @@ async function importPackage(
             const total = Object.entries(subDicts).length;
             return p(
                 importDictionary(key, await subDict),
-                `Imported dictionary (${n} of ${total})`,
+                `Imported dictionary (${parseInt(n) + 1} of ${total})`,
                 1 / total);
         })),
         p(
@@ -86,30 +73,51 @@ async function importPackage(
 }
 
 export const importerHandler = (port: chrome.runtime.Port) => {
+    let connected = true;
+    port.onDisconnect.addListener(() => { connected = false; });
     port.onMessage.addListener(async (msg: ImportMessage) => {
         const progressFn = (progress: Progress) => {
-            port.postMessage({ type: 'progress', progress });
+            if (connected) {
+                port.postMessage({ type: 'progress', progress });
+            }
         };
         let pkg;
 
-        if (msg.type === 'import-objects') {
+        if (msg.type === 'import-eijiro') {
+            const {
+                lemmatizer,
+                trie,
+                index,
+                dictionaryChunks,
+                freqs,
+                settings,
+            } = await loadEijiro(msg.eijiro, msg.inflection, msg.frequency, msg.whitelist, 1000,
+                (progress: Progress) => {
+                    progressFn({ msg: progress.msg, ratio: progress.ratio / 2 });
+                });
+
+            const subDicts: { [n: number]: Dictionary } = {};
+            dictionaryChunks.forEach((d, n) => { subDicts[n] = d; });
+
             pkg = await importPackage(
-                msg.settings,
-                msg.trie,
-                msg.lemmatizer,
-                msg.index,
-                msg.subDicts,
-                msg.frequency,
-                progressFn);
+                settings,
+                trie,
+                lemmatizer,
+                index,
+                subDicts,
+                freqs,
+                (progress: Progress) => {
+                    progressFn({ msg: progress.msg, ratio: 0.5 + progress.ratio / 2 });
+                });
 
         } else if (msg.type === 'import-files') {
-            const pTrie = loadFile(msg.trie);
-            const pLemmatizer = loadFile(msg.lemmatizer);
-            const pIndex = loadFile(msg.index);
-            const pFrequency = loadFile(msg.frequency);
+            const pTrie = loadJSON(msg.trie);
+            const pLemmatizer = loadJSON(msg.lemmatizer);
+            const pIndex = loadJSON(msg.index);
+            const pFrequency = loadJSON(msg.frequency);
             const pSubDicts: { [n: string]: Promise<Dictionary> } = {};
             for (const [n, url] of Object.entries(msg.subDicts)) {
-                pSubDicts[n] = loadFile(url);
+                pSubDicts[n] = loadJSON(url);
             }
             pkg = await importPackage(
                 msg.settings,
@@ -121,6 +129,8 @@ export const importerHandler = (port: chrome.runtime.Port) => {
                 progressFn);
         }
 
-        port.postMessage({ type: 'done', pkg });
+        if (connected) {
+            port.postMessage({ type: 'done', pkg });
+        }
     });
 };

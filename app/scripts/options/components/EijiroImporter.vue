@@ -112,10 +112,13 @@ export default Vue.extend({
     }
   },
   methods: {
-    cancel() {
+    done() {
       this.e1 = 1;
       this.eijiroFileData = [];
       this.auxiliaryFilesData = [];
+    },
+    cancel() {
+      this.done();
       this.$emit("cancel");
     },
     selectAuxiliaryButton() {
@@ -134,12 +137,14 @@ export default Vue.extend({
         this.frequencyFile,
         this.whitelistFile,
         (progress: Progress) => {
-          this.importProgress = Math.round(progress.ratio * 100);
-          this.importMessage = progress.msg;
+          const p = Math.round(progress.ratio * 100);
+          this.importProgress = p;
+          this.importMessage = `[${p}%] ${progress.msg}`;
         }
       )
         .then(pkg => {
           this.$emit("done", pkg);
+          this.done();
         })
         .catch(err => {
           alert(err);
