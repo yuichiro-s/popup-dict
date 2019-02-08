@@ -17,7 +17,6 @@ gulp.task('build', gulp.series(
     'locales',
     'images',
     'fonts',
-    'data',
     'chromereload',
   )
 ))

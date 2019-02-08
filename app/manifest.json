@@ -48,10 +48,6 @@
     "contextMenus",
     "<all_urls>"
   ],
-  "web_accessible_resources": [
-    "data/**/*",
-    "data/*.wasm"
-  ],
   "commands": {
     "toggle-marked": {
       "suggested_key": {

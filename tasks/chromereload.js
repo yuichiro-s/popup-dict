@@ -40,5 +40,4 @@ gulp.task('chromereload', (cb) => {
   gulp.watch('app/_locales/**/*', gulp.parallel('locales'))
   gulp.watch('app/images/**/*', gulp.parallel('images'))
   gulp.watch('app/fonts/**/*.{woff,ttf,eot,svg}', gulp.parallel('fonts'))
-  gulp.watch('app/data/**/*', gulp.parallel('data'))
 })
