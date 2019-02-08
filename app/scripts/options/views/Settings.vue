@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- delete dialog -->
     <v-dialog v-model="deleteDialog" v-if="currentPackage" :persistent="deleting">
       <v-card>
         <v-card-title primary-title>
@@ -17,6 +18,7 @@
       </v-card>
     </v-dialog>
 
+    <!-- import dialog -->
     <v-dialog v-model="importDialog" :persistent="importing">
       <v-card>
         <v-card-title primary-title>
@@ -62,12 +64,24 @@
 
     <file-upload v-model="userDataFiles" :extensions="['json']" ref="uploadUserData"></file-upload>
 
+    <!-- import/export of user data -->
     <h1>User data</h1>
     <v-btn @click="importUserDataButton">Import User Data</v-btn>
     <v-btn @click="exportUserDataButton">Export User Data</v-btn>
 
     <v-divider></v-divider>
 
+    <!-- global settings -->
+    <div v-if="globalSettings !== null">
+      <h1>Language Blacklist</h1>
+      <v-btn @click="globalSettings.blacklistedLanguages.push('')">Add</v-btn>
+      <div v-for="(code, idx) in globalSettings.blacklistedLanguages" :key="idx">
+        <v-text-field v-model="globalSettings.blacklistedLanguages[idx]"></v-text-field>
+        <v-icon small @click="globalSettings.blacklistedLanguages.splice(idx, 1)">delete</v-icon>
+      </div>
+    </div>
+
+    <!-- package settings -->
     <h1>Packages</h1>
     <v-btn @click="importDialog = true">Import New Package</v-btn>
     <v-btn @click="eijiroDialog = true">Import EIJIRO</v-btn>
@@ -83,13 +97,15 @@
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
 import throttle from "lodash/throttle";
+
 import { Progress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 import { Package, PackageID } from "../../common/package";
+
 import PackageEditor from "../components/PackageEditor.vue";
 import EijiroImporter from "../components/EijiroImporter.vue";
-import { importPackageFromFiles, validatePackage, loadFile } from "../importer";
 import { togglePreventUnload } from "../prevent-unload";
+import { importPackageFromFiles, validatePackage, loadFile } from "../importer";
 
 export default Vue.extend({
   data: () => ({
@@ -102,6 +118,7 @@ export default Vue.extend({
     currentPkgId: null,
     files: [],
     userDataFiles: [],
+    globalSettings: null,
 
     // progress
     importProgress: 0,
@@ -133,6 +150,9 @@ export default Vue.extend({
     }
   },
   created() {
+    sendCommand({ type: "get-global-settings" }).then(globalSettings => {
+      this.globalSettings = globalSettings;
+    });
     this.reloadPackages().then(() => {
       let pkgIds = Object.keys(this.packages);
       if (pkgIds.length > 0) {
@@ -271,6 +291,15 @@ export default Vue.extend({
     deleting(value) {
       togglePreventUnload(value);
     },
+    globalSettings: {
+      handler() {
+        sendCommand({
+          type: "set-global-settings",
+          globalSettings: this.globalSettings
+        });
+      },
+      deep: true
+    }
   }
 });
 </script>

@@ -1,8 +1,13 @@
 import { State, Entry } from './entry';
 import { Package, PackageID } from './package';
+import { GlobalSettings } from './global-settings';
 
 export type Command =
     { type: 'is-enabled' } |
+
+    // global settings
+    { type: 'get-global-settings' } |
+    { type: 'set-global-settings', globalSettings: GlobalSettings } |
 
     // dictionary
     { type: 'lookup-dictionary', keys: string[], pkgId: PackageID } |

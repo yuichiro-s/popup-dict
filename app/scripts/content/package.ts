@@ -1,6 +1,7 @@
 import { PackageID, Package } from '../common/package';
 import { sendCommand } from './command';
 import franc from 'franc';
+import { GlobalSettings } from '../common/global-settings';
 
 let currentPackage: Promise<Package | null> | null = null;
 
@@ -42,6 +43,7 @@ function getText() {
 }
 
 async function guessPackage(): Promise<Package | null> {
+    // get list of languages to consider
     let packages = await sendCommand({ type: 'get-packages' });
     let codeToPackage = new Map<string, Package>();
     for (let pkgId in packages) {
@@ -49,20 +51,24 @@ async function guessPackage(): Promise<Package | null> {
         codeToPackage.set(pkg.languageCode, pkg);
     }
     let supportedLanguageCodes = Array.from(codeToPackage.keys());
+    const globalSettings: GlobalSettings = await sendCommand({ type: 'get-global-settings' });
+    const blacklistedLanguages = globalSettings.blacklistedLanguages;
+    supportedLanguageCodes = supportedLanguageCodes.concat(blacklistedLanguages);
+
     if (supportedLanguageCodes.length === 0) {
         return null;
     } else {
         const text = getText();
         const lang = franc(text, { whitelist: supportedLanguageCodes });
-        let pkg = codeToPackage.get(lang)!;
-        if (pkg) {
+        if (blacklistedLanguages.includes(lang)) {
+            console.log(`Blacklisted language: ${lang}`);
+            return null;
+        } else {
+            let pkg = codeToPackage.get(lang)!;
             let pkgName = pkg.name;
             console.log(`Guessed language: ${lang}`);
             console.log(`Using: ${pkgName}`);
             return pkg;
-        } else {
-            let firstPackage = codeToPackage.values().next().value;
-            return firstPackage;
         }
     }
 }
@@ -73,7 +79,6 @@ export async function setPackageID(pkgId: PackageID) {
 }
 
 export async function getPackage(): Promise<Package | null> {
-    // TODO: when can the result be none?
     if (currentPackage === null) {
         // currentPackage has not been initialized
         // determine current package

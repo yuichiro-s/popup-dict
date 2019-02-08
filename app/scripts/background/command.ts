@@ -1,3 +1,4 @@
+import { getGlobalSettings, setGlobalSettings } from './global-settings';
 import { ContentCommand, Command } from '../common/commands';
 import { lookUpDictionary } from './dictionary';
 import { getFrequency } from './frequency';
@@ -16,6 +17,11 @@ export function sendContentCommand(command: ContentCommand, tabId: number): Prom
 export const messageHandler = (request: Command, sender: any, sendResponse: any) => {
     if (request.type === 'is-enabled') {
         isEnabled().then(sendResponse);
+
+    } else if (request.type === 'get-global-settings') {
+        getGlobalSettings().then(sendResponse);
+    } else if (request.type === 'set-global-settings') {
+        setGlobalSettings(request.globalSettings).then(sendResponse);
 
     } else if (request.type === 'lookup-dictionary') {
         lookUpDictionary(request.keys, request.pkgId).then(sendResponse);
