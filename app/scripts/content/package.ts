@@ -1,30 +1,43 @@
 import { PackageID, Package } from '../common/package';
 import { sendCommand } from './command';
-import { all } from 'franc';
+import franc from 'franc';
 
 let currentPackage: Promise<Package | null> | null = null;
 
 const PACKAGE_SPECIFIER_ID = 'highlighter-package-specifier';
 
+const NON_TEXT_TAGS = [
+    'SCRIPT', 'STYLE', 'NOSCRIPT',
+];
+
+const MAX_LENGTH = 1000;
+
 function getText() {
     // gather text
-    let texts: string[] = [];
-    function dfs(element: Element) {
-        if (element.tagName !== 'SCRIPT') {
-            let nodes = element.childNodes;
-            for (let j = 0; j < nodes.length; j++) {
-                let node = nodes[j];
-                if (node.nodeType === Node.TEXT_NODE) {
-                    texts.push(node.textContent!);
-                }
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const texts: string[] = [];
+    const pTexts: string[] = [];
+    let node;
+    let pLen = 0;
+    while ((node = walker.nextNode())) {
+        const t = node.textContent!.trim();
+        const parent = node.parentElement;
+        if (t.length > 1 && parent && !NON_TEXT_TAGS.includes(parent.nodeName)) {
+            if (parent.nodeName === 'P') {
+                pLen += t.length;
+                pTexts.push(t);
+                if (pLen >= MAX_LENGTH) break;
+            } else {
+                texts.push(t);
             }
         }
-        for (let i = 0; i < element.children.length; i++) {
-            dfs(element.children[i]);
+    }
+    let text = pTexts.join('\n');
+    if (text.length < MAX_LENGTH) {
+        for (const t of texts) {
+            text += '\n' + t;
         }
     }
-    dfs(document.body);
-    let text = texts.join('\n');
     return text;
 }
 
@@ -39,13 +52,13 @@ async function guessPackage(): Promise<Package | null> {
     if (supportedLanguageCodes.length === 0) {
         return null;
     } else {
-        let text = getText();
-        let guess = all(text, { whitelist: supportedLanguageCodes });
-        let pkg = codeToPackage.get(guess[0][0])!;
+        const text = getText();
+        const lang = franc(text, { whitelist: supportedLanguageCodes });
+        let pkg = codeToPackage.get(lang)!;
         if (pkg) {
             let pkgName = pkg.name;
-            let confidence = guess[0][1];
-            console.log(`Guessed package: ${pkgName} (confidence = ${confidence})`);
+            console.log(`Guessed language: ${lang}`);
+            console.log(`Using: ${pkgName}`);
             return pkg;
         } else {
             let firstPackage = codeToPackage.values().next().value;
