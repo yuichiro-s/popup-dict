@@ -1,4 +1,5 @@
-import { loadInflection, loadFrequency, loadWhitelist, loadText } from './loader';
+import { loadInflection, loadFrequency, loadWhitelist } from './loader';
+import { loadText } from './loader-browser';
 import { Dictionary } from '../common/dictionary';
 import { buildLemmatizer } from './lemmatizer';
 import { buildTrie } from './trie';

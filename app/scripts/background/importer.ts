@@ -11,7 +11,7 @@ import { importLemmatizer } from './lemmatizer';
 import { importDictionary, importIndex } from './dictionary';
 import { importFrequencyTable } from './frequency';
 import { loadEijiro } from '../preprocess/eijiro';
-import { loadJSON } from '../preprocess/loader';
+import { loadJSON } from '../preprocess/loader-browser';
 
 type PromiseOr<T> = Promise<T> | T;
 
