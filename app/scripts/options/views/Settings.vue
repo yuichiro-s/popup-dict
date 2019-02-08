@@ -89,6 +89,7 @@ import { Package, PackageID } from "../../common/package";
 import PackageEditor from "../components/PackageEditor.vue";
 import EijiroImporter from "../components/EijiroImporter.vue";
 import { importPackageFromFiles, validatePackage, loadFile } from "../importer";
+import { togglePreventUnload } from "../prevent-unload";
 
 export default Vue.extend({
   data: () => ({
@@ -263,7 +264,13 @@ export default Vue.extend({
     },
     importProgress: throttle(function() {
       this.importProgressToShow = this.importProgress;
-    }, 1000)
+    }, 1000),
+    importing(value) {
+      togglePreventUnload(value);
+    },
+    deleting(value) {
+      togglePreventUnload(value);
+    },
   }
 });
 </script>

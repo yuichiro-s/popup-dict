@@ -60,6 +60,7 @@ import { Package, DictionaryInfo } from "../../common/package";
 import { Progress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 import { loadEijiroFromFiles } from "../../options/eijiro";
+import { togglePreventUnload } from "../prevent-unload";
 
 export default Vue.extend({
   name: "EijiroImporter",
@@ -67,6 +68,7 @@ export default Vue.extend({
   data() {
     return {
       e1: 1,
+      importing: false,
       importProgress: 0,
       importProgressToShow: 0,
       importMessage: "",
@@ -116,6 +118,7 @@ export default Vue.extend({
       this.e1 = 1;
       this.eijiroFileData = [];
       this.auxiliaryFilesData = [];
+      this.importing = false;
     },
     cancel() {
       this.done();
@@ -131,6 +134,7 @@ export default Vue.extend({
       input.click();
     },
     startImport() {
+      this.importing = true;
       loadEijiroFromFiles(
         this.eijiroFile,
         this.inflectionFile,
@@ -163,7 +167,10 @@ export default Vue.extend({
   watch: {
     importProgress: throttle(function() {
       this.importProgressToShow = this.importProgress;
-    }, 1000)
+    }, 1000),
+    importing(value) {
+      togglePreventUnload(value);
+    }
   }
 });
 </script>
