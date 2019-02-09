@@ -2,7 +2,8 @@ import { sendCommand } from './command';
 import { getPackage } from './package';
 
 function notMatch(url: string, pattern: string): boolean {
-    const matched = url.match(new RegExp(`^${pattern}$`)) !== null;
+    pattern = pattern.replace('*', '.*');
+    const matched = url.match(new RegExp(`${pattern}`)) !== null;
     if (matched) {
         console.log(`Pattern ${pattern} matched to ${url}.`);
     }
