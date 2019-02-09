@@ -1,4 +1,4 @@
-import { markBrackets } from './eijiro.worker';
+import { markBrackets } from './eijiro';
 
 test('markBrackets', () => {
     expect(markBrackets('［abc］de【ghij】kl《mnop》')).toEqual(

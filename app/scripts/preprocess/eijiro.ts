@@ -81,6 +81,67 @@ const SETTINGS: Settings = {
     template: TEMPLATE,
 };
 
+export type MarkedString = (string | [string])[];
+
+const BRACKETS = new Map<string, string>([
+    ['［', '］'],
+    ['《', '》'],
+    ['（', '）'],
+    ['【', '】'],
+    ['〈', '〉'],
+    ['〔', '〕'],
+]);
+
+const MISC_MARKERS = [
+    '■',
+    '◆',
+];
+
+export function markBrackets(defStr: string): MarkedString {
+    const result: MarkedString = [];
+    let closingBracket: string | null = null;
+    let cursor = 0;
+
+    const add = (to: number) => {
+        if (cursor < to) {
+            result.push(defStr.slice(cursor, to));
+        }
+    };
+    for (let i = 0; i < defStr.length; i++) {
+        const c = defStr[i];
+        if (closingBracket !== null) {
+            if (c === closingBracket) {
+                result.push([defStr.slice(cursor, i + 1)]);
+                closingBracket = null;
+                cursor = i + 1;
+            }
+        } else {
+            if (BRACKETS.has(c)) {
+                add(i);
+                closingBracket = BRACKETS.get(c)!;
+                cursor = i;
+            } else if (MISC_MARKERS.includes(c)) {
+                add(i);
+                result.push([defStr.slice(i, defStr.length)]);
+                cursor = defStr.length;
+                break;
+            }
+        }
+    }
+    add(defStr.length);
+
+    let n = 0;
+    for (const a of result) {
+        if (typeof a === 'string') {
+            n += a.length;
+        } else {
+            n += a[0].length;
+        }
+    }
+
+    return result;
+}
+
 interface Eijiro {
     lemmatizer: Lemmatizer;
     trie: TrieNode;
