@@ -1,23 +1,23 @@
-import Dexie, { IndexableType } from 'dexie';
+import Dexie, { IndexableType } from "dexie";
 
-import { Entry, State, UnknownEntry, KnownEntry, MarkedEntry } from '../common/entry';
-import { PackageID } from '../common/package';
-import { getPackages } from './packages';
-import { exportStats, StatsHistoryEntry, importStats } from './stats';
-import { getTrie } from './search';
-import { getKeys } from './trie';
+import { Entry, IKnownEntry, IMarkedEntry, IUnknownEntry, State } from "../common/entry";
+import { PackageID } from "../common/package";
+import { getPackages } from "./packages";
+import { getTrie } from "./search";
+import { exportStats, importStats, IStatsHistoryEntry } from "./stats";
+import { getKeys } from "./trie";
 
 class Database extends Dexie {
-    vocabulary: Dexie.Table<Entry, [PackageID, string]>;
+    public vocabulary: Dexie.Table<Entry, [PackageID, string]>;
     constructor() {
-        super('entries');
+        super("entries");
         this.version(1).stores({
-            vocabulary: '[pkgId+key], [pkgId+state], pkgId, state'
+            vocabulary: "[pkgId+key], [pkgId+state], pkgId, state",
         });
     }
 }
 
-let db = new Database();
+const db = new Database();
 
 export function clearEntries() {
     return db.vocabulary.clear();
@@ -28,7 +28,7 @@ export function putEntries(entries: Entry[]) {
         const CHUNK = 10000;
         function f(index: number) {
             if (index < entries.length) {
-                let slice = entries.slice(index, index + CHUNK);
+                const slice = entries.slice(index, index + CHUNK);
                 db.vocabulary.bulkPut(slice).then(() => {
                     console.log(`${Math.min(index + CHUNK, entries.length)}/${entries.length} done.`);
                     f(index + CHUNK);
@@ -49,11 +49,11 @@ export function deleteEntries(pkgId: PackageID) {
 
 export function lookUpEntries(pkgId: PackageID, keys: string[][]): Promise<Entry[]> {
     function lookup(resolve: any) {
-        let results: (Entry | null)[] = [];
+        const results: Array<Entry | null> = [];
         function f(index: number) {
             if (index < keys.length) {
-                let keyStr = keys[index].join(' ');
-                db.vocabulary.where({ pkgId, key: keyStr }).first(res => {
+                const keyStr = keys[index].join(" ");
+                db.vocabulary.where({ pkgId, key: keyStr }).first((res) => {
                     results.push(res || null);
                     f(index + 1);
                 }).catch(() => {
@@ -85,7 +85,7 @@ export function countEntries(pkgId: PackageID, state: State): Promise<number> {
 }
 
 export function listEntries(pkgId?: PackageID, state?: State): Promise<Entry[]> {
-    let q: { [key: string]: IndexableType } = {};
+    const q: { [key: string]: IndexableType } = {};
     if (state) {
         q.state = state;
     }
@@ -97,11 +97,11 @@ export function listEntries(pkgId?: PackageID, state?: State): Promise<Entry[]> 
 
 // create entries from already imported trie
 export async function importEntries(pkgId: PackageID) {
-    let keys = getKeys(await getTrie(pkgId));
-    let entries = [];
-    for (let lemmas of keys) {
-        const key = lemmas.join(' ');
-        let entry: UnknownEntry = {
+    const keys = getKeys(await getTrie(pkgId));
+    const entries = [];
+    for (const lemmas of keys) {
+        const key = lemmas.join(" ");
+        const entry: IUnknownEntry = {
             pkgId,
             key,
             state: State.Unknown,
@@ -111,7 +111,7 @@ export async function importEntries(pkgId: PackageID) {
     return putEntries(entries);
 }
 
-export interface MarkedEntryFields {
+export interface IMarkedEntryFields {
     date: number;
     source: {
         url: string,
@@ -125,23 +125,23 @@ export interface MarkedEntryFields {
 }
 
 export async function importUserData(data: string) {
-    let { known, marked, stats } = JSON.parse(data);
+    const { known, marked, stats } = JSON.parse(data);
 
-    let entries: Entry[] = [];
+    const entries: Entry[] = [];
 
     const cat = (tuple: [PackageID, string]) => {
-        return tuple.join('@');
+        return tuple.join("@");
     };
 
     const keys = await db.vocabulary.toCollection().primaryKeys();
-    let keySet = new Set(keys.map(cat));
+    const keySet = new Set(keys.map(cat));
 
-    let packages = await getPackages();
-    for (let pkgId in known) {
+    const packages = await getPackages();
+    for (const pkgId in known) {
         if (pkgId in packages) {
-            for (let key of known[pkgId]) {
+            for (const key of known[pkgId]) {
                 if (keySet.has(cat([pkgId, key]))) {
-                    let entry: KnownEntry = {
+                    const entry: IKnownEntry = {
                         pkgId,
                         key,
                         state: State.Known,
@@ -151,11 +151,11 @@ export async function importUserData(data: string) {
             }
         }
     }
-    for (let pkgId in marked) {
+    for (const pkgId in marked) {
         if (pkgId in packages) {
-            for (let obj of marked[pkgId]) {
+            for (const obj of marked[pkgId]) {
                 if (keySet.has(cat([pkgId, obj.key]))) {
-                    let entry: MarkedEntry = {
+                    const entry: IMarkedEntry = {
                         pkgId,
                         key: obj.key,
                         state: State.Marked,
@@ -172,12 +172,12 @@ export async function importUserData(data: string) {
 }
 
 export async function exportUserData() {
-    let knownEntries = listEntries(undefined, State.Known) as Promise<KnownEntry[]>;
-    let markedEntries = listEntries(undefined, State.Marked) as Promise<MarkedEntry[]>;
+    const knownEntries = listEntries(undefined, State.Known) as Promise<IKnownEntry[]>;
+    const markedEntries = listEntries(undefined, State.Marked) as Promise<IMarkedEntry[]>;
 
-    let known: { [pkgId: string]: string[] } = {};
-    for (let entry of await knownEntries) {
-        let key = entry.key;
+    const known: { [pkgId: string]: string[] } = {};
+    for (const entry of await knownEntries) {
+        const key = entry.key;
         if (entry.pkgId in known) {
             known[entry.pkgId].push(key);
         } else {
@@ -185,9 +185,9 @@ export async function exportUserData() {
         }
     }
 
-    let marked: { [pkgId: string]: MarkedEntryFields[] } = {};
-    for (let entry of await markedEntries) {
-        let serializedEntry = {
+    const marked: { [pkgId: string]: IMarkedEntryFields[] } = {};
+    for (const entry of await markedEntries) {
+        const serializedEntry = {
             key: entry.key,
             date: entry.date,
             source: entry.source,
@@ -200,8 +200,8 @@ export async function exportUserData() {
         }
     }
 
-    const stats: StatsHistoryEntry[] = await exportStats();
+    const stats: IStatsHistoryEntry[] = await exportStats();
 
-    let obj = { known, marked, stats };
+    const obj = { known, marked, stats };
     return JSON.stringify(obj);
 }

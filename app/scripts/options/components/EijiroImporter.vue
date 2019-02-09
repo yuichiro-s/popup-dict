@@ -54,10 +54,9 @@
 <script lang="ts">
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
-import throttle from "lodash/throttle";
+import { throttle } from "lodash-es";
 
-import { Package, DictionaryInfo } from "../../common/package";
-import { Progress } from "../../common/importer";
+import { IProgress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 import { loadEijiroFromFiles } from "../../options/eijiro";
 import { togglePreventUnload } from "../prevent-unload";
@@ -140,7 +139,7 @@ export default Vue.extend({
         this.inflectionFile,
         this.frequencyFile,
         this.whitelistFile,
-        (progress: Progress) => {
+        (progress: IProgress) => {
           const p = Math.round(progress.ratio * 100);
           this.importProgress = p;
           this.importMessage = `[${p}%] ${progress.msg}`;

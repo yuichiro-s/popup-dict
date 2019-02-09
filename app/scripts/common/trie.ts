@@ -1,9 +1,9 @@
-export const NEXT = 'n';
-export const EXISTS = 'e';
+export const NEXT = "n";
+export const EXISTS = "e";
 
-export type TrieNode = {
+export interface ITrieNode {
     [NEXT]: {
-        [c: string]: TrieNode;
+        [c: string]: ITrieNode;
     };
     [EXISTS]: boolean;
-};
+}

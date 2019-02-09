@@ -1,23 +1,23 @@
-import { Settings } from './package';
+import { ISettings } from "./package";
 
 export type ImportMessage =
     {
-        type: 'import-files',
-        settings: Settings,
+        type: "import-files",
+        settings: ISettings,
         trie: string,
         lemmatizer: string,
         index: string,
         subDicts: { [index: number]: string },
         frequency: string,
     } | {
-        type: 'import-eijiro',
+        type: "import-eijiro",
         eijiro: string,
         inflection: string,
         frequency: string,
         whitelist: string,
     };
 
-export interface Progress {
+export interface IProgress {
     ratio: number;
     msg: string;
 }

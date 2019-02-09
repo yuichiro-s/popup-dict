@@ -1,19 +1,18 @@
-import { PackageID } from '../common/package';
-import { CachedMap } from '../common/cachedmap';
-import { get } from '../common/objectmap';
-import { table } from './database';
-import { Index, Dictionary } from '../common/dictionary';
+import { CachedMap } from "../common/cachedmap";
+import { IDictionary, IIndex } from "../common/dictionary";
+import { get } from "../common/objectmap";
+import { PackageID } from "../common/package";
+import { getTable } from "./database";
 
-export async function lookUpDictionary(keys: string[], pkg: PackageID) {
-    let index = await indexes.get(pkg);
-    let results = [];
-    for (let i = 0; i < keys.length; i++) {
-        let key = keys[i];
-        let n = get(index, key);
+export async function lookUpDictionary(keys: string[], pkgId: PackageID) {
+    const index = await indexes.get(pkgId);
+    const results = [];
+    for (const key of keys) {
+        const n = get(index, key);
         let item;
         if (n !== undefined) {
-            let dictionaryKey = pkg + ',' + n;
-            let dict = await dictionaries.get(dictionaryKey);
+            const dictionaryKey = pkgId + "," + n;
+            const dict = await dictionaries.get(dictionaryKey);
             item = get(dict, key);
         } else {
             item = null;
@@ -23,19 +22,21 @@ export async function lookUpDictionary(keys: string[], pkg: PackageID) {
     return results;
 }
 
-export async function deleteAllDictionaries(pkg: PackageID) {
+export async function deleteAllDictionaries(pkgId: PackageID) {
     for (const key of await dictionaryTable.table.toCollection().keys()) {
-        if (key.toString().split(',')[0] === pkg) {
-            await dictionaryTable.deleter(key);
+        if (typeof key === "string") {
+            if (key.toString().split(",")[0] === pkgId) {
+                await dictionaryTable.deleter(key);
+            }
         }
     }
 }
 
-let indexTable = table('indexes');
-let dictionaryTable = table('dictionaries');
-let indexes = new CachedMap<PackageID, Index>(indexTable.loader);
-let dictionaries = new CachedMap<string, Dictionary>(dictionaryTable.loader);
-let importIndex = indexTable.importer;
-let deleteIndex = indexTable.deleter;
-let importDictionary = dictionaryTable.importer;
+const indexTable = getTable<PackageID, IIndex>("indexes");
+const dictionaryTable = getTable<string, IDictionary>("dictionaries");
+const indexes = new CachedMap<PackageID, IIndex>(indexTable.loader);
+const dictionaries = new CachedMap<string, IDictionary>(dictionaryTable.loader);
+const importIndex = indexTable.importer;
+const deleteIndex = indexTable.deleter;
+const importDictionary = dictionaryTable.importer;
 export { importIndex, deleteIndex, importDictionary };

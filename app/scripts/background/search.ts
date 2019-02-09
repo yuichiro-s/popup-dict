@@ -1,16 +1,16 @@
-import { PackageID } from '../common/package';
-import { CachedMap } from '../common/cachedmap';
-import { Entry } from '../common/entry';
-import { Span } from '../common/search';
-import { TrieNode } from '../common/trie';
-import { table } from './database';
-import { lookUpEntries } from './entry';
-import { exists, findAllOccurrences } from './trie';
-import { lemmatize, getLammatizer } from './lemmatizer';
+import { CachedMap } from "../common/cachedmap";
+import { Entry } from "../common/entry";
+import { PackageID } from "../common/package";
+import { ISpan } from "../common/search";
+import { ITrieNode } from "../common/trie";
+import { getTable } from "./database";
+import { lookUpEntries } from "./entry";
+import { getLammatizer, lemmatize } from "./lemmatizer";
+import { exists, findAllOccurrences } from "./trie";
 
 export async function searchAllBatch(pkgId: PackageID, tokensBatch: string[][]) {
-    let results = [];
-    for (let tokens of tokensBatch) {
+    const results = [];
+    for (const tokens of tokensBatch) {
         results.push(await searchAll(pkgId, tokens));
     }
     return results;
@@ -22,8 +22,8 @@ function isUpper(lemma: string): boolean {
 }
 
 async function searchAll(pkgId: PackageID, tokens: string[]) {
-    let trie = await tries.get(pkgId);
-    let lemmatizer = await getLammatizer(pkgId);
+    const trie = await tries.get(pkgId);
+    const lemmatizer = await getLammatizer(pkgId);
 
     const lemmasWithAlternatives = [];
     for (const token of tokens) {
@@ -39,13 +39,13 @@ async function searchAll(pkgId: PackageID, tokens: string[]) {
 
     const keys = findAllOccurrences(trie, lemmasWithAlternatives);
 
-    let spans: Span[] = [];
-    let entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
+    const spans: ISpan[] = [];
+    const entries = await lookUpEntries(pkgId, keys.map((k) => k.key));
     for (let i = 0; i < keys.length; i++) {
-        let key = keys[i];
-        let entry = entries[i];
+        const key = keys[i];
+        const entry = entries[i];
         if (entry) {
-            let span: Span = {
+            const span: ISpan = {
                 begin: key.begin,
                 end: key.end,
                 key: key.key,
@@ -61,18 +61,17 @@ export async function searchWithPackage(pkgId: PackageID, key: string[]): Promis
     const trie = await tries.get(pkgId);
     if (exists(trie, key)) {
         return (await lookUpEntries(pkgId, [key]))[0];
-    }
-    else {
+    } else {
         return null;
     }
 }
 
-export function getTrie(pkgId: PackageID): Promise<TrieNode> {
+export function getTrie(pkgId: PackageID): Promise<ITrieNode> {
     return tries.get(pkgId);
 }
 
-let trieTable = table('tries');
-let tries = new CachedMap<PackageID, TrieNode>(trieTable.loader);
-let importTrie = trieTable.importer;
-let deleteTrie = trieTable.deleter;
+const trieTable = getTable<PackageID, ITrieNode>("tries");
+const tries = new CachedMap<PackageID, ITrieNode>(trieTable.loader);
+const importTrie = trieTable.importer;
+const deleteTrie = trieTable.deleter;
 export { importTrie, deleteTrie };

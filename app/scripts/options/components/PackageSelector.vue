@@ -5,7 +5,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import { Package } from '../../common/package';
+import { IPackage } from '../../common/package';
 import { sendCommand } from '../../content/command';
 
 export default Vue.extend({
@@ -37,7 +37,7 @@ export default Vue.extend({
     });
   },
   watch: {
-    currentPackage(newValue: Package) {
+    currentPackage(newValue: IPackage) {
       this.$emit("input", newValue);
     }
   }

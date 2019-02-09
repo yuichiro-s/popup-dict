@@ -1,8 +1,7 @@
-export interface DictionaryItem {
-}
+export interface IDictionaryItem {}
 
 // lemma -> dictionary item
-export type Dictionary = { [key: string]: DictionaryItem };
+export interface IDictionary { [key: string]: IDictionaryItem; }
 
 // lemma -> index
-export type Index = { [key: string]: number };
+export interface IIndex { [key: string]: number; }

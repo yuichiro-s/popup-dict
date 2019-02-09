@@ -1,18 +1,18 @@
-import { PackageID } from './package';
+import { PackageID } from "./package";
 
 export enum State {
     Unknown,
     Marked,
-    Known
+    Known,
 }
-interface EntryKey {
+interface IEntryKey {
     pkgId: PackageID;
     key: string;
 }
-export interface UnknownEntry extends EntryKey {
+export interface IUnknownEntry extends IEntryKey {
     state: State.Unknown;
 }
-export interface MarkedEntry extends EntryKey {
+export interface IMarkedEntry extends IEntryKey {
     state: State.Marked;
     date: number;
     source: {
@@ -25,7 +25,7 @@ export interface MarkedEntry extends EntryKey {
         text: string;
     };
 }
-export interface KnownEntry extends EntryKey {
+export interface IKnownEntry extends IEntryKey {
     state: State.Known;
 }
-export type Entry = UnknownEntry | MarkedEntry | KnownEntry;
+export type Entry = IUnknownEntry | IMarkedEntry | IKnownEntry;

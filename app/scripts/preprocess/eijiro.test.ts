@@ -1,29 +1,29 @@
-import { markBrackets } from './eijiro';
+import { markBrackets } from "./eijiro";
 
-test('markBrackets', () => {
-    expect(markBrackets('［abc］de【ghij】kl《mnop》')).toEqual(
+test("markBrackets", () => {
+    expect(markBrackets("［abc］de【ghij】kl《mnop》")).toEqual(
         [
-            ['［abc］'],
-            'de',
-            ['【ghij】'],
-            'kl',
-            ['《mnop》'],
+            ["［abc］"],
+            "de",
+            ["【ghij】"],
+            "kl",
+            ["《mnop》"],
         ],
     );
-    expect(markBrackets('abcde【ghij】《XXX》klmnop')).toEqual(
+    expect(markBrackets("abcde【ghij】《XXX》klmnop")).toEqual(
         [
-            'abcde',
-            ['【ghij】'],
-            ['《XXX》'],
-            'klmnop',
+            "abcde",
+            ["【ghij】"],
+            ["《XXX》"],
+            "klmnop",
         ],
     );
-    expect(markBrackets('abcde【ghij】klm◆nop')).toEqual(
+    expect(markBrackets("abcde【ghij】klm◆nop")).toEqual(
         [
-            'abcde',
-            ['【ghij】'],
-            'klm',
-            ['◆nop'],
+            "abcde",
+            ["【ghij】"],
+            "klm",
+            ["◆nop"],
         ],
     );
 });

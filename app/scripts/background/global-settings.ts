@@ -1,19 +1,19 @@
-import { GlobalSettings } from '../common/global-settings';
+import { IGlobalSettings } from "../common/global-settings";
 
-const KEY = 'globalSettings';
+const KEY = "globalSettings";
 
 const INITIAL_GLOBAL_SETTINGS = {
         blacklistedLanguages: [],
 };
 
-export function setGlobalSettings(newSettings: GlobalSettings): Promise<void> {
-    return new Promise(resolve => {
+export function setGlobalSettings(newSettings: IGlobalSettings): Promise<void> {
+    return new Promise((resolve) => {
         chrome.storage.local.set({ [KEY]: newSettings }, () => { resolve(); });
     });
 }
 
-export function getGlobalSettings(): Promise<GlobalSettings> {
-    return new Promise(resolve => {
+export function getGlobalSettings(): Promise<IGlobalSettings> {
+    return new Promise((resolve) => {
         chrome.storage.local.get(KEY, (data) => {
             let globalSettings = data[KEY];
             if (globalSettings === undefined) {

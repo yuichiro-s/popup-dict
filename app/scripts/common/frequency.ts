@@ -1,3 +1,3 @@
-export type FrequencyTable = {
+export interface IFrequencyTable {
     [key: string]: number;
-};
+}

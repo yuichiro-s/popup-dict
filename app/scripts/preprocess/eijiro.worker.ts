@@ -1,11 +1,11 @@
-import { loadInflection, loadFrequency, loadWhitelist } from './loader';
-import { loadText } from './loader-browser';
-import { Dictionary } from '../common/dictionary';
-import { buildLemmatizer } from './lemmatizer';
-import { buildTrie } from './trie';
-import { buildDictionaryAndFrequency } from './dictionary';
-import { Progress } from '../common/importer';
-import { EijiroImporterMessage, markBrackets, MarkedString } from './eijiro';
+import { IDictionary } from "../common/dictionary";
+import { IProgress } from "../common/importer";
+import { buildDictionaryAndFrequency } from "./dictionary";
+import { EijiroImporterMessage, markBrackets, MarkedString } from "./eijiro";
+import { buildLemmatizer } from "./lemmatizer";
+import { loadFrequency, loadInflection, loadWhitelist } from "./loader";
+import { loadText } from "./loader-browser";
+import { buildTrie } from "./trie";
 
 const ctx: Worker = self as any;
 
@@ -14,17 +14,19 @@ function isNumeric(n: string): boolean {
 }
 
 function parseLine(line: string) {
-    let [word, defStr] = line.substring(1).split(' : ', 2);
+    const wordDefStr = line.substring(1).split(" : ", 2);
+    let [word] = wordDefStr;
+    const [, defStr] = wordDefStr;
 
-    const es = word.split('  ');
+    const es = word.split("  ");
     let pos = null;
     if (es.length === 2) {
         [word, pos] = es;
-        if (pos.startsWith('{') && pos.endsWith('}')) {
+        if (pos.startsWith("{") && pos.endsWith("}")) {
             pos = pos.slice(1, -1);
-            const posElements = pos.split('-');
+            const posElements = pos.split("-");
             if (posElements.length >= 2 && isNumeric(posElements[posElements.length - 1])) {
-                pos = posElements.slice(0, -1).join('-');
+                pos = posElements.slice(0, -1).join("-");
             }
         } else {
             // broken entry
@@ -41,7 +43,7 @@ async function loadEijiro(
     frequencyURL: string,
     whitelistURL: string,
     chunkSize: number,
-    progressFn: (progress: Progress) => void) {
+    progressFn: (progress: IProgress) => void) {
 
     const eijiroContent = loadText(eijiroURL);
     const inflectionContent = loadText(inflectionURL);
@@ -52,17 +54,17 @@ async function loadEijiro(
     let step = 0;
 
     const m = async (msg: string, delta?: number) => {
-        if (delta === undefined) delta = 1;
+        if (delta === undefined) { delta = 1; }
         step += delta;
         progressFn({ msg, ratio: step / TOTAL });
     };
 
     const whitelist = loadWhitelist(await whitelistContent);
-    m('Loaded whitelist.');
+    m("Loaded whitelist.");
 
-    const lines = (await eijiroContent).split('\r\n');
+    const lines = (await eijiroContent).split("\r\n");
 
-    const entries = new Map<string, { pos: string | null, defStr: MarkedString }[]>();
+    const entries = new Map<string, Array<{ pos: string | null, defStr: MarkedString }>>();
     const infos = new Map<string, MarkedString>();
     for (let i = 0; i < lines.length; i++) {
         const DELTA = 10000;
@@ -70,7 +72,7 @@ async function loadEijiro(
             m(`Parsed dictionary entries (${i} of ${lines.length}).`, DELTA / lines.length);
         }
         const line = lines[i];
-        if (line.trim().length === 0) continue;
+        if (line.trim().length === 0) { continue; }
 
         const parsed = parseLine(line);
         if (parsed === null) {
@@ -80,9 +82,9 @@ async function loadEijiro(
         const { word, pos, defStr } = parsed;
 
         if (whitelist.has(word)) {
-            if (pos === null && defStr.startsWith('【')) {
+            if (pos === null && defStr.startsWith("【")) {
                 if (infos.has(word)) {
-                    console.log('Duplicate:', word, defStr, infos.get(word));
+                    console.log("Duplicate:", word, defStr, infos.get(word));
                 }
                 infos.set(word, markBrackets(defStr));
             } else {
@@ -95,14 +97,14 @@ async function loadEijiro(
     }
     // TODO: increment step for the last less than 10000 lines
 
-    type DictionaryItem = {
-        word: string,
-        info: MarkedString | null,
-        entries: { pos: string | null, defs: MarkedString[] }[],
-    };
-    const dict: Dictionary = {};
+    interface IDictionaryItem {
+        word: string;
+        info: MarkedString | null;
+        entries: Array<{ pos: string | null, defs: MarkedString[] }>;
+    }
+    const dict: IDictionary = {};
     entries.forEach((dictInfo, word) => {
-        const item: DictionaryItem = {
+        const item: IDictionaryItem = {
             word,
             info: null,
             entries: [],
@@ -129,23 +131,23 @@ async function loadEijiro(
         }
         dict[word] = item;
     });
-    m('Loaded dictionary.');
+    m("Loaded dictionary.");
 
     const inflection = loadInflection(await inflectionContent);
-    m('Loaded inflection.');
+    m("Loaded inflection.");
 
     const lemmatizer = buildLemmatizer(dict, inflection);
-    m('Built lemmatizer.');
+    m("Built lemmatizer.");
 
     const frequency = loadFrequency(await frequencyContent);
-    m('Loaded frequency.');
+    m("Loaded frequency.");
 
     const { index, dictionaryChunks, freqs } = buildDictionaryAndFrequency(
         dict, lemmatizer, frequency, chunkSize);
-    m('Built dictionary.');
+    m("Built dictionary.");
 
     const trie = buildTrie(dict, lemmatizer);
-    m('Built trie.');
+    m("Built trie.");
 
     return { lemmatizer, trie, index, dictionaryChunks, freqs };
 }
@@ -156,7 +158,7 @@ onmessage = async (e) => {
         inflectionURL,
         frequencyURL,
         whitelistURL,
-        chunkSize
+        chunkSize,
     } = e.data;
 
     const { lemmatizer, trie, index, dictionaryChunks, freqs } =
@@ -164,17 +166,17 @@ onmessage = async (e) => {
             inflectionURL,
             frequencyURL,
             whitelistURL,
-            chunkSize, (progress: Progress) => {
-                const msg: EijiroImporterMessage = { type: 'progress', progress };
-                ctx.postMessage(msg);
+            chunkSize, (progress: IProgress) => {
+                const progressMsg: EijiroImporterMessage = { type: "progress", progress };
+                ctx.postMessage(progressMsg);
             });
-    const msg: EijiroImporterMessage = {
-        type: 'done',
+    const doneMsg: EijiroImporterMessage = {
+        type: "done",
         lemmatizer,
         trie,
         index,
         dictionaryChunks,
         freqs,
     };
-    ctx.postMessage(msg);
+    ctx.postMessage(doneMsg);
 };

@@ -1,34 +1,34 @@
-import Dexie from 'dexie';
+import Dexie from "dexie";
 
-interface DatabaseEntry<K, V> {
+interface IDatabaseEntry<K, V> {
     key: K;
     value: V;
 }
 
 class Database<K, V> extends Dexie {
-    database: Dexie.Table<DatabaseEntry<K, V>, K>;
+    public database: Dexie.Table<IDatabaseEntry<K, V>, K>;
     constructor(name: string) {
         super(name);
         this.version(1).stores({
-            database: 'key',
+            database: "key",
         });
     }
 }
 
-function getTable<K, V>(name: string) {
-    let db = new Database<K, V>(name);
+function getDatabase<K, V>(name: string) {
+    const db = new Database<K, V>(name);
     return db.database;
 }
 
-export function table<K, V>(tableName: string) {
-    let table = getTable<K, V>(tableName);
+export function getTable<K, V>(tableName: string) {
+    const table = getDatabase<K, V>(tableName);
 
-    let loader = (key: K) => {
+    const loader: ((key: K) => Promise<V>) = (key: K) => {
         return new Promise((resolve, reject) => {
             console.log(`Loading ${key} for ${tableName} ...`);
-            table.get(key).then(result => {
+            table.get(key).then((result) => {
                 if (result === undefined) {
-                    let msg = `Key ${key} not found in ${tableName}.`;
+                    const msg = `Key ${key} not found in ${tableName}.`;
                     console.log(msg);
                     reject(msg);
                 } else {
@@ -39,13 +39,13 @@ export function table<K, V>(tableName: string) {
         });
     };
 
-    let importer = (key: K, value: V) => {
+    const importer = (key: K, value: V) => {
         return table.put({ key, value }).then(() => {
             console.log(`Imported data into ${tableName} for ${key}.`);
         });
     };
 
-    let deleter = (key: K) => {
+    const deleter = (key: K) => {
         return table.delete(key).then(() => {
             console.log(`Deleted ${key} from ${tableName}.`);
         });

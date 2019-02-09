@@ -8,6 +8,7 @@
     "start": "npm run dev:chrome",
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack --config webpack.dev.js --watch",
+    "lint": "tslint app/scripts/**/*.ts test/**/*.ts scripts/**/*.ts",
     "test": "jest"
   },
   "standard": {
@@ -22,7 +23,7 @@
     "@types/handlebars": "^4.0.40",
     "@types/jest": "^23.3.14",
     "@types/lodash": "^4.14.120",
-    "@types/node": "^10.12.21",
+    "@types/lodash-es": "^4.17.1",
     "@types/puppeteer": "^1.12.1",
     "argparse": "^1.0.10",
     "copy-webpack-plugin": "^4.6.0",
@@ -32,7 +33,7 @@
     "generate-json-webpack-plugin": "^0.3.1",
     "handlebars": "^4.0.12",
     "jest": "^23.6.0",
-    "lodash": "^4.17.11",
+    "lodash-es": "^4.17.11",
     "material-design-icons-iconfont": "^4.0.4",
     "node-sass": "^4.11.0",
     "puppeteer": "^1.12.2",

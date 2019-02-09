@@ -1,17 +1,17 @@
-import toml from 'toml';
+import * as toml from "toml";
 
-import { Settings } from '../common/package';
-import { sendCommand } from '../content/command';
-import { ImportMessage, Progress } from '../common/importer';
-import { PKG_ID } from '../preprocess/eijiro';
+import { ImportMessage, IProgress } from "../common/importer";
+import { ISettings } from "../common/package";
+import { sendCommand } from "../content/command";
+import { PKG_ID } from "../preprocess/eijiro";
 
 export function loadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
         console.log(`Loading ${file.name} ...`);
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = () => {
             console.log(`Loaded ${file.name} .`);
-            let data = reader.result as string;
+            const data = reader.result as string;
             resolve(data);
         };
         reader.onerror = reject;
@@ -19,16 +19,16 @@ export function loadFile(file: File): Promise<string> {
     });
 }
 
-function validate(settings: Settings) {
+function validate(settings: ISettings) {
     function check(field: string) {
         if (!(field in settings)) {
             throw new Error(`${field} does not exist!`);
         }
     }
-    check('id');
-    check('name');
-    check('languageCode');
-    check('tokenizeByWhiteSpace');
+    check("id");
+    check("name");
+    check("languageCode");
+    check("tokenizeByWhiteSpace");
 }
 
 function gatherNecessaryFiles(files: File[]) {
@@ -37,22 +37,21 @@ function gatherNecessaryFiles(files: File[]) {
     let lemmatizerFile = null;
     let indexFile = null;
     let frequencyFile = null;
-    let subDictFiles: File[] = [];
+    const subDictFiles: File[] = [];
     let totalSize = 0;
-    for (let i = 0; i < files.length; i++) {
-        let file = files[i];
+    for (const file of files) {
         let added = true;
-        if (file.name === 'settings.toml') {
+        if (file.name === "settings.toml") {
             settingsFile = file;
-        } else if (file.name === 'trie.json') {
+        } else if (file.name === "trie.json") {
             trieFile = file;
-        } else if (file.name === 'lemmatizer.json') {
+        } else if (file.name === "lemmatizer.json") {
             lemmatizerFile = file;
-        } else if (file.name === 'index.json') {
+        } else if (file.name === "index.json") {
             indexFile = file;
-        } else if (file.name === 'frequency.json') {
+        } else if (file.name === "frequency.json") {
             frequencyFile = file;
-        } else if (file.name.startsWith('subdict')) {
+        } else if (file.name.startsWith("subdict")) {
             subDictFiles.push(file);
         } else {
             added = false;
@@ -85,23 +84,23 @@ export function validatePackage(files: File[]) {
         subDictFiles,
     } = gatherNecessaryFiles(files);
 
-    if (settingsFile === null) errors.push('settings.toml is not found.');
-    if (trieFile === null) errors.push('trie.json is not found.');
-    if (lemmatizerFile === null) errors.push('lemmatizer.json is not found.');
-    if (frequencyFile === null) warnings.push('frequency.json is not found.');
-    if (indexFile === null) warnings.push('index.json is not found.');
-    if (subDictFiles.length === 0) warnings.push('No dictionary files are found.');
+    if (settingsFile === null) { errors.push("settings.toml is not found."); }
+    if (trieFile === null) { errors.push("trie.json is not found."); }
+    if (lemmatizerFile === null) { errors.push("lemmatizer.json is not found."); }
+    if (frequencyFile === null) { warnings.push("frequency.json is not found."); }
+    if (indexFile === null) { warnings.push("index.json is not found."); }
+    if (subDictFiles.length === 0) { warnings.push("No dictionary files are found."); }
 
     return { errors, warnings };
 }
 
 export function importPackage(
     msg: ImportMessage,
-    progressFn: (progress: Progress) => void,
+    progressFn: (progress: IProgress) => void,
 ) {
     return new Promise((resolve, reject) => {
         let pkgId: string;
-        if (msg.type === 'import-eijiro') {
+        if (msg.type === "import-eijiro") {
             pkgId = PKG_ID;
         } else {
             try {
@@ -111,17 +110,17 @@ export function importPackage(
             }
             pkgId = msg.settings.id;
         }
-        sendCommand({ type: 'get-package', pkgId }).then(pkg => {
+        sendCommand({ type: "get-package", pkgId }).then((pkg) => {
             if (pkg) {
                 reject(new Error(`Package ${pkgId} already exists!`));
             } else {
                 const port = chrome.runtime.connect();
-                port.onMessage.addListener((msg) => {
-                    if (msg.type === 'progress') {
-                        progressFn(msg.progress);
-                    } else if (msg.type === 'done') {
+                port.onMessage.addListener((response) => {
+                    if (response.type === "progress") {
+                        progressFn(response.progress);
+                    } else if (response.type === "done") {
                         port.disconnect();
-                        resolve(msg.pkg);
+                        resolve(response.pkg);
                     }
                 });
                 port.postMessage(msg);
@@ -130,7 +129,7 @@ export function importPackage(
     });
 }
 
-export async function importPackageFromFiles(files: File[], progressFn: (progres: Progress) => void) {
+export async function importPackageFromFiles(files: File[], progressFn: (progres: IProgress) => void) {
     const {
         settingsFile,
         trieFile,
@@ -140,27 +139,27 @@ export async function importPackageFromFiles(files: File[], progressFn: (progres
         subDictFiles,
     } = gatherNecessaryFiles(files);
 
-    const settings: Settings = await loadFile(settingsFile!).then(toml.parse);
+    const settings: ISettings = await loadFile(settingsFile!).then(toml.parse);
     const trie = URL.createObjectURL(trieFile!);
     const lemmatizer = URL.createObjectURL(lemmatizerFile!);
     const frequency = URL.createObjectURL(frequencyFile!);
     const index = URL.createObjectURL(indexFile);
     const subDicts: { [n: number]: string } = {};
-    for (let i = 0; i < subDictFiles.length; i++) {
-        const file = subDictFiles[i];
-        let n = Number.parseInt(file.name.replace('subdict', '').replace('.json', ''));
+    for (const file of subDictFiles) {
+        const nStr = file.name.replace("subdict", "").replace(".json", "");
+        const n = Number.parseInt(nStr, 10);
         subDicts[n] = URL.createObjectURL(file);
     }
 
     return importPackage(
         {
-            type: 'import-files',
+            type: "import-files",
             settings,
             trie,
             lemmatizer,
             index,
             subDicts,
-            frequency
+            frequency,
         },
         progressFn);
 }

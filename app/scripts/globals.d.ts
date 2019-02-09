@@ -3,4 +3,4 @@ declare module "*.vue" {
     export default Vue;
 }
 
-declare module 'vue-codemirror-lite';
+declare module "vue-codemirror-lite";

@@ -1,17 +1,17 @@
-import { Dictionary } from '../common/dictionary';
-import { Lemmatizer } from '../common/lemmatizer';
-import { has } from '../common/objectmap';
+import { IDictionary } from "../common/dictionary";
+import { ILemmatizer } from "../common/lemmatizer";
+import { has } from "../common/objectmap";
 
-type Inflection = { [form: string]: string };
+interface Inflection { [form: string]: string; }
 
 const MAX_DEPTH = 10;
 
-export function buildLemmatizer(dict: Dictionary, inflection: Inflection): Lemmatizer {
-    const lemmatizer: Lemmatizer = {};
+export function buildLemmatizer(dict: IDictionary, inflection: Inflection): ILemmatizer {
+    const lemmatizer: ILemmatizer = {};
 
     for (const originalForm of Object.keys(inflection)) {
         // phrases are ignored
-        if (originalForm.split(' ').length === 1) {
+        if (originalForm.split(" ").length === 1) {
             let form = originalForm;
             // recursively lemmatize
             for (let i = 0; i < MAX_DEPTH; i++) {

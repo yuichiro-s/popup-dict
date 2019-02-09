@@ -1,15 +1,15 @@
-import { PackageID } from '../common/package';
-import { CachedMap } from '../common/cachedmap';
-import { get } from '../common/objectmap';
-import { table } from './database';
-import { FrequencyTable } from '../common/frequency';
+import { CachedMap } from "../common/cachedmap";
+import { IFrequencyTable } from "../common/frequency";
+import { get } from "../common/objectmap";
+import { PackageID } from "../common/package";
+import { getTable } from "./database";
 
 export function getFrequency(tokens: string[], lang: PackageID): Promise<number[] | null> {
-    return new Promise(resolve => {
-        frequencyTables.get(lang).then(table => {
-            let frequencies = [];
+    return new Promise((resolve) => {
+        frequencyTables.get(lang).then((table) => {
+            const frequencies = [];
             for (const token of tokens) {
-                let frequency = get(table, token) || 0;
+                const frequency = get(table, token) || 0;
                 frequencies.push(frequency);
             }
             resolve(frequencies);
@@ -20,8 +20,8 @@ export function getFrequency(tokens: string[], lang: PackageID): Promise<number[
     });
 }
 
-let frequencyTable = table('frequency-tables');
-let frequencyTables = new CachedMap<PackageID, FrequencyTable>(frequencyTable.loader);
-let importFrequencyTable = frequencyTable.importer;
-let deleteFrequencyTable = frequencyTable.deleter;
+const frequencyTable = getTable<PackageID, IFrequencyTable>("frequency-tables");
+const frequencyTables = new CachedMap<PackageID, IFrequencyTable>(frequencyTable.loader);
+const importFrequencyTable = frequencyTable.importer;
+const deleteFrequencyTable = frequencyTable.deleter;
 export { importFrequencyTable, deleteFrequencyTable };

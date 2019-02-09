@@ -1,4 +1,4 @@
 // word form -> lemma
-export type Lemmatizer = {
+export interface ILemmatizer {
     [key: string]: string;
-};
+}

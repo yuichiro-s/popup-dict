@@ -1,21 +1,21 @@
 export class CachedMap<K, V> {
     private cache: Map<K, V | Promise<V>>;
-    private loader: Function;
-    constructor(loader: Function) {
+    private loader: (key: K) => Promise<V>;
+    constructor(loader: (key: K) => Promise<V>) {
         this.loader = loader;
         this.cache = new Map();
     }
-    get(key: K): Promise<V> {
+    public get(key: K): Promise<V> {
         return new Promise((resolve, reject) => {
-            let value = this.cache.get(key);
+            const value = this.cache.get(key);
             if (value) {
                 resolve(value);
             } else {
-                let promise = this.loader(key);
+                const promise = this.loader(key);
                 this.cache.set(key, promise);
-                promise.then((value: V) => {
-                    this.cache.set(key, value);
-                    resolve(value);
+                promise.then((resolvedValue: V) => {
+                    this.cache.set(key, resolvedValue);
+                    resolve(resolvedValue);
                 }).catch(reject);
             }
         });

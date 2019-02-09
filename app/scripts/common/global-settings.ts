@@ -1,3 +1,3 @@
-export interface GlobalSettings {
+export interface IGlobalSettings {
     blacklistedLanguages: string[];
 }

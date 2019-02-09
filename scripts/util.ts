@@ -1,31 +1,32 @@
-const fs = require('fs');
-const path = require('path');
-import { Lemmatizer } from '../app/scripts/common/lemmatizer';
-import { TrieNode } from '../app/scripts/common/trie';
-import { FrequencyTable } from '../app/scripts/common/frequency';
-import { Index, Dictionary } from '../app/scripts/common/dictionary';
+import * as fs from "fs";
+import * as path from "path";
 
-function writeJSON(obj: Object, path: string) {
-    console.log(`Writing to ${path} ...`);
-    return new Promise(resolve => {
-        fs.writeFile(path, JSON.stringify(obj), 'utf8', resolve);
+import { IDictionary, IIndex } from "../app/scripts/common/dictionary";
+import { IFrequencyTable } from "../app/scripts/common/frequency";
+import { ILemmatizer } from "../app/scripts/common/lemmatizer";
+import { ITrieNode } from "../app/scripts/common/trie";
+
+function writeJSON(obj: object, jsonPath: string) {
+    console.log(`Writing to ${jsonPath} ...`);
+    return new Promise((resolve) => {
+        fs.writeFile(jsonPath, JSON.stringify(obj), "utf8", resolve);
     });
 }
 
 export async function writePackage(
     out: string,
-    lemmatizer: Lemmatizer,
-    trie: TrieNode,
-    freqs: FrequencyTable,
-    index: Index,
-    dictionaryChunks: Map<number, Dictionary>,
+    lemmatizer: ILemmatizer,
+    trie: ITrieNode,
+    freqs: IFrequencyTable,
+    index: IIndex,
+    dictionaryChunks: Map<number, IDictionary>,
     settings: string) {
 
     if (!fs.existsSync(out)) {
         await fs.promises.mkdir(out, { recursive: true });
     }
 
-    const dictPath = path.join(out, 'dictionary');
+    const dictPath = path.join(out, "dictionary");
     if (!fs.existsSync(dictPath)) {
         await fs.promises.mkdir(dictPath, { recursive: true });
     }
@@ -34,14 +35,14 @@ export async function writePackage(
     const d = (name: string) => path.join(dictPath, name);
 
     await Promise.all([
-        fs.promises.copyFile(settings, p('settings.toml')),
-        writeJSON(lemmatizer, p('lemmatizer.json')),
-        writeJSON(trie, p('trie.json')),
-        writeJSON(freqs, p('frequency.json')),
-        writeJSON(index, d('index.json')),
+        fs.promises.copyFile(settings, p("settings.toml")),
+        writeJSON(lemmatizer, p("lemmatizer.json")),
+        writeJSON(trie, p("trie.json")),
+        writeJSON(freqs, p("frequency.json")),
+        writeJSON(index, d("index.json")),
         Promise.all(
             Array.from(dictionaryChunks.entries()).map(([chunkIndex, dict]) =>
-                writeJSON(dict, d(`subdict${chunkIndex}.json`)))
+                writeJSON(dict, d(`subdict${chunkIndex}.json`))),
         ),
     ]);
 }

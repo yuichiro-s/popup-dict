@@ -1,8 +1,8 @@
-import { Entry } from './entry';
+import { Entry } from "./entry";
 
-export type Span = {
+export interface ISpan {
     begin: number;
     end: number;
     key: string[];
     entry: Entry;
-};
+}

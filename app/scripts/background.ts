@@ -1,8 +1,8 @@
-import { createContextMenu } from './background/contextmenu';
-import { enable, addBrowserAction } from './background/enabled';
-import { messageHandler } from './background/command';
-import { saveStats } from './background/stats';
-import { importerHandler } from './background/importer';
+import { messageHandler } from "./background/command";
+import { createContextMenu } from "./background/contextmenu";
+import { addBrowserAction, enable } from "./background/enabled";
+import { importerHandler } from "./background/importer";
+import { saveStats } from "./background/stats";
 
 chrome.runtime.onMessage.addListener(messageHandler);
 chrome.runtime.onConnect.addListener(importerHandler);

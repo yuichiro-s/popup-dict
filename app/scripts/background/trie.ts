@@ -1,11 +1,11 @@
-import { has, get } from '../common/objectmap';
-import { TrieNode, NEXT, EXISTS } from '../common/trie';
+import { get, has } from "../common/objectmap";
+import { EXISTS, ITrieNode, NEXT } from "../common/trie";
 
-export function createEmptyNode(): TrieNode {
+export function createEmptyNode(): ITrieNode {
     return { [NEXT]: {}, [EXISTS]: false };
 }
 
-export function add(root: TrieNode, key: string[]) {
+export function add(root: ITrieNode, key: string[]) {
     let node = root;
     for (const lemma of key) {
         if (!(has(node[NEXT], lemma))) {
@@ -16,13 +16,13 @@ export function add(root: TrieNode, key: string[]) {
     node[EXISTS] = true;
 }
 
-export function isEnd(node: TrieNode) {
+export function isEnd(node: ITrieNode) {
     return node[EXISTS];
 }
 
-export function exists(trie: TrieNode, key: string[]): boolean {
+export function exists(trie: ITrieNode, key: string[]): boolean {
     const length = key.length;
-    function dfs(node: TrieNode, i: number): boolean {
+    function dfs(node: ITrieNode, i: number): boolean {
         if (i >= length) {
             return isEnd(node);
         } else {
@@ -38,9 +38,9 @@ export function exists(trie: TrieNode, key: string[]): boolean {
     return dfs(trie, 0);
 }
 
-export function getKeys(root: TrieNode): string[][] {
+export function getKeys(root: ITrieNode): string[][] {
     const keys: string[][] = [];
-    function dfs(node: TrieNode, prefix: string[]) {
+    function dfs(node: ITrieNode, prefix: string[]) {
         if (isEnd(node)) {
             keys.push(prefix);
         }
@@ -52,17 +52,17 @@ export function getKeys(root: TrieNode): string[][] {
     return keys;
 }
 
-export function findAllOccurrences(trie: TrieNode, tokens: (string | string[])[]) {
+export function findAllOccurrences(trie: ITrieNode, tokens: Array<string | string[]>) {
     // alternatives of only the first token are considered
 
-    let keys = [];
+    const keys = [];
     let start = 0;
     while (start < tokens.length) {
         let alternatives: string[];
-        if (typeof tokens[start] === 'string') {
-            alternatives = [<string>tokens[start]];
+        if (typeof tokens[start] === "string") {
+            alternatives = [tokens[start] as string];
         } else {
-            alternatives = <string[]>tokens[start];
+            alternatives = tokens[start] as string[];
         }
 
         let notFound = true;
@@ -76,11 +76,11 @@ export function findAllOccurrences(trie: TrieNode, tokens: (string | string[])[]
                 if (cursor === start) {
                     lemma = first;
                 } else {
-                    if (typeof tokens[cursor] === 'string') {
-                        lemma = <string>tokens[cursor];
+                    if (typeof tokens[cursor] === "string") {
+                        lemma = tokens[cursor] as string;
                     } else {
                         // only try with the first alternative
-                        lemma = <string>tokens[cursor][0];
+                        lemma = tokens[cursor][0] as string;
                     }
                 }
                 if (!(has(node[NEXT], lemma))) {
@@ -101,7 +101,7 @@ export function findAllOccurrences(trie: TrieNode, tokens: (string | string[])[]
                 break;
             }
         }
-        if (notFound) start++;
+        if (notFound) { start++; }
     }
     return keys;
 }

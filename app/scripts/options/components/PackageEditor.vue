@@ -60,9 +60,9 @@
 import Vue from "vue";
 import { codemirror } from "vue-codemirror-lite";
 import "codemirror/mode/handlebars/handlebars";
-import debounce from "lodash/debounce";
+import { debounce } from "lodash-es";
 
-import { Package, DictionaryInfo, createPackage } from "../../common/package";
+import { IDictionaryInfo, createPackage } from "../../common/package";
 import { sendCommand } from "../../content/command";
 
 export default Vue.extend({
@@ -134,12 +134,12 @@ export default Vue.extend({
       }
       this.close();
     },
-    editItem(item: DictionaryInfo) {
+    editItem(item: IDictionaryInfo) {
       this.editedIndex = this.pkg.dictionaries.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
-    deleteItem(item: DictionaryInfo) {
+    deleteItem(item: IDictionaryInfo) {
       const index = this.pkg.dictionaries.indexOf(item);
       confirm(`Are you sure you want to delete ${item.name}?`) &&
         this.pkg.dictionaries.splice(index, 1);

@@ -1,28 +1,28 @@
-import { Settings, createPackage } from '../common/package';
-import { FrequencyTable } from '../common/frequency';
-import { Lemmatizer } from '../common/lemmatizer';
-import { TrieNode } from '../common/trie';
-import { Index, Dictionary } from '../common/dictionary';
-import { ImportMessage, Progress } from '../common/importer';
-import { updatePackage } from './packages';
-import { importTrie } from './search';
-import { importEntries } from './entry';
-import { importLemmatizer } from './lemmatizer';
-import { importDictionary, importIndex } from './dictionary';
-import { importFrequencyTable } from './frequency';
-import { loadEijiro } from '../preprocess/eijiro';
-import { loadJSON } from '../preprocess/loader-browser';
+import { IDictionary, IIndex } from "../common/dictionary";
+import { IFrequencyTable } from "../common/frequency";
+import { ImportMessage, IProgress } from "../common/importer";
+import { ILemmatizer } from "../common/lemmatizer";
+import { createPackage, ISettings } from "../common/package";
+import { ITrieNode } from "../common/trie";
+import { loadEijiro } from "../preprocess/eijiro";
+import { loadJSON } from "../preprocess/loader-browser";
+import { importDictionary, importIndex } from "./dictionary";
+import { importEntries } from "./entry";
+import { importFrequencyTable } from "./frequency";
+import { importLemmatizer } from "./lemmatizer";
+import { updatePackage } from "./packages";
+import { importTrie } from "./search";
 
 type PromiseOr<T> = Promise<T> | T;
 
 async function importPackage(
-    settings: Settings,
-    trie: PromiseOr<TrieNode>,
-    lemmatizer: PromiseOr<Lemmatizer>,
-    index: PromiseOr<Index>,
-    subDicts: { [index: number]: PromiseOr<Dictionary> },
-    frequency: PromiseOr<FrequencyTable>,
-    progressFn: (progress: Progress) => void,
+    settings: ISettings,
+    trie: PromiseOr<ITrieNode>,
+    lemmatizer: PromiseOr<ILemmatizer>,
+    index: PromiseOr<IIndex>,
+    subDicts: { [index: number]: PromiseOr<IDictionary> },
+    frequency: PromiseOr<IFrequencyTable>,
+    progressFn: (progress: IProgress) => void,
 ) {
     const pkg = createPackage(settings);
     const pkgId = pkg.id;
@@ -30,9 +30,9 @@ async function importPackage(
     const TOTAL = 7;
     let step = 0;
 
-    const p = async (p: Promise<any>, msg: string, delta?: number) => {
-        const result = await p;
-        if (delta === undefined) delta = 1;
+    const p = async (promise: Promise<any>, msg: string, delta?: number) => {
+        const result = await promise;
+        if (delta === undefined) { delta = 1; }
         step += delta;
         progressFn({ msg, ratio: step / TOTAL });
         return result;
@@ -41,33 +41,33 @@ async function importPackage(
     await Promise.all([
         p(
             importTrie(pkgId, await trie),
-            'Imported trie.')
+            "Imported trie.")
             .then(() => p(
                 importEntries(pkgId),
-                'Imported entries.')),
+                "Imported entries.")),
         p(
             importLemmatizer(pkgId, await lemmatizer),
-            'Imported lemmatizer.'),
+            "Imported lemmatizer."),
         p(
             importIndex(pkgId, await index),
-            'Imported index.'
+            "Imported index.",
         ),
         Promise.all(Object.entries(subDicts).map(async ([n, subDict]) => {
-            const key = [pkgId, n].join(',');
+            const key = [pkgId, n].join(",");
             const total = Object.entries(subDicts).length;
             return p(
                 importDictionary(key, await subDict),
-                `Imported dictionary (${parseInt(n) + 1} of ${total})`,
+                `Imported dictionary (${parseInt(n, 10) + 1} of ${total})`,
                 1 / total);
         })),
         p(
             importFrequencyTable(pkgId, await frequency),
-            'Imported frequency.'),
+            "Imported frequency."),
     ]);
 
     // import completed
     await p(updatePackage(pkg),
-        'Done.');
+        "Done.");
 
     return pkg;
 }
@@ -76,14 +76,14 @@ export const importerHandler = (port: chrome.runtime.Port) => {
     let connected = true;
     port.onDisconnect.addListener(() => { connected = false; });
     port.onMessage.addListener(async (msg: ImportMessage) => {
-        const progressFn = (progress: Progress) => {
+        const progressFn = (progress: IProgress) => {
             if (connected) {
-                port.postMessage({ type: 'progress', progress });
+                port.postMessage({ type: "progress", progress });
             }
         };
         let pkg;
 
-        if (msg.type === 'import-eijiro') {
+        if (msg.type === "import-eijiro") {
             const {
                 lemmatizer,
                 trie,
@@ -92,11 +92,11 @@ export const importerHandler = (port: chrome.runtime.Port) => {
                 freqs,
                 settings,
             } = await loadEijiro(msg.eijiro, msg.inflection, msg.frequency, msg.whitelist, 1000,
-                (progress: Progress) => {
+                (progress: IProgress) => {
                     progressFn({ msg: progress.msg, ratio: progress.ratio / 2 });
                 });
 
-            const subDicts: { [n: number]: Dictionary } = {};
+            const subDicts: { [n: number]: IDictionary } = {};
             dictionaryChunks.forEach((d, n) => { subDicts[n] = d; });
 
             pkg = await importPackage(
@@ -106,16 +106,16 @@ export const importerHandler = (port: chrome.runtime.Port) => {
                 index,
                 subDicts,
                 freqs,
-                (progress: Progress) => {
+                (progress: IProgress) => {
                     progressFn({ msg: progress.msg, ratio: 0.5 + progress.ratio / 2 });
                 });
 
-        } else if (msg.type === 'import-files') {
+        } else if (msg.type === "import-files") {
             const pTrie = loadJSON(msg.trie);
             const pLemmatizer = loadJSON(msg.lemmatizer);
             const pIndex = loadJSON(msg.index);
             const pFrequency = loadJSON(msg.frequency);
-            const pSubDicts: { [n: string]: Promise<Dictionary> } = {};
+            const pSubDicts: { [n: string]: Promise<IDictionary> } = {};
             for (const [n, url] of Object.entries(msg.subDicts)) {
                 pSubDicts[n] = loadJSON(url);
             }
@@ -130,7 +130,7 @@ export const importerHandler = (port: chrome.runtime.Port) => {
         }
 
         if (connected) {
-            port.postMessage({ type: 'done', pkg });
+            port.postMessage({ type: "done", pkg });
         }
     });
 };

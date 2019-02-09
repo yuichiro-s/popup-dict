@@ -1,33 +1,33 @@
-import { PackageID } from '../common/package';
-import { CachedMap } from '../common/cachedmap';
-import { get } from '../common/objectmap';
-import { table } from './database';
-import { Lemmatizer } from '../common/lemmatizer';
+import { CachedMap } from "../common/cachedmap";
+import { ILemmatizer } from "../common/lemmatizer";
+import { get } from "../common/objectmap";
+import { PackageID } from "../common/package";
+import { getTable } from "./database";
 
-export function lemmatize(token: string, lemmatizer: Lemmatizer): string {
+export function lemmatize(token: string, lemmatizer: ILemmatizer): string {
     return get(lemmatizer, token) || token;
 }
 
-export function lemmatizeTokens(tokens: string[], lemmatizer: Lemmatizer): string[] {
-    let lemmas = [];
+export function lemmatizeTokens(tokens: string[], lemmatizer: ILemmatizer): string[] {
+    const lemmas = [];
     for (const token of tokens) {
-        let lemma = lemmatize(token, lemmatizer);
+        const lemma = lemmatize(token, lemmatizer);
         lemmas.push(lemma);
     }
     return lemmas;
 }
 
 export async function lemmatizeWithPackage(tokens: string[], pkgId: PackageID): Promise<string[]> {
-    let lemmatizer = await lemmatizers.get(pkgId);
+    const lemmatizer = await lemmatizers.get(pkgId);
     return lemmatizeTokens(tokens, lemmatizer);
 }
 
-export function getLammatizer(pkgId: PackageID): Promise<Lemmatizer> {
+export function getLammatizer(pkgId: PackageID): Promise<ILemmatizer> {
     return lemmatizers.get(pkgId);
 }
 
-let lemmatizerTable = table('lemmatizers');
-let lemmatizers = new CachedMap<PackageID, Lemmatizer>(lemmatizerTable.loader);
-let importLemmatizer = lemmatizerTable.importer;
-let deleteLemmatizer = lemmatizerTable.deleter;
+const lemmatizerTable = getTable<PackageID, ILemmatizer>("lemmatizers");
+const lemmatizers = new CachedMap<PackageID, ILemmatizer>(lemmatizerTable.loader);
+const importLemmatizer = lemmatizerTable.importer;
+const deleteLemmatizer = lemmatizerTable.deleter;
 export { importLemmatizer, deleteLemmatizer };

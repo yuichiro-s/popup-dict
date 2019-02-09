@@ -77,16 +77,15 @@
 
 <script lang="ts">
 import Vue from "vue";
-import debounce from "lodash/debounce";
+import { debounce } from "lodash-es";
 
 import { createToolTip } from "../../content/tooltip";
 import { sendCommand } from "../../content/command";
-import { Package, PackageID } from "../../common/package";
-import { DictionaryItem } from "../../common/dictionary";
-import { Entry, MarkedEntry, KnownEntry, State } from "../../common/entry";
+import { IPackage, PackageID } from "../../common/package";
+import { Entry, IMarkedEntry, IKnownEntry, State } from "../../common/entry";
 import PackageSelector from "../components/PackageSelector.vue";
 
-interface TableEntry {
+interface ITableEntry {
   date: number;
   dateStr: string;
   freq: number;
@@ -103,11 +102,11 @@ interface TableEntry {
   };
   dictHTML: string | null;
   known: boolean;
-  entry: MarkedEntry;
+  entry: IMarkedEntry;
 }
 
 async function getEntriesToShow(pkgId: PackageID) {
-  let entries: MarkedEntry[] = await sendCommand({
+  let entries: IMarkedEntry[] = await sendCommand({
     type: "list-entries",
     pkgId,
     state: State.Marked
@@ -121,7 +120,7 @@ async function getEntriesToShow(pkgId: PackageID) {
   if (freqs === null) {
     entryToFreq = null;
   } else {
-    entryToFreq = new Map<MarkedEntry, number>();
+    entryToFreq = new Map<IMarkedEntry, number>();
     for (let i = 0; i < freqs.length; i++) {
       entryToFreq.set(entries[i], freqs[i]);
     }
@@ -167,7 +166,7 @@ export default Vue.extend({
   }),
   components: { PackageSelector },
   watch: {
-    currentPackage(pkg: Package) {
+    currentPackage(pkg: IPackage) {
       this.loading = true;
       this.stats = null;
       sendCommand({
@@ -188,7 +187,7 @@ export default Vue.extend({
         }
         this.headers = headers;
 
-        const newEntries: TableEntry[] = [];
+        const newEntries: ITableEntry[] = [];
         for (let entry of entries) {
           let freq = (entryToFreq && entryToFreq.get(entry)) || 0;
           newEntries.push({
@@ -219,7 +218,7 @@ export default Vue.extend({
     }, 300)
   },
   methods: {
-    expand(entry: TableEntry) {
+    expand(entry: ITableEntry) {
       const pkgId = this.currentPackage.id;
       const key = entry.key;
       sendCommand({ type: "lookup-dictionary", pkgId, keys: [key] }).then(
@@ -233,7 +232,7 @@ export default Vue.extend({
         }
       );
     },
-    changeKnown(entry: TableEntry) {
+    changeKnown(entry: ITableEntry) {
       let originalEntry = entry.entry;
       let newEntry: Entry;
       if (entry.known) {

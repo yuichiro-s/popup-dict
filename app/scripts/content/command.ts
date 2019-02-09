@@ -1,7 +1,7 @@
-import { Command, ContentCommand } from '../common/commands';
-import { disable, enable, toggleMarked, toggleKnown } from './highlighter';
-import { setPackageID } from './package';
-import { isEnabled } from './enabled';
+import { Command, ContentCommand } from "../common/commands";
+import { isEnabled } from "./enabled";
+import { disable, enable, toggleKnown, toggleMarked } from "./highlighter";
+import { setPackageID } from "./package";
 
 export function sendCommand(command: Command): Promise<any> {
     return new Promise((resolve) => {
@@ -10,21 +10,21 @@ export function sendCommand(command: Command): Promise<any> {
 }
 
 export const messageHandler = async (message: ContentCommand) => {
-    if (message.type === 'enable') {
+    if (message.type === "enable") {
         enable();
-    } else if (message.type === 'disable') {
+    } else if (message.type === "disable") {
         disable();
     } else {
-        isEnabled().then(enabled => {
+        isEnabled().then((enabled) => {
             if (enabled) {
-                if (message.type === 'set-package-id') {
+                if (message.type === "set-package-id") {
                     setPackageID(message.pkgId).then(() => {
                         disable();
                         enable();
                     });
-                } else if (message.type === 'toggle-marked') {
+                } else if (message.type === "toggle-marked") {
                     toggleMarked();
-                } else if (message.type === 'toggle-known') {
+                } else if (message.type === "toggle-known") {
                     toggleKnown();
                 }
             }

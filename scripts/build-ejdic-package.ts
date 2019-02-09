@@ -1,58 +1,56 @@
-const fs = require('fs');
-const readline = require('readline');
-const stream = require('stream');
-const { buildLemmatizer } = require('../app/scripts/preprocess/lemmatizer');
-const { buildTrie } = require('../app/scripts/preprocess/trie');
-const { buildDictionaryAndFrequency } = require('../app/scripts/preprocess/dictionary');
-const { loadInflection, loadFrequency } = require('../app/scripts/preprocess/loader');
-const { writePackage } = require('./util');
+import * as fs from "fs";
+import * as readline from "readline";
+import { buildDictionaryAndFrequency } from "../app/scripts/preprocess/dictionary";
+import { buildLemmatizer } from "../app/scripts/preprocess/lemmatizer";
+import { loadFrequency, loadInflection } from "../app/scripts/preprocess/loader";
+import { buildTrie } from "../app/scripts/preprocess/trie";
+import { writePackage } from "./util";
 
 function parseArgs() {
-    const argparse = require('argparse');
+    const argparse = require("argparse");
     const parser = argparse.ArgumentParser();
-    parser.addArgument('--ejdic', {
-        type: 'string',
-        help: 'path to ejdic-hand-utf8.txt',
+    parser.addArgument("--ejdic", {
+        type: "string",
+        help: "path to ejdic-hand-utf8.txt",
     });
-    parser.addArgument('--inflection', {
-        type: 'string',
-        help: 'path to inflection',
+    parser.addArgument("--inflection", {
+        type: "string",
+        help: "path to inflection",
     });
-    parser.addArgument('--frequency', {
-        type: 'string',
-        help: 'path to frequency',
+    parser.addArgument("--frequency", {
+        type: "string",
+        help: "path to frequency",
     });
-    parser.addArgument('--settings', {
-        type: 'string',
-        help: 'path to settings.toml',
+    parser.addArgument("--settings", {
+        type: "string",
+        help: "path to settings.toml",
     });
-    parser.addArgument('--chunk-size', {
-        type: 'int',
-        help: 'size of dictionary chunks',
+    parser.addArgument("--chunk-size", {
+        type: "int",
+        help: "size of dictionary chunks",
     });
-    parser.addArgument('--out', {
-        type: 'string',
-        help: 'output directory',
+    parser.addArgument("--out", {
+        type: "string",
+        help: "output directory",
     });
     return parser.parseArgs();
 }
 
-function loadEjdic(path: string): Promise<{ word: string, entries: string[] }[]> {
-    const d: { word: string, entries: string[] }[] = [];
+function loadEjdic(path: string): Promise<Array<{ word: string, entries: string[] }>> {
+    const wordEntries: Array<{ word: string, entries: string[] }> = [];
     return new Promise((resolve) => {
         const instream = fs.createReadStream(path);
-        const outstream = new stream();
-        const rl = readline.createInterface(instream, outstream);
-        rl.on('line', (line: string) => {
-            const [headwords, defs] = line.split('\t', 2);
-            const headword = headwords.split(',')[0].trim();
-            d.push({
+        const rl = readline.createInterface(instream);
+        rl.on("line", (line: string) => {
+            const [headwords, defs] = line.split("\t", 2);
+            const headword = headwords.split(",")[0].trim();
+            wordEntries.push({
                 word: headword,
-                entries: defs.split('/').map(d => d.trim()),
+                entries: defs.split("/").map((d) => d.trim()),
             });
         });
-        rl.on('close', () => {
-            resolve(d);
+        rl.on("close", () => {
+            resolve(wordEntries);
         });
     });
 }
@@ -92,7 +90,7 @@ async function main() {
         dict, lemmatizer, rawFrequencyTable, args.chunk_size);
     await writePackage(args.out, lemmatizer, trie, freqs, index, dictionaryChunks, args.settings);
 
-    console.log('Done.');
+    console.log("Done.");
 }
 
 main();

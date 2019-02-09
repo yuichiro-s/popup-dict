@@ -34,16 +34,15 @@
 
 <script lang="ts">
 import Vue from "vue";
-import debounce from "lodash/debounce";
+import { debounce } from "lodash-es";
 
-import { Package, PackageID } from "../../common/package";
-import { DictionaryItem } from "../../common/dictionary";
-import { Entry, MarkedEntry, KnownEntry, State } from "../../common/entry";
+import { IPackage, PackageID } from "../../common/package";
+import { Entry, IKnownEntry, State } from "../../common/entry";
 import { sendCommand } from "../../content/command";
 import { createToolTip } from "../../content/tooltip";
 import PackageSelector from "../components/PackageSelector.vue";
 
-interface TableEntry {
+interface ITableEntry {
   freq: number;
   rank: number;
   key: string;
@@ -51,7 +50,7 @@ interface TableEntry {
   entry: Entry;
 }
 
-let allEntries: TableEntry[] = [];
+let allEntries: ITableEntry[] = [];
 const MAX_RANK = 20000;
 
 async function getEntriesToShow(pkgId: PackageID) {
@@ -86,7 +85,7 @@ export default Vue.extend({
   }),
   components: { PackageSelector },
   watch: {
-    currentPackage(pkg: Package) {
+    currentPackage(pkg: IPackage) {
       this.loading = true;
       getEntriesToShow(pkg.id).then(({ entries, entryToFreq }) => {
         const entriesWithFreq = [];
@@ -100,7 +99,7 @@ export default Vue.extend({
           }
         }
         entriesWithFreq.sort((a, b) => b.freq - a.freq);
-        const newEntries: TableEntry[] = [];
+        const newEntries: ITableEntry[] = [];
         for (let i = 0; i < Math.min(entriesWithFreq.length, MAX_RANK); i++) {
           const entryWithFreq = entriesWithFreq[i];
           const entry = entryWithFreq.entry;
@@ -136,10 +135,10 @@ export default Vue.extend({
           `Are you sure you want to mark ${n} entries as known? This action cannot be undone.`
         )
       ) {
-        const entries: KnownEntry[] = [];
+        const entries: IKnownEntry[] = [];
         for (const tableEntry of this.entriesToShow) {
           const entry = tableEntry.entry;
-          const newEntry: KnownEntry = {
+          const newEntry: IKnownEntry = {
             pkgId: entry.pkgId,
             key: entry.key,
             state: State.Known

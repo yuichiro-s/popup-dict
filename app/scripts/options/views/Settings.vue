@@ -96,11 +96,11 @@
 <script lang="ts">
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
-import throttle from "lodash/throttle";
+import { throttle } from "lodash-es";
 
-import { Progress } from "../../common/importer";
+import { IProgress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
-import { Package, PackageID } from "../../common/package";
+import { IPackage } from "../../common/package";
 
 import PackageEditor from "../components/PackageEditor.vue";
 import EijiroImporter from "../components/EijiroImporter.vue";
@@ -191,12 +191,12 @@ export default Vue.extend({
       this.importing = true;
 
       let files = this.files.map((f: any) => f.file);
-      importPackageFromFiles(files, (progress: Progress) => {
+      importPackageFromFiles(files, (progress: IProgress) => {
         const p = Math.round(progress.ratio * 100);
         this.importProgress = p;
         this.importMessage = `[${p}%] ${progress.msg}`;
       })
-        .then((pkg: Package) => {
+        .then((pkg: IPackage) => {
           this.reloadPackages().then(() => {
             alert(`Successfully imported ${pkg.name}.`);
             this.currentPkgId = pkg.id;
@@ -256,7 +256,7 @@ export default Vue.extend({
         a.dispatchEvent(e);
       });
     },
-    eijiroImportDone(pkg: Package) {
+    eijiroImportDone(pkg: IPackage) {
       this.reloadPackages().then(() => {
         alert(`Successfully imported ${pkg.name}.`);
         this.currentPkgId = pkg.id;

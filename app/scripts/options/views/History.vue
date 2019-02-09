@@ -18,9 +18,8 @@
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
 
-import { importPackage, validatePackage, loadFile } from "../importer";
 import { sendCommand } from "../../content/command";
-import { Package, PackageID } from "../../common/package";
+import { IPackage } from "../../common/package";
 
 import PackageEditor from "../components/PackageEditor.vue";
 import PackageSelector from "../components/PackageSelector.vue";
@@ -38,7 +37,7 @@ export default Vue.extend({
   }),
   components: { PackageSelector },
   watch: {
-    currentPackage(pkg: Package) {
+    currentPackage(pkg: IPackage) {
       this.loading = true;
       sendCommand({ type: "get-stats-history", pkgId: pkg.id }).then(res => {
         const entries = [];

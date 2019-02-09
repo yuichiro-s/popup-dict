@@ -1,11 +1,11 @@
-import { Settings } from '../common/package';
-import { Progress } from '../common/importer';
-import { Lemmatizer } from '../common/lemmatizer';
-import { TrieNode } from '../common/trie';
-import { Index, Dictionary } from '../common/dictionary';
-import { FrequencyTable } from '../common/frequency';
+import { IDictionary, IIndex } from "../common/dictionary";
+import { IFrequencyTable } from "../common/frequency";
+import { IProgress } from "../common/importer";
+import { ILemmatizer } from "../common/lemmatizer";
+import { ISettings } from "../common/package";
+import { ITrieNode } from "../common/trie";
 
-export const PKG_ID = 'en-eijiro';
+export const PKG_ID = "en-eijiro";
 
 const TEMPLATE = `
 {{#*inline "markedStr"}}
@@ -50,51 +50,51 @@ const TEMPLATE = `
 </div>
 `;
 
-const SETTINGS: Settings = {
+const SETTINGS: ISettings = {
     id: PKG_ID,
-    name: 'English (英辞郎)',
-    languageCode: 'eng',
+    name: "English (英辞郎)",
+    languageCode: "eng",
     tokenizeByWhiteSpace: true,
     dictionaries: [
         {
-            name: '英辞郎 on the WEB',
-            pattern: 'https://eow.alc.co.jp/search?q={}',
+            name: "英辞郎 on the WEB",
+            pattern: "https://eow.alc.co.jp/search?q={}",
         },
         {
-            name: 'Weblio辞書',
-            pattern: 'https://ejje.weblio.jp/content/{}',
+            name: "Weblio辞書",
+            pattern: "https://ejje.weblio.jp/content/{}",
         },
         {
-            name: 'The Free Dictionary',
-            pattern: 'https://www.thefreedictionary.com/{}',
+            name: "The Free Dictionary",
+            pattern: "https://www.thefreedictionary.com/{}",
         },
         {
-            name: 'Wiktionary',
-            pattern: 'https://en.wiktionary.org/wiki/{}',
+            name: "Wiktionary",
+            pattern: "https://en.wiktionary.org/wiki/{}",
         },
         {
-            name: 'Dictionary.com',
-            pattern: 'https://www.dictionary.com/browse/{}',
-        }
+            name: "Dictionary.com",
+            pattern: "https://www.dictionary.com/browse/{}",
+        },
     ],
-    showDictionary: 'unknown-or-marked',
+    showDictionary: "unknown-or-marked",
     template: TEMPLATE,
 };
 
-export type MarkedString = (string | [string])[];
+export type MarkedString = Array<string | [string]>;
 
 const BRACKETS = new Map<string, string>([
-    ['［', '］'],
-    ['《', '》'],
-    ['（', '）'],
-    ['【', '】'],
-    ['〈', '〉'],
-    ['〔', '〕'],
+    ["［", "］"],
+    ["《", "》"],
+    ["（", "）"],
+    ["【", "】"],
+    ["〈", "〉"],
+    ["〔", "〕"],
 ]);
 
 const MISC_MARKERS = [
-    '■',
-    '◆',
+    "■",
+    "◆",
 ];
 
 export function markBrackets(defStr: string): MarkedString {
@@ -132,7 +132,7 @@ export function markBrackets(defStr: string): MarkedString {
 
     let n = 0;
     for (const a of result) {
-        if (typeof a === 'string') {
+        if (typeof a === "string") {
             n += a.length;
         } else {
             n += a[0].length;
@@ -142,22 +142,22 @@ export function markBrackets(defStr: string): MarkedString {
     return result;
 }
 
-interface Eijiro {
-    lemmatizer: Lemmatizer;
-    trie: TrieNode;
-    index: Index;
-    dictionaryChunks: Map<number, Dictionary>;
-    freqs: FrequencyTable;
+interface IEijiro {
+    lemmatizer: ILemmatizer;
+    trie: ITrieNode;
+    index: IIndex;
+    dictionaryChunks: Map<number, IDictionary>;
+    freqs: IFrequencyTable;
 }
 
-interface LoadEijiroResult extends Eijiro {
-    settings: Settings;
+interface ILoadEijiroResult extends IEijiro {
+    settings: ISettings;
 }
 
 export type EijiroImporterMessage = {
-    type: 'progress',
-    progress: Progress,
-} | { type: 'done' } & Eijiro;
+    type: "progress",
+    progress: IProgress,
+} | { type: "done" } & IEijiro;
 
 export function loadEijiro(
     eijiroURL: string,
@@ -165,12 +165,12 @@ export function loadEijiro(
     frequencyURL: string,
     whitelistURL: string,
     chunkSize: number,
-    progressFn: (progress: Progress) => void): Promise<LoadEijiroResult> {
-    return new Promise(resolve => {
-        const worker = new Worker('./scripts/eijiro.worker.js');
+    progressFn: (progress: IProgress) => void): Promise<ILoadEijiroResult> {
+    return new Promise((resolve) => {
+        const worker = new Worker("./scripts/eijiro.worker.js");
         worker.onmessage = (msg) => {
             const data: EijiroImporterMessage = msg.data;
-            if (data.type === 'progress') {
+            if (data.type === "progress") {
                 progressFn(data.progress);
             } else {
                 resolve({

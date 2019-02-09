@@ -1,13 +1,14 @@
-import { Dictionary } from '../common/dictionary';
-import { Lemmatizer } from '../common/lemmatizer';
-import { lemmatizeKeyStr } from './util';
-import { add, createEmptyNode } from '../background/trie';
-import { TrieNode } from '../common/trie';
+import { add, createEmptyNode } from "../background/trie";
+import { IDictionary } from "../common/dictionary";
+import { ILemmatizer } from "../common/lemmatizer";
+import { keys } from "../common/objectmap";
+import { ITrieNode } from "../common/trie";
+import { lemmatizeKeyStr } from "./util";
 
-export function buildTrie(dict: Dictionary, lemmatizer: Lemmatizer): TrieNode {
-    const trie: TrieNode = createEmptyNode();
+export function buildTrie(dict: IDictionary, lemmatizer: ILemmatizer): ITrieNode {
+    const trie: ITrieNode = createEmptyNode();
 
-    for (const keyStr in dict) {
+    for (const keyStr of keys(dict)) {
         const lemmas = lemmatizeKeyStr(keyStr, lemmatizer);
         add(trie, lemmas);
     }

@@ -1,31 +1,35 @@
-import { Dictionary, Index } from '../common/dictionary';
-import { FrequencyTable } from '../common/frequency';
-import { Lemmatizer } from '../common/lemmatizer';
-import { lemmatizeKeyStr } from './util';
-import { get } from '../common/objectmap';
+import { IDictionary, IIndex } from "../common/dictionary";
+import { IFrequencyTable } from "../common/frequency";
+import { ILemmatizer } from "../common/lemmatizer";
+import { get } from "../common/objectmap";
+import { lemmatizeKeyStr } from "./util";
 
-export function buildDictionaryAndFrequency(dict: Dictionary, lemmatizer: Lemmatizer, rawFrequencyTable: FrequencyTable, chunkSize: number) {
+export function buildDictionaryAndFrequency(
+    dict: IDictionary,
+    lemmatizer: ILemmatizer,
+    rawFrequencyTable: IFrequencyTable,
+    chunkSize: number) {
     // Note: keys in rawFrequencyTable are assumed to be lowercased
 
     // aggregate frequency of all word forms
-    const frequencyTable: FrequencyTable = {};
+    const frequencyTable: IFrequencyTable = {};
     for (const [keyStr, freq] of Object.entries(rawFrequencyTable)) {
-        let key = lemmatizeKeyStr(keyStr, lemmatizer).join(' ');
+        const key = lemmatizeKeyStr(keyStr, lemmatizer).join(" ");
         frequencyTable[key] = (get(frequencyTable, key) || 0) + freq;
     }
 
-    const dictWithKeysLemmatized: Dictionary = {};
+    const dictWithKeysLemmatized: IDictionary = {};
     const freqs: { [key: string]: number } = {};
     for (const [keyStr, dictionaryItem] of Object.entries(dict)) {
-        const key = lemmatizeKeyStr(keyStr, lemmatizer).join(' ');
+        const key = lemmatizeKeyStr(keyStr, lemmatizer).join(" ");
         const freqKey = key.toLowerCase();
         freqs[key] = get(frequencyTable, freqKey) || 0;
         dictWithKeysLemmatized[key] = dictionaryItem;
     }
 
     // split entries into chunks
-    const index: Index = {};
-    const dictionaryChunks = new Map<number, Dictionary>();
+    const index: IIndex = {};
+    const dictionaryChunks = new Map<number, IDictionary>();
     // sort keys in descending order of frequency
     const keys: string[] = Object.keys(dictWithKeysLemmatized).sort((a, b) => freqs[b] - freqs[a]);
     for (let i = 0; i < keys.length; i++) {

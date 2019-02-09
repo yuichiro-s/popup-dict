@@ -1,42 +1,42 @@
 export type PackageID = string;
 
-export type DictionaryInfo = {
+export interface IDictionaryInfo {
     name: string;
     pattern: string;
-};
+}
 
-export type ShowDictionary = 'always' | 'unknown-or-marked' | 'never';
+export type ShowDictionary = "always" | "unknown-or-marked" | "never";
 
-export type Package = {
+export interface IPackage {
     id: PackageID;
     name: string;
     languageCode: string;
     tokenizeByWhiteSpace: boolean;
-    dictionaries: DictionaryInfo[];
+    dictionaries: IDictionaryInfo[];
     showDictionary: ShowDictionary;
     template: string;
     blacklist: string[];
-    default: Settings;
-};
+    default: ISettings;
+}
 
-export type Settings = {
+export interface ISettings {
     id: PackageID;
     name: string;
     languageCode: string;
     tokenizeByWhiteSpace: boolean;
-    dictionaries: DictionaryInfo[];
+    dictionaries: IDictionaryInfo[];
     showDictionary: ShowDictionary;
     template: string;
-};
+}
 
-export function createPackage(settings: Settings): Package {
+export function createPackage(settings: ISettings): IPackage {
     return {
         id: settings.id,
         name: settings.name,
         languageCode: settings.languageCode,
         tokenizeByWhiteSpace: settings.tokenizeByWhiteSpace,
         dictionaries: settings.dictionaries || [],
-        showDictionary: settings.showDictionary || 'unknown-or-marked',
+        showDictionary: settings.showDictionary || "unknown-or-marked",
         template: settings.template,
         blacklist: [],
         default: settings,
