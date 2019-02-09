@@ -6,6 +6,7 @@
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "jsx": "react",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "module": "esnext"
   }
 }

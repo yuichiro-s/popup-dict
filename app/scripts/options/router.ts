@@ -1,9 +1,5 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Filter from "./views/Filter.vue";
-import History from "./views/History.vue";
-import Settings from "./views/Settings.vue";
-import WordList from "./views/WordList.vue";
 
 Vue.use(VueRouter);
 
@@ -12,22 +8,22 @@ export default new VueRouter({
         {
             path: "/settings",
             name: "settings",
-            component: Settings,
+            component: () => import("./views/Settings.vue"),
         },
         {
             path: "/wordlist",
             name: "wordlist",
-            component: WordList,
+            component: () => import("./views/WordList.vue"),
         },
         {
             path: "/history",
             name: "history",
-            component: History,
+            component: () => import("./views/History.vue"),
         },
         {
             path: "/filter",
             name: "filter",
-            component: Filter,
+            component: () => import("./views/Filter.vue"),
         },
     ],
 });

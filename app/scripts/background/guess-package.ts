@@ -1,5 +1,3 @@
-import * as franc from "franc";
-
 import { get, keys } from "../common/objectmap";
 import { IPackage } from "../common/package";
 import { getGlobalSettings } from "./global-settings";
@@ -22,7 +20,8 @@ export async function guessPackage(text: string) {
     if (allLanguages.length === 0) {
         return null;
     } else {
-        const lang = franc(text, { whitelist: allLanguages });
+        const { default: detect } = await import("franc") as any;
+        const lang = detect(text, { whitelist: allLanguages });
 
         if (lang === "und") {
             console.log(`Unable to determine language.`);

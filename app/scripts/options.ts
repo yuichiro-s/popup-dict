@@ -1,8 +1,8 @@
-import "@mdi/font/css/materialdesignicons.css";
+// import "@mdi/font/css/materialdesignicons.min.css";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import Vue from "vue";
-import Vuetify from "vuetify";
-import "vuetify/dist/vuetify.min.css";
+import Vuetify from "vuetify/lib";
+import "vuetify/src/stylus/app.styl";
 import Options from "./options/Options.vue";
 import router from "./options/router";
 

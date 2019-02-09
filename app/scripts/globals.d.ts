@@ -4,3 +4,5 @@ declare module "*.vue" {
 }
 
 declare module "vue-codemirror-lite";
+
+declare module "vuetify/lib";

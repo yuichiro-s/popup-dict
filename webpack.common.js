@@ -1,5 +1,6 @@
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 const fs = require('fs');
 const GenerateJsonPlugin = require('generate-json-webpack-plugin');
@@ -16,6 +17,7 @@ module.exports = {
     target: 'web',
     plugins: [
       new VueLoaderPlugin(),
+      new VuetifyLoaderPlugin(),
       new CopyWebpackPlugin([
         './app/pages/options.html',
         {
@@ -50,7 +52,18 @@ module.exports = {
         },
         {
           test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-          loader: 'url-loader'
+          loader: 'url-loader',
+          options: {
+            limit: 8192
+          }
+        },
+        {
+          test: /\.(sa|sc|c)ss$/,
+          loader: ['style-loader', 'css-loader', 'sass-loader'],
+        },
+        {
+          test: /\.styl$/,
+          loader: 'style-loader!css-loader!stylus-loader'
         }
       ]
     },
