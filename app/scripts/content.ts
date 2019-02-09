@@ -2,7 +2,6 @@ import { isEnabled } from './content/enabled';
 import { messageHandler } from './content/command';
 import { enable } from './content/highlighter';
 
-
 /**
  * Message handler.
  */

@@ -1,11 +1,11 @@
-import handlebars, { Template, TemplateDelegate } from 'handlebars';
+import handlebars, { Template, TemplateDelegate, HelperOptions } from 'handlebars';
 
 import { DictionaryItem } from '../common/dictionary';
 import { PackageID } from '../common/package';
 import { CachedMap } from '../common/cachedmap';
 import { sendCommand } from './command';
 
-handlebars.registerHelper('ifString', function (text, options) {
+handlebars.registerHelper('ifString', function (text: any, options: HelperOptions) {
     if (typeof text === 'string') {
         return options.fn(this);
     } else {

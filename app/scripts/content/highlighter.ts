@@ -1,6 +1,5 @@
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/themes/light-border.css';
-import tippy from 'tippy.js';
+import tippy, { Instance } from 'tippy.js';
+import 'tippy.js/themes/light-border.css';
 import debounce from 'lodash/debounce';
 
 import { State } from '../common/entry';
@@ -11,6 +10,8 @@ import { tokenize, Token } from '../common/tokenizer';
 import { sendCommand } from './command';
 import { getPackage } from './package';
 import { createToolTip, CLASS_POPUP_DICTIONARY } from './tooltip';
+
+import '../../styles/highlighter.scss';
 
 const PUNCTUATIONS = [
     '\n',
@@ -68,7 +69,7 @@ function isTooltipEnabled(pkg: Package | null, state: State) {
 async function mouseEnterListener(event: MouseEvent) {
     let element = <HTMLElement>event.target;
     currentSpanNode = element;
-    tippy.hideAllPoppers();
+    tippy.hideAll();
 
     // look up dictionary
     let pkg = await getPackage();
@@ -81,7 +82,8 @@ async function mouseEnterListener(event: MouseEvent) {
             if (dictEntry) {
                 // show tooltip
                 let toolTip = await createToolTip(pkg.id, dictEntry);
-                let tip = tippy.one(element, {
+                console.log(toolTip);
+                const t = tippy(element, {
                     theme: 'light-border',
                     content: toolTip,
                     allowHTML: true,
@@ -90,10 +92,8 @@ async function mouseEnterListener(event: MouseEvent) {
                     arrow: true,
                     size: 'small',
                     interactive: false,
-                });
-                if (tip) {
-                    tip.show();
-                }
+                }) as Instance;
+                t.show();
             }
         }
     }
