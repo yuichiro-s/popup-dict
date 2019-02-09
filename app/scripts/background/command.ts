@@ -4,6 +4,7 @@ import { isEnabled } from "./enabled";
 import { clearEntries, exportUserData, importUserData, listEntries, updateEntries, updateEntry } from "./entry";
 import { getFrequency } from "./frequency";
 import { getGlobalSettings, setGlobalSettings } from "./global-settings";
+import { guessPackage } from "./guess-package";
 import { deletePackage, getLastPackageID, getPackage, getPackages, setLastPackage, updatePackage } from "./packages";
 import { searchAllBatch, searchWithPackage } from "./search";
 import { getStats, getStatsHistory } from "./stats";
@@ -67,6 +68,9 @@ export const messageHandler = (request: Command, sender: any, sendResponse: any)
         updatePackage(request.pkg).then(sendResponse);
     } else if (request.type === "delete-package") {
         deletePackage(request.pkgId).then(sendResponse);
+
+    } else if (request.type === "guess-package") {
+        guessPackage(request.text).then(sendResponse);
     }
 
     return true;
