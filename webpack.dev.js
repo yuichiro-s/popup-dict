@@ -12,4 +12,10 @@ module.exports = merge(config, {
   output: {
     path: __dirname + '/dist',
   },
+  module: {
+    rules: [{
+      test: /\.(sa|sc|c)ss$/,
+      loader: ['style-loader', 'css-loader', 'sass-loader'],
+    }]
+  },
 });

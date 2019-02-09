@@ -35,6 +35,7 @@
     "jest": "^23.6.0",
     "lodash-es": "^4.17.11",
     "material-design-icons-iconfont": "^4.0.4",
+    "mini-css-extract-plugin": "^0.5.0",
     "node-sass": "^4.11.0",
     "puppeteer": "^1.12.2",
     "rimraf": "^2.6.3",

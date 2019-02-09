@@ -24,19 +24,20 @@
     "default_title": "Toggle ON/OFF"
   },
   "options_page": "options.html",
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "run_at": "document_end",
-      "all_frames": true
-    }
-  ],
+  "content_scripts": [{
+    "matches": [
+      "http://*/*",
+      "https://*/*"
+    ],
+    "js": [
+      "content.js"
+    ],
+    "css": [
+      "content.css"
+    ],
+    "run_at": "document_end",
+    "all_frames": true
+  }],
   "permissions": [
     "tabs",
     "activeTab",
