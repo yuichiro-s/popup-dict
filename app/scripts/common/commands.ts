@@ -36,7 +36,10 @@ export type Command =
     { type: "set-last-package", pkgId: PackageID } |
     { type: "get-last-package-id" } |
     { type: "update-package", pkg: IPackage } |
-    { type: "delete-package", pkgId: PackageID };
+    { type: "delete-package", pkgId: PackageID } |
+
+    // misc
+    { type: "guess-package", text: string };
 
 export type ContentCommand =
     { type: "enable" } |

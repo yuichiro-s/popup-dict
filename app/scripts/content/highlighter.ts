@@ -92,7 +92,9 @@ async function mouseEnterListener(event: MouseEvent) {
                     size: "small",
                     interactive: false,
                 }) as Instance;
-                t.show();
+                if (t) {
+                    t.show();
+                }
             }
         }
     }

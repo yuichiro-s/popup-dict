@@ -1,6 +1,3 @@
-import * as franc from "franc";
-import { IGlobalSettings } from "../common/global-settings";
-import { keys } from "../common/objectmap";
 import { IPackage, PackageID } from "../common/package";
 import { sendCommand } from "./command";
 
@@ -45,38 +42,10 @@ function getText() {
     return text;
 }
 
-async function guessPackage(): Promise<IPackage | null> {
+function guessPackage(): Promise<IPackage | null> {
     // get list of languages to consider
-    const packages = await sendCommand({ type: "get-packages" });
-    const codeToPackage = new Map<string, IPackage>();
-    for (const pkgId of keys(packages)) {
-        const pkg: IPackage = packages[pkgId];
-        codeToPackage.set(pkg.languageCode, pkg);
-    }
-    let supportedLanguageCodes = Array.from(codeToPackage.keys());
-    const globalSettings: IGlobalSettings = await sendCommand({ type: "get-global-settings" });
-    const blacklistedLanguages = globalSettings.blacklistedLanguages;
-    supportedLanguageCodes = supportedLanguageCodes.concat(blacklistedLanguages);
-
-    if (supportedLanguageCodes.length === 0) {
-        return null;
-    } else {
-        const text = getText();
-        const lang = franc(text, { whitelist: supportedLanguageCodes });
-        if (lang === "und") {
-            console.log(`Unable to determine language.`);
-            return null;
-        } else if (blacklistedLanguages.includes(lang)) {
-            console.log(`Blacklisted language: ${lang}`);
-            return null;
-        } else {
-            const pkg = codeToPackage.get(lang)!;
-            const pkgName = pkg.name;
-            console.log(`Guessed language: ${lang}`);
-            console.log(`Using: ${pkgName}`);
-            return pkg;
-        }
-    }
+    const text = getText();
+    return sendCommand({ type: "guess-package", text });
 }
 
 export async function setPackageID(pkgId: PackageID) {
