@@ -172,14 +172,26 @@ function unhighlight(root?: Element) {
     root.normalize();
 }
 
+function rejectElement(element: Element, rect: ClientRect | DOMRect) {
+    const style = window.getComputedStyle(element);
+    return (style.display === "none") ||
+
+        // don't highlight inside display:flex because spaces around highlights wouldn't be displayed
+        // TODO: can &nbsp; be used to represent spaces?
+        (style.display === "flex") ||
+
+        // don't highlight inside popup dictionary
+        element.classList.contains(CLASS_POPUP_DICTIONARY) ||
+
+        rect.height === 0;
+}
+
 function* enumerateTextNodes(root: Element, pkg: IPackage) {
     const h = window.innerHeight || document.documentElement!.clientHeight;
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
         acceptNode: (element: Element) => {
             const rect = element.getBoundingClientRect();
-            if ((window.getComputedStyle(element).display === "none") ||
-                element.classList.contains(CLASS_POPUP_DICTIONARY) ||
-                rect.height === 0) {
+            if (rejectElement(element, rect)) {
                 return NodeFilter.FILTER_REJECT;
             }
             if (0 <= rect.bottom && rect.top <= h) {
