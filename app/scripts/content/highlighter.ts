@@ -177,10 +177,15 @@ function* enumerateTextNodes(root: Element, pkg: IPackage) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
         acceptNode: (element: Element) => {
             const rect = element.getBoundingClientRect();
-            if ((window.getComputedStyle(element).display === "none") ||
+            const style = window.getComputedStyle(element);
+            if ((style.display === "none") ||
                 element.classList.contains(CLASS_POPUP_DICTIONARY) ||
                 rect.height === 0) {
                 return NodeFilter.FILTER_REJECT;
+            }
+            if (style.display === "flex") {
+                // don't highlight inside display:flex because spaces around highlights will be ignored
+                return NodeFilter.FILTER_SKIP;
             }
             if (0 <= rect.bottom && rect.top <= h) {
                 if (TAG_LIST.includes(element.nodeName) && !element.classList.contains(HIGHLIGHTED_CLASS)) {
