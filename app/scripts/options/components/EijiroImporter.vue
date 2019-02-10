@@ -28,19 +28,15 @@
               :key="msg"
             >{{ msg }}</v-alert>
           </div>
-          <v-card class="mb-5" color="grey lighten-1" height="200px"></v-card>
           <p>{{ auxiliaryFilesData }}</p>
           <file-upload directory multiple v-model="auxiliaryFilesData" ref="uploadAuxiliary"></file-upload>
           <v-btn @click="selectAuxiliaryButton">Select auxiliary files</v-btn>
 
           <v-btn color="primary" @click="e1 = 3; startImport()" :disabled="!importable">Import</v-btn>
-
           <v-btn flat @click="cancel">Cancel</v-btn>
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <v-card class="mb-5" color="grey lighten-1" height="200px"></v-card>
-
           <div class="text-xs-center">
             <v-progress-linear :value="importProgressToShow" color="primary" :height="30"></v-progress-linear>
             <h2>{{ importMessage }}</h2>
@@ -56,8 +52,10 @@ import Vue from "vue";
 import FileUpload from "vue-upload-component";
 import { throttle } from "lodash-es";
 
+import { IPackage } from "../../common/package";
 import { IProgress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
+
 import { loadEijiroFromFiles } from "../../options/eijiro";
 import { togglePreventUnload } from "../prevent-unload";
 
@@ -66,13 +64,14 @@ export default Vue.extend({
   data() {
     return {
       e1: 1,
+      eijiroFileData: [],
+      auxiliaryFilesData: [],
+
+      // progres
       importing: false,
       importProgress: 0,
       importProgressToShow: 0,
-      importMessage: "",
-      eijiroFileData: [],
-      auxiliaryFilesData: [],
-      eijiroPkg: null
+      importMessage: ""
     };
   },
   components: {
@@ -116,6 +115,10 @@ export default Vue.extend({
       this.importing = false;
       this.$emit("cancel");
     },
+    done(pkg: IPackage) {
+      this.importing = false;
+      this.$emit("done", pkg);
+    },
     selectAuxiliaryButton() {
       this.auxiliaryFilesData = [];
       const input = this.$refs.uploadAuxiliary.$el.querySelector("input");
@@ -124,6 +127,14 @@ export default Vue.extend({
     selectEijiroButton() {
       const input = this.$refs.uploadEijiro.$el.querySelector("input");
       input.click();
+    },
+    findFile(name: string) {
+      for (const file of this.auxiliaryFilesData) {
+        if (file.file.name === name) {
+          return file.file;
+        }
+      }
+      return null;
     },
     startImport() {
       this.importing = true;
@@ -138,22 +149,14 @@ export default Vue.extend({
           this.importMessage = `[${p}%] ${progress.msg}`;
         }
       )
-        .then(pkg => {
-          this.importing = false;
-          this.$emit("done", pkg);
+        .then((pkg: IPackage) => {
+          alert(`Successfully imported ${pkg.name}.`);
+          this.done(pkg);
         })
         .catch(err => {
           alert(err);
           this.cancel();
         });
-    },
-    findFile(name: string) {
-      for (const file of this.auxiliaryFilesData) {
-        if (file.file.name === name) {
-          return file.file;
-        }
-      }
-      return null;
     }
   },
   watch: {
@@ -163,9 +166,6 @@ export default Vue.extend({
     importing(value) {
       togglePreventUnload(value);
     }
-  },
-  beforeDestroy() {
-    togglePreventUnload(false);
   }
 });
 </script>
