@@ -167,7 +167,7 @@ export function loadEijiro(
     chunkSize: number,
     progressFn: (progress: IProgress) => void): Promise<ILoadEijiroResult> {
     return new Promise((resolve) => {
-        const worker = new Worker("./scripts/eijiro.worker.js");
+        const worker = new Worker("./eijiro.worker.js");
         worker.onmessage = (msg) => {
             const data: EijiroImporterMessage = msg.data;
             if (data.type === "progress") {
