@@ -3,7 +3,7 @@ const beforeunloadListener = (e: Event) => {
     e.returnValue = false;
 };
 
-export function togglePreventUnload(value: boolean) {
+export function preventUnload(value: boolean) {
     if (value) {
         window.onbeforeunload = beforeunloadListener;
     } else {

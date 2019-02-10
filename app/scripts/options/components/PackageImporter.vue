@@ -53,7 +53,7 @@ import { sendCommand } from "../../content/command";
 import { IPackage } from "../../common/package";
 
 import { importPackageFromFiles, validatePackage } from "../importer";
-import { togglePreventUnload } from "../prevent-unload";
+import { preventUnload } from "../prevent-unload";
 
 export default Vue.extend({
   name: "PackageImporter",
@@ -64,7 +64,7 @@ export default Vue.extend({
     importing: false,
     importProgress: 0,
     importProgressToShow: 0,
-    importMessage: ""
+    importMessage: " "
   }),
   components: {
     FileUpload
@@ -81,11 +81,11 @@ export default Vue.extend({
   },
   methods: {
     cancel() {
-      this.importing = false;
+      preventUnload(false);
       this.$emit("cancel");
     },
     done(pkg: IPackage) {
-      this.importing = false;
+      preventUnload(false);
       this.$emit("done", pkg);
     },
     selectPackageDirectoryButton() {
@@ -94,6 +94,7 @@ export default Vue.extend({
       input.click();
     },
     startImport() {
+      preventUnload(true);
       this.importing = true;
       let files = this.files.map((f: any) => f.file);
       importPackageFromFiles(files, (progress: IProgress) => {
@@ -115,9 +116,6 @@ export default Vue.extend({
     importProgress: throttle(function() {
       this.importProgressToShow = this.importProgress;
     }, 1000),
-    importing(value) {
-      togglePreventUnload(value);
-    }
-  }
+  },
 });
 </script>

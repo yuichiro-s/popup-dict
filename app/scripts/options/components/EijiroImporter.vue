@@ -57,7 +57,7 @@ import { IProgress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 
 import { loadEijiroFromFiles } from "../../options/eijiro";
-import { togglePreventUnload } from "../prevent-unload";
+import { preventUnload } from "../prevent-unload";
 
 export default Vue.extend({
   name: "EijiroImporter",
@@ -71,7 +71,7 @@ export default Vue.extend({
       importing: false,
       importProgress: 0,
       importProgressToShow: 0,
-      importMessage: ""
+      importMessage: " "
     };
   },
   components: {
@@ -112,11 +112,11 @@ export default Vue.extend({
   },
   methods: {
     cancel() {
-      this.importing = false;
+      preventUnload(false);
       this.$emit("cancel");
     },
     done(pkg: IPackage) {
-      this.importing = false;
+      preventUnload(false);
       this.$emit("done", pkg);
     },
     selectAuxiliaryButton() {
@@ -137,6 +137,7 @@ export default Vue.extend({
       return null;
     },
     startImport() {
+      preventUnload(true);
       this.importing = true;
       loadEijiroFromFiles(
         this.eijiroFile,
@@ -163,9 +164,6 @@ export default Vue.extend({
     importProgress: throttle(function() {
       this.importProgressToShow = this.importProgress;
     }, 1000),
-    importing(value) {
-      togglePreventUnload(value);
-    }
   }
 });
 </script>

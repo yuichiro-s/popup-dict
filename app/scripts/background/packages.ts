@@ -1,3 +1,4 @@
+import { get, has } from "../common/objectmap";
 import { IPackage, PackageID } from "../common/package";
 import { deleteAllDictionaries, deleteIndex } from "./dictionary";
 import { deleteEntries } from "./entry";
@@ -18,7 +19,7 @@ export function updatePackage(pkg: IPackage) {
 
 export async function getPackage(pkgId: PackageID) {
     const packages = await getPackages();
-    return packages && packages[pkgId];
+    return packages && get(packages, pkgId);
 }
 
 export function getPackages(): Promise<{ [pkgId: string]: IPackage }> {
@@ -37,7 +38,7 @@ export function getPackages(): Promise<{ [pkgId: string]: IPackage }> {
 export function deletePackage(pkgId: PackageID) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get("packages", (result) => {
-            if (result && result.packages && pkgId in result.packages) {
+            if (result && result.packages && has(result.packages, pkgId)) {
                 delete result.packages[pkgId];
                 chrome.storage.local.set({ packages: result.packages }, () => {
                     Promise.all([
@@ -51,7 +52,7 @@ export function deletePackage(pkgId: PackageID) {
                     ]).then(resolve).catch(reject);
                 });
             } else {
-                reject(`${pkgId} not found.`);
+                reject(new Error(`${pkgId} not found.`));
             }
         });
     });
