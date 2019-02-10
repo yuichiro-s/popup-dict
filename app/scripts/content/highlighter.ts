@@ -12,6 +12,7 @@ import { getPackage } from "./package";
 import { CLASS_POPUP_DICTIONARY, createToolTip } from "./tooltip";
 
 import "../../styles/highlighter.scss";
+import { IGlobalSettings } from "../common/global-settings";
 
 const PUNCTUATIONS = [
     "\n",
@@ -23,9 +24,7 @@ const PUNCTUATIONS = [
     "．",
 ];
 
-const HIGHLIGHT_TAG = "highlighted";
-
-const HIGHLIGHTED_CLASS = "vocab-highlighted";
+const HIGHLIGHT_TAG = "HLTR";
 
 // tags to search for matches
 const TAG_LIST = [
@@ -34,6 +33,46 @@ const TAG_LIST = [
 ];
 
 let currentSpanNode: HTMLElement | null = null;
+
+const STYLE_TAG_ID = "highlighter-style-specifier";
+
+async function applyStyle() {
+    const element = document.createElement("style");
+    element.id = STYLE_TAG_ID;
+    const globalSettings: IGlobalSettings = await sendCommand({ type: "get-global-settings" });
+    const style = globalSettings.highlightStyle;
+    const text = `
+${HIGHLIGHT_TAG}[data-state='${stateToString(State.Unknown)}'] {
+${style.unknown}
+}
+
+${HIGHLIGHT_TAG}[data-state='${stateToString(State.Marked)}'] {
+${style.marked}
+}
+
+${HIGHLIGHT_TAG}[data-state='${stateToString(State.Known)}'] {
+${style.known}
+}
+
+${HIGHLIGHT_TAG}:hover {
+${style.hover}
+}
+    `;
+    element.innerHTML = text;
+    let head = document.head;
+    if (head === null) {
+        head = document.createElement("head");
+        document.prepend(head);
+    }
+    head.appendChild(element);
+}
+
+function removeStyle() {
+    const element = document.getElementById(STYLE_TAG_ID);
+    if (element && element.parentNode) {
+        element.parentNode.removeChild(element);
+    }
+}
 
 function stateToString(state: State) {
     return State[state].toLowerCase();
@@ -149,14 +188,13 @@ function replaceTextWithSpans(textNode: Node, tokens: IToken[], spans: ISpan[]) 
 }
 
 function setSpanClass(e: HTMLElement, state: State) {
-    e.classList.add(HIGHLIGHTED_CLASS);
     e.dataset.state = stateToString(state);
 }
 
 function unhighlight(root?: Element) {
     if (root === undefined) { root = document.body; }
 
-    const elements = root.getElementsByClassName(HIGHLIGHTED_CLASS);
+    const elements = root.getElementsByTagName(HIGHLIGHT_TAG);
     let i = elements.length;
     while (i--) {
         const element = elements[i];
@@ -188,7 +226,7 @@ function* enumerateTextNodes(root: Element, pkg: IPackage) {
                 return NodeFilter.FILTER_SKIP;
             }
             if (0 <= rect.bottom && rect.top <= h) {
-                if (TAG_LIST.includes(element.nodeName) && !element.classList.contains(HIGHLIGHTED_CLASS)) {
+                if (TAG_LIST.includes(element.tagName)) {
                     return NodeFilter.FILTER_ACCEPT;
                 }
             }
@@ -279,7 +317,7 @@ const highlightDebounced = debounce(highlight, 150);
 
 async function rehighlight(keys: string[], state: State) {
     const root = document.body;
-    const elements = root.getElementsByClassName(HIGHLIGHTED_CLASS);
+    const elements = root.getElementsByTagName(HIGHLIGHT_TAG);
     for (const element of elements) {
         for (const key of keys) {
             if (element instanceof HTMLElement) {
@@ -363,7 +401,7 @@ export async function toggleKnown() {
         const selection = window.getSelection();
         let done = false;
         if (selection) {
-            const elements = document.getElementsByClassName(HIGHLIGHTED_CLASS);
+            const elements = document.getElementsByTagName(HIGHLIGHT_TAG);
             const entries = [];
             for (const element of elements) {
                 if (element instanceof HTMLElement) {
@@ -400,19 +438,19 @@ export async function toggleMarked() {
 }
 
 export async function enable() {
+    applyStyle();
     highlight();
-
+    window.addEventListener("scroll", scrollListener);
     observer.observe(document.body, {
         childList: true, subtree: true, characterData: true,
     });
-
-    window.addEventListener("scroll", scrollListener);
 }
 
 export function disable() {
     observer.disconnect();
     window.removeEventListener("scroll", scrollListener);
     unhighlight();
+    removeStyle();
 }
 
 const scrollListener = (event: Event) => {
@@ -432,7 +470,7 @@ const observer = new MutationObserver(async (records: MutationRecord[]) => {
 
     // run highlighter on the newly added nodes
     addedNodes.forEach((element) => {
-        if (element.classList && !element.classList.contains(HIGHLIGHTED_CLASS)) {
+        if (element.tagName !== HIGHLIGHT_TAG) {
             highlight(element);
         }
     });

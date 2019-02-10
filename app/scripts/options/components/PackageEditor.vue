@@ -9,15 +9,6 @@
       v-model="pkg.showDictionary"
     ></v-select>
 
-    <div>
-      <h2>Blacklist</h2>
-      <v-btn @click="pkg.blacklist.push('')">Add</v-btn>
-      <div v-for="(pattern, idx) in pkg.blacklist" :key="idx">
-        <v-text-field v-model="pkg.blacklist[idx]"></v-text-field>
-        <v-icon small @click="pkg.blacklist.splice(idx, 1)">delete</v-icon>
-      </div>
-    </div>
-
     <v-dialog v-model="dialog">
       <v-btn slot="activator">Add Dictionary</v-btn>
       <v-card>
@@ -106,8 +97,10 @@ export default Vue.extend({
   },
   watch: {
     pkg: {
-      handler() {
-        this.updatePackage();
+      handler(newValue, oldValue) {
+        if (oldValue !== null) {
+          this.updatePackage();
+        }
       },
       deep: true
     }

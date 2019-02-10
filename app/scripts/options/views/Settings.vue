@@ -79,7 +79,21 @@
         <v-text-field v-model="globalSettings.blacklistedLanguages[idx]"></v-text-field>
         <v-icon small @click="globalSettings.blacklistedLanguages.splice(idx, 1)">delete</v-icon>
       </div>
+      <h1>URL Blacklist</h1>
+      <v-btn @click="globalSettings.blacklistedURLPatterns.push('')">Add</v-btn>
+      <div v-for="(pattern, idx) in globalSettings.blacklistedURLPatterns" :key="idx">
+        <v-text-field v-model="globalSettings.blacklistedURLPatterns[idx]"></v-text-field>
+        <v-icon small @click="globalSettings.blacklistedURLPatterns.splice(idx, 1)">delete</v-icon>
+      </div>
+      <h1>Highlight Styles</h1>
+      <v-btn @click="resetStyle">Reset</v-btn>
+      <v-textarea label="Unknown" v-model="globalSettings.highlightStyle.unknown"></v-textarea>
+      <v-textarea label="Marked" v-model="globalSettings.highlightStyle.marked"></v-textarea>
+      <v-textarea label="Known" v-model="globalSettings.highlightStyle.known"></v-textarea>
+      <v-textarea label="Hover" v-model="globalSettings.highlightStyle.hover"></v-textarea>
     </div>
+
+    <v-divider></v-divider>
 
     <!-- package settings -->
     <h1>Packages</h1>
@@ -96,7 +110,7 @@
 <script lang="ts">
 import Vue from "vue";
 import FileUpload from "vue-upload-component";
-import { throttle } from "lodash-es";
+import { throttle, debounce } from "lodash-es";
 
 import { IProgress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
@@ -106,6 +120,7 @@ import PackageEditor from "../components/PackageEditor.vue";
 import EijiroImporter from "../components/EijiroImporter.vue";
 import { togglePreventUnload } from "../prevent-unload";
 import { importPackageFromFiles, validatePackage, loadFile } from "../importer";
+import { INITIAL_HIGHLIGHT_STYLE } from "../../common/global-settings";
 
 export default Vue.extend({
   data: () => ({
@@ -262,6 +277,17 @@ export default Vue.extend({
         this.currentPkgId = pkg.id;
         this.eijiroDialog = false;
       });
+    },
+    updateGlobalSettings: debounce(function() {
+      sendCommand({
+        type: "set-global-settings",
+        globalSettings: this.globalSettings
+      });
+    }, 300),
+    resetStyle() {
+      if (confirm(`Are you sure you want to reset the style of highlights?`)) {
+        this.globalSettings.highlightStyle = INITIAL_HIGHLIGHT_STYLE;
+      }
     }
   },
   watch: {
@@ -292,11 +318,10 @@ export default Vue.extend({
       togglePreventUnload(value);
     },
     globalSettings: {
-      handler() {
-        sendCommand({
-          type: "set-global-settings",
-          globalSettings: this.globalSettings
-        });
+      handler(newValue, oldValue) {
+        if (oldValue !== null) {
+          this.updateGlobalSettings();
+        }
       },
       deep: true
     }

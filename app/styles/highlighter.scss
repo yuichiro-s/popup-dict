@@ -1,15 +1,3 @@
-highlighted.vocab-highlighted[data-state='unknown'] {
-  background-color: rgba(238, 238, 119, 0.5);
-}
-
-highlighted.vocab-highlighted[data-state='marked'] {
-  background-color: rgba(238, 119, 119, 0.5);
-}
-
-highlighted.vocab-highlighted:hover {
-  filter: contrast(70%) brightness(130%);
-}
-
 .popup-dictionary {
   /* css reset */
   html,

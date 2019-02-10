@@ -1,5 +1,5 @@
+import { IGlobalSettings } from "../common/global-settings";
 import { sendCommand } from "./command";
-import { getPackage } from "./package";
 
 function notMatch(url: string, pattern: string): boolean {
     pattern = pattern.replace("*", ".*");
@@ -15,10 +15,12 @@ export async function isEnabled(): Promise<boolean> {
     if (enabled) {
         const tab = await sendCommand({ type: "get-tab" });
         const url = tab.url;
-        const pkg = await getPackage();
+
+        const globalSettings: IGlobalSettings = await sendCommand({ type: "get-global-settings" });
+        const patterns = globalSettings.blacklistedURLPatterns;
 
         // make sure the URL matches no blacklisted pattern
-        return pkg !== null && pkg.blacklist.every((pattern) => notMatch(url, pattern));
+        return patterns.every((pattern) => notMatch(url, pattern));
     } else {
         return false;
     }

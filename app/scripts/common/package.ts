@@ -15,7 +15,6 @@ export interface IPackage {
     dictionaries: IDictionaryInfo[];
     showDictionary: ShowDictionary;
     template: string;
-    blacklist: string[];
     default: ISettings;
 }
 
@@ -38,7 +37,6 @@ export function createPackage(settings: ISettings): IPackage {
         dictionaries: settings.dictionaries || [],
         showDictionary: settings.showDictionary || "unknown-or-marked",
         template: settings.template,
-        blacklist: [],
         default: settings,
     };
 }
