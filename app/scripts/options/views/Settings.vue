@@ -62,29 +62,37 @@
       </v-card>
     </v-dialog>
 
+    <eijiro-importer
+      v-if="eijiroDialog"
+      :dialog="eijiroDialog"
+      @cancel="eijiroDialog = false"
+      @done="eijiroImportDone"
+    ></eijiro-importer>
+
     <file-upload v-model="userDataFiles" :extensions="['json']" ref="uploadUserData"></file-upload>
 
-    <!-- import/export of user data -->
-    <h1>User data</h1>
-    <v-btn @click="importUserDataButton">Import User Data</v-btn>
-    <v-btn @click="exportUserDataButton">Export User Data</v-btn>
+    <v-card>
+      <!-- import/export of user data -->
+      <h1>User data</h1>
+      <v-btn @click="importUserDataButton">Import User Data</v-btn>
+      <v-btn @click="exportUserDataButton">Export User Data</v-btn>
 
-    <v-divider></v-divider>
+      <v-divider></v-divider>
 
-    <!-- global settings -->
-    <global-settings-editor></global-settings-editor>
+      <!-- global settings -->
+      <global-settings-editor></global-settings-editor>
 
-    <v-divider></v-divider>
+      <v-divider></v-divider>
 
-    <!-- package settings -->
-    <h1>Packages</h1>
-    <v-btn @click="importDialog = true">Import New Package</v-btn>
-    <v-btn @click="eijiroDialog = true">Import EIJIRO</v-btn>
-    <eijiro-importer :dialog="eijiroDialog" @cancel="eijiroDialog = false" @done="eijiroImportDone"></eijiro-importer>
+      <!-- package settings -->
+      <h1>Packages</h1>
+      <v-btn @click="importDialog = true">Import New Package</v-btn>
+      <v-btn @click="eijiroDialog = true" :disabled="eijiroExists">Import EIJIRO</v-btn>
 
-    <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
-    <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
-    <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
+      <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+      <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
+      <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
+    </v-card>
   </div>
 </template>
 
@@ -96,6 +104,10 @@ import { throttle } from "lodash-es";
 import { IProgress } from "../../common/importer";
 import { sendCommand } from "../../content/command";
 import { IPackage } from "../../common/package";
+
+import { keys } from "../../common/objectmap";
+
+import { EIJIRO_PKG_ID } from "../../preprocess/eijiro";
 
 import PackageEditor from "../components/PackageEditor.vue";
 import EijiroImporter from "../components/EijiroImporter.vue";
@@ -142,6 +154,9 @@ export default Vue.extend({
       let files = this.files.map((f: any) => f.file);
       let { errors, warnings } = validatePackage(files);
       return { errors, warnings };
+    },
+    eijiroExists() {
+      return keys(this.packages).some(pkgId => pkgId === EIJIRO_PKG_ID);
     }
   },
   created() {

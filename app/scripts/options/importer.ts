@@ -3,7 +3,7 @@ import * as toml from "toml";
 import { ImportMessage, IProgress } from "../common/importer";
 import { ISettings } from "../common/package";
 import { sendCommand } from "../content/command";
-import { PKG_ID } from "../preprocess/eijiro";
+import { EIJIRO_PKG_ID } from "../preprocess/eijiro";
 
 export function loadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -101,7 +101,7 @@ export function importPackage(
     return new Promise((resolve, reject) => {
         let pkgId: string;
         if (msg.type === "import-eijiro") {
-            pkgId = PKG_ID;
+            pkgId = EIJIRO_PKG_ID;
         } else {
             try {
                 validate(msg.settings);

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="dialog" persistent>
+  <v-dialog :value="true" persistent>
     <v-stepper v-model="e1">
       <v-stepper-header>
         <v-stepper-step :complete="e1 > 1" step="1">Select EIJIRO file</v-stepper-step>
@@ -63,7 +63,6 @@ import { togglePreventUnload } from "../prevent-unload";
 
 export default Vue.extend({
   name: "EijiroImporter",
-  props: ["dialog"],
   data() {
     return {
       e1: 1,
@@ -113,14 +112,8 @@ export default Vue.extend({
     }
   },
   methods: {
-    done() {
-      this.e1 = 1;
-      this.eijiroFileData = [];
-      this.auxiliaryFilesData = [];
-      this.importing = false;
-    },
     cancel() {
-      this.done();
+      this.importing = false;
       this.$emit("cancel");
     },
     selectAuxiliaryButton() {
@@ -146,8 +139,8 @@ export default Vue.extend({
         }
       )
         .then(pkg => {
+          this.importing = false;
           this.$emit("done", pkg);
-          this.done();
         })
         .catch(err => {
           alert(err);
@@ -170,6 +163,9 @@ export default Vue.extend({
     importing(value) {
       togglePreventUnload(value);
     }
+  },
+  beforeDestroy() {
+    togglePreventUnload(false);
   }
 });
 </script>

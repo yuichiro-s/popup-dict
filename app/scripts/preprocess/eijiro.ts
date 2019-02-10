@@ -5,7 +5,7 @@ import { ILemmatizer } from "../common/lemmatizer";
 import { ISettings } from "../common/package";
 import { ITrieNode } from "../common/trie";
 
-export const PKG_ID = "en-eijiro";
+export const EIJIRO_PKG_ID = "en-eijiro";
 
 const TEMPLATE = `
 {{#*inline "markedStr"}}
@@ -51,7 +51,7 @@ const TEMPLATE = `
 `;
 
 const SETTINGS: ISettings = {
-    id: PKG_ID,
+    id: EIJIRO_PKG_ID,
     name: "English (英辞郎)",
     languageCode: "eng",
     tokenizeByWhiteSpace: true,
