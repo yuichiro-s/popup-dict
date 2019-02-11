@@ -177,12 +177,16 @@ function* enumerateTextNodes(root: Element, pkg: IPackage) {
             const rect = element.getBoundingClientRect();
             const style = window.getComputedStyle(element);
             if ((style.display === "none") ||
-                element.classList.contains(CLASS_POPUP_DICTIONARY) ||
-                rect.height === 0) {
+                element.classList.contains(CLASS_POPUP_DICTIONARY)) {
                 return NodeFilter.FILTER_REJECT;
             }
-            if (style.display === "flex") {
+
+            if (
                 // don't highlight inside display:flex because spaces around highlights will be ignored
+                style.display === "flex" ||
+
+                rect.height === 0
+            ) {
                 return NodeFilter.FILTER_SKIP;
             }
             if (0 <= rect.bottom && rect.top <= h) {
