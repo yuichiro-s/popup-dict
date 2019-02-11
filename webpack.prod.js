@@ -1,3 +1,4 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const merge = require('webpack-merge');
 
 const {
@@ -14,4 +15,20 @@ module.exports = merge(config, {
   output: {
     path: __dirname + '/build',
   },
+  plugins: [
+    new CopyWebpackPlugin([{
+        from: './node_modules/react/umd/react.production.min.js',
+        to: 'react.js',
+      },
+
+      {
+        from: './node_modules/react-dom/umd/react-dom.production.min.js',
+        to: 'react-dom.js',
+      },
+      {
+        from: './app/pages/options.prod.html',
+        to: 'options.html',
+      }
+    ]),
+  ]
 });

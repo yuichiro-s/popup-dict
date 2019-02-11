@@ -186,7 +186,7 @@ function* enumerateTextNodes(root: Element, pkg: IPackage) {
                 style.display === "flex" ||
 
                 rect.height === 0
-                ) {
+            ) {
                 return NodeFilter.FILTER_SKIP;
             }
             if (0 <= rect.bottom && rect.top <= h) {

@@ -1,6 +1,4 @@
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 const fs = require('fs');
 const GenerateJsonPlugin = require('generate-json-webpack-plugin');
@@ -11,15 +9,12 @@ module.exports = {
     entry: {
       background: './app/scripts/background.ts',
       content: './app/scripts/content.ts',
-      options: './app/scripts/options.ts',
+      options: './app/scripts/options.tsx',
       'eijiro.worker': './app/scripts/preprocess/eijiro.worker.ts',
     },
     target: 'web',
     plugins: [
-      new VueLoaderPlugin(),
-      new VuetifyLoaderPlugin(),
       new CopyWebpackPlugin([
-        './app/pages/options.html',
         {
           from: './app/images',
           to: 'images',
@@ -36,19 +31,6 @@ module.exports = {
           test: /\.tsx?$/,
           loader: 'ts-loader',
           exclude: /node_modules/,
-          options: {
-            appendTsSuffixTo: [/\.vue$/],
-          }
-        },
-        {
-          test: /\.vue$/,
-          loader: 'vue-loader',
-          options: {
-            loaders: {
-              'scss': 'vue-style-loader!css-loader!sass-loader',
-              'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
-            },
-          }
         },
         {
           test: /\.(png|woff|woff2|eot|ttf|svg)$/,
@@ -68,15 +50,18 @@ module.exports = {
       ]
     },
     resolve: {
-      extensions: ['.ts', '.js', '.vue'],
+      extensions: ['.ts', '.tsx', '.js', '.jsx'],
       modules: [
         'node_modules/',
         'app/scripts/',
       ],
       alias: {
-        'vue$': 'vue/dist/vue.esm.js',
         'handlebars': 'handlebars/dist/handlebars.js',
       }
+    },
+    externals: {
+      "react": "React",
+      "react-dom": "ReactDOM",
     }
   },
   manifest,

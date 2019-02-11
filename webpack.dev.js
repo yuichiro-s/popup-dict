@@ -1,10 +1,11 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const merge = require('webpack-merge');
 const {
   config,
   manifest
 } = require('./webpack.common.js');
 
-manifest.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'"
+manifest.content_security_policy = "script-src 'self' http://localhost:* 'unsafe-eval'; object-src 'self'"
 
 module.exports = merge(config, {
   mode: 'development',
@@ -12,4 +13,19 @@ module.exports = merge(config, {
   output: {
     path: __dirname + '/dist',
   },
+  plugins: [
+    new CopyWebpackPlugin([{
+        from: './node_modules/react/umd/react.development.js',
+        to: 'react.js',
+      },
+      {
+        from: './node_modules/react-dom/umd/react-dom.development.js',
+        to: 'react-dom.js',
+      },
+      {
+        from: './app/pages/options.prod.html',
+        to: 'options.html',
+      }
+    ]),
+  ]
 });
