@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-list>
     <h1>ID: {{pkg.id}}</h1>
     <v-text-field label="Language Code (ISO 639-3)" v-model="pkg.languageCode"></v-text-field>
     <!-- TODO: edit capitalization option -->
@@ -9,6 +9,7 @@
       v-model="pkg.showDictionary"
     ></v-select>
 
+    <!--
     <v-dialog v-model="dialog">
       <v-btn slot="activator">Add Dictionary</v-btn>
       <v-card>
@@ -26,7 +27,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-container>
       <v-data-table :headers="headers" :items="pkg.dictionaries" hide-actions>
         <template slot="items" slot-scope="props">
@@ -39,12 +39,13 @@
         </template>
       </v-data-table>
     </v-container>
+    -->
 
     <h2>Template for popup dictionary (handlebars)</h2>
     <codemirror :options="options" v-model="pkg.template"></codemirror>
 
     <v-btn @click="restoreDefault">Restore default settings</v-btn>
-  </div>
+  </v-list>
 </template>
 
 <script lang="ts">

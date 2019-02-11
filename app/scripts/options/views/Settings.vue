@@ -5,44 +5,100 @@
       @cancel="importDialog = false"
       @done="importDialog = false; showNewPackage($event)"
     ></package-importer>
-
     <package-deleter
       :pkg="currentPackage"
       v-if="deleteDialog"
       @cancel="deleteDialog = false"
       @done="deleteDialog = false; currentPkgId = null"
     ></package-deleter>
-
     <eijiro-importer
       v-if="eijiroDialog"
       @cancel="eijiroDialog = false"
       @done="eijiroDialog = false; showNewPackage($event)"
     ></eijiro-importer>
-
     <file-upload v-model="userDataFiles" :extensions="['json']" ref="uploadUserData"></file-upload>
 
-    <v-card>
-      <!-- import/export of user data -->
-      <h1>User data</h1>
-      <v-btn @click="importUserDataButton">Import User Data</v-btn>
-      <v-btn @click="exportUserDataButton">Export User Data</v-btn>
+    <v-container>
+      <v-layout justify-center column>
+        <h1>General</h1>
+        <v-flex>
+          <v-card>
+            <global-settings></global-settings>
+          </v-card>
+        </v-flex>
 
-      <v-divider></v-divider>
+        <h1>Package</h1>
+        <v-flex>
+          <v-card>
+            <v-list>
+              <v-list-tile @click="importDialog = true">
+                <v-list-tile-content>
+                  <v-list-tile-title>Import package</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-icon>arrow_right</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
 
-      <!-- global settings -->
-      <global-settings-editor></global-settings-editor>
+              <v-divider></v-divider>
 
-      <v-divider></v-divider>
+              <v-list-tile @click="eijiroDialog = true" :disabled="eijiroExists">
+                <v-list-tile-content>
+                  <v-list-tile-title>Import 英辞郎</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-icon>arrow_right</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
 
-      <!-- package settings -->
-      <h1>Packages</h1>
-      <v-btn @click="importDialog = true">Import New Package</v-btn>
-      <v-btn @click="eijiroDialog = true" :disabled="eijiroExists">Import EIJIRO</v-btn>
+              <v-divider></v-divider>
 
-      <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
-      <v-btn @click="deleteDialog = true" :disabled="!currentPackage">Delete This Package</v-btn>
-      <package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>
-    </v-card>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Manage packages</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-icon>arrow_right</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
+
+              <v-select :items="items" v-model="currentPkgId" label="Select package"></v-select>
+            <v-btn @click="deleteDialog = true" :disabled="!currentPackage" @cancel="deleteDialog = false" @done="deleteDialog = false; currentPkgId = null; reloadPackages()">Delete this package</v-btn>
+            <!--<package-editor :pkg="currentPackage" v-if="currentPackage"></package-editor>-->
+            </v-list>
+          </v-card>
+        </v-flex>
+
+        <h1>User Data</h1>
+        <v-flex>
+          <v-card>
+            <v-list>
+              <v-list-tile @click="exportUserDataButton">
+                <v-list-tile-content>
+                  <v-list-tile-title>Export</v-list-tile-title>
+                  <v-list-tile-sub-title>Your word list and</v-list-tile-sub-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-icon>arrow_right</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
+
+              <v-divider></v-divider>
+
+              <v-list-tile @click="importUserDataButton">
+                <v-list-tile-content>
+                  <v-list-tile-title>Import</v-list-tile-title>
+                  <v-list-tile-sub-title>Your word list and</v-list-tile-sub-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-icon>arrow_right</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+          </v-card>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </div>
 </template>
 
@@ -63,7 +119,7 @@ import PackageEditor from "../components/PackageEditor.vue";
 import EijiroImporter from "../components/EijiroImporter.vue";
 import PackageImporter from "../components/PackageImporter.vue";
 import PackageDeleter from "../components/PackageDeleter.vue";
-import GlobalSettingsEditor from "../components/GlobalSettingsEditor.vue";
+import GlobalSettings from "../components/settings/global-settings/GlobalSettings.vue";
 import { importPackageFromFiles, validatePackage, loadFile } from "../importer";
 
 export default Vue.extend({
@@ -107,7 +163,7 @@ export default Vue.extend({
     PackageEditor,
     FileUpload,
     EijiroImporter,
-    GlobalSettingsEditor,
+    GlobalSettings,
     PackageImporter,
     PackageDeleter
   },

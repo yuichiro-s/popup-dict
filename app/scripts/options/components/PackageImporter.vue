@@ -1,46 +1,50 @@
 <template>
-  <v-dialog :value="true" persistent>
-    <v-card>
-      <v-card-title primary-title>
-        <div class="headline">Import package</div>
-      </v-card-title>
+  <v-layout justify-center>
+    <v-dialog :value="true" persistent max-width="800px">
+      <v-card>
+        <v-card-title primary-title>
+          <div class="headline">Import package</div>
+        </v-card-title>
 
-      <div v-if="!importing">
-        <div v-if="files.length > 0">
-          <v-alert
-            v-model="messages.errors[idx]"
-            type="error"
-            v-for="(msg, idx) in messages.errors"
-            :key="msg"
-          >{{ msg }}</v-alert>
-          <v-alert
-            v-model="messages.warnings[idx]"
-            type="warning"
-            v-for="(msg, idx) in messages.warnings"
-            :key="msg"
-          >{{ msg }}</v-alert>
-        </div>
-        <v-btn @click="selectPackageDirectoryButton">Select directory</v-btn>
-        <file-upload directory multiple v-model="files" ref="upload"></file-upload>
-        <ul>
-          <li v-for="file in files" :key="file.id">{{ file.name }}</li>
-        </ul>
-      </div>
+        <v-card-text>
+          <div v-if="!importing">
+            <div v-if="files.length > 0">
+              <v-alert
+                v-model="messages.errors[idx]"
+                type="error"
+                v-for="(msg, idx) in messages.errors"
+                :key="msg"
+              >{{ msg }}</v-alert>
+              <v-alert
+                v-model="messages.warnings[idx]"
+                type="warning"
+                v-for="(msg, idx) in messages.warnings"
+                :key="msg"
+              >{{ msg }}</v-alert>
+            </div>
+            <v-btn @click="selectPackageDirectoryButton">Select directory</v-btn>
+            <file-upload directory multiple v-model="files" ref="upload"></file-upload>
+            <ul>
+              <li v-for="file in files" :key="file.id">{{ file.name }}</li>
+            </ul>
+          </div>
 
-      <div v-else>
-        <div class="text-xs-center">
-          <v-progress-linear :value="importProgressToShow" color="primary" :height="30"></v-progress-linear>
-          <h2>{{ importMessage }}</h2>
-        </div>
-      </div>
+          <div v-else>
+            <div class="text-xs-center">
+              <v-progress-linear :value="importProgressToShow" color="primary" :height="30"></v-progress-linear>
+              <h2>{{ importMessage }}</h2>
+            </div>
+          </div>
+        </v-card-text>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="cancel" :disabled="importing">Cancel</v-btn>
-        <v-btn @click="startImport" :disabled="importing || !importable">Import</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-card-actions v-if="!importing">
+          <v-spacer></v-spacer>
+          <v-btn @click="cancel" flat>Cancel</v-btn>
+          <v-btn @click="startImport" :disabled="!importable" color="primary">Import</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-layout>
 </template>
 
 <script lang="ts">
@@ -64,7 +68,7 @@ export default Vue.extend({
     importing: false,
     importProgress: 0,
     importProgressToShow: 0,
-    importMessage: " "
+    importMessage: ""
   }),
   components: {
     FileUpload
@@ -96,6 +100,7 @@ export default Vue.extend({
     startImport() {
       preventUnload(true);
       this.importing = true;
+      this.importMessage = "Started import";
       let files = this.files.map((f: any) => f.file);
       importPackageFromFiles(files, (progress: IProgress) => {
         const p = Math.round(progress.ratio * 100);
@@ -115,7 +120,7 @@ export default Vue.extend({
   watch: {
     importProgress: throttle(function() {
       this.importProgressToShow = this.importProgress;
-    }, 1000),
-  },
+    }, 1000)
+  }
 });
 </script>

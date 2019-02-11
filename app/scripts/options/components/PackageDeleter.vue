@@ -1,29 +1,29 @@
 <template>
-  <div>
-    <v-dialog :value="true" persistent>
+  <v-layout justify-center>
+    <v-dialog :value="true" persistent max-width="800px">
       <v-card>
         <v-card-title primary-title>
-          <div class="headline">Delete package</div>
+          <div class="headline">Delete <span class="font-italic">{{ this.pkg.name }}</span></div>
         </v-card-title>
 
-        <div v-if="!deleting">
-          <v-card-text class="body-2">
+        <v-card-text class="body-2">
+          <div v-if="!deleting">
             Are you sure you want to delete
             <span class="font-italic">{{ this.pkg.name }}</span>? This cannot be undone.
-          </v-card-text>
-        </div>
-        <div v-else>
-          <v-progress-linear indeterminate color="primary" :height="30"></v-progress-linear>
-        </div>
+          </div>
+          <div v-else>
+            <v-progress-linear indeterminate color="primary" :height="30"></v-progress-linear>
+          </div>
+        </v-card-text>
 
-        <v-card-actions>
+        <v-card-actions v-if="!deleting">
           <v-spacer></v-spacer>
-          <v-btn @click="cancel" :disabled="deleting">Cancel</v-btn>
-          <v-btn @click="startDelete" :disabled="deleting">Delete</v-btn>
+          <v-btn @click="cancel" flat>Cancel</v-btn>
+          <v-btn @click="startDelete" :disabled="deleting" color="error">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-layout>
 </template>
 
 <script lang="ts">
