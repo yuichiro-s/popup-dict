@@ -60,7 +60,7 @@ async function loadEijiro(
     };
 
     const whitelist = loadWhitelist(await whitelistContent);
-    m("Loaded whitelist.");
+    m("Loaded whitelist");
 
     const lines = (await eijiroContent).split("\r\n");
 
@@ -69,7 +69,7 @@ async function loadEijiro(
     for (let i = 0; i < lines.length; i++) {
         const DELTA = 10000;
         if (i % DELTA === 0) {
-            m(`Parsed dictionary entries (${i} of ${lines.length}).`, DELTA / lines.length);
+            m(`Parsed dictionary entries (${i} of ${lines.length})`, DELTA / lines.length);
         }
         const line = lines[i];
         if (line.trim().length === 0) { continue; }
@@ -131,23 +131,23 @@ async function loadEijiro(
         }
         dict[word] = item;
     });
-    m("Loaded dictionary.");
+    m("Loaded dictionary");
 
     const inflection = loadInflection(await inflectionContent);
-    m("Loaded inflection.");
+    m("Loaded inflection");
 
     const lemmatizer = buildLemmatizer(dict, inflection);
-    m("Built lemmatizer.");
+    m("Built lemmatizer");
 
     const frequency = loadFrequency(await frequencyContent);
-    m("Loaded frequency.");
+    m("Loaded frequency");
 
     const { index, dictionaryChunks, freqs } = buildDictionaryAndFrequency(
         dict, lemmatizer, frequency, chunkSize);
-    m("Built dictionary.");
+    m("Built dictionary");
 
     const trie = buildTrie(dict, lemmatizer);
-    m("Built trie.");
+    m("Built trie");
 
     return { lemmatizer, trie, index, dictionaryChunks, freqs };
 }

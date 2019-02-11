@@ -41,16 +41,16 @@ async function importPackage(
     await Promise.all([
         p(
             importTrie(pkgId, await trie),
-            "Imported trie.")
+            "Imported trie")
             .then(() => p(
                 importEntries(pkgId),
-                "Imported entries.")),
+                "Imported entries")),
         p(
             importLemmatizer(pkgId, await lemmatizer),
-            "Imported lemmatizer."),
+            "Imported lemmatizer"),
         p(
             importIndex(pkgId, await index),
-            "Imported index.",
+            "Imported index",
         ),
         Promise.all(Object.entries(subDicts).map(async ([n, subDict]) => {
             const key = [pkgId, n].join(",");
@@ -62,12 +62,12 @@ async function importPackage(
         })),
         p(
             importFrequencyTable(pkgId, await frequency),
-            "Imported frequency."),
+            "Imported frequency"),
     ]);
 
     // import completed
     await p(updatePackage(pkg),
-        "Done.");
+        "Done");
 
     return pkg;
 }
