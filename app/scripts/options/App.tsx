@@ -21,11 +21,11 @@ export default () => (
         <div className="App">
             <AppBar position="static" color="primary">
                 <Toolbar variant="dense">
-                    < LinkButton color="primary" to="/settings" >Settings</LinkButton>;
-                            < LinkButton color="primary" to="/word-list" >Word List</LinkButton>;
-                            < LinkButton color="primary" to="/history" >History</LinkButton>;
-                            < LinkButton color="primary" to="/filter" >Filter</LinkButton>;
-                        </Toolbar>
+                    <LinkButton color="inherit" to="/settings" >Settings</LinkButton>
+                    <LinkButton color="inherit" to="/word-list" >Word List</LinkButton>
+                    <LinkButton color="inherit" to="/history" >History</LinkButton>
+                    <LinkButton color="inherit" to="/filter" >Filter</LinkButton>
+                </Toolbar>
             </AppBar>
             <Route path="/settings" component={Settings} />
         </div>
