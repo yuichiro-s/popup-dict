@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 
 import { IProgress } from "../../../common/importer";
 import { IPackage } from "../../../common/package";
-
 import { importPackageFromFiles, validatePackage } from "../../importer";
 import styled from "../../styled-components";
 import { preventUnload } from "./prevent-unload";
@@ -74,7 +73,7 @@ export default class extends React.Component<Props, State> {
                 <ul>{names}</ul>
             </div>;
         } else {
-            uploadMessage = <p>"Upload a package directory here"</p>;
+            uploadMessage = <p>Upload a package directory here</p>;
         }
 
         let content;

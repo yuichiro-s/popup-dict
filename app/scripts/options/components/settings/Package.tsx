@@ -3,9 +3,10 @@ import * as React from "react";
 import { MenuItem, Select } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 
-import { keys } from "../../../common/objectmap";
+import { get, keys } from "../../../common/objectmap";
 import { IPackage, PackageID } from "../../../common/package";
 import { sendCommand } from "../../../content/command";
+import DeletePackageButton from "./DeletePackageButton";
 import ImportPackageButton from "./ImportPackageButton";
 
 interface State {
@@ -36,10 +37,11 @@ export default class extends React.Component<{}, State> {
             const pkg = this.state.packages[pkgId];
             items.push(<MenuItem value={pkgId} key={pkgId}>{pkg.name}</MenuItem>);
         }
+        const currentPkg = this.state.currentPkgId ? get(this.state.packages, this.state.currentPkgId)! : null;
 
         return (
             <React.Fragment>
-                <ImportPackageButton onDone={this.onImportDone}>Import new package</ImportPackageButton>
+                <ImportPackageButton onDone={this.onImportDone} />
                 <Button variant="outlined">Import 英辞郎</Button>
 
                 <h2>Customize Package</h2>
@@ -48,7 +50,12 @@ export default class extends React.Component<{}, State> {
                     {items}
                 </Select>
 
-                <p>ID: {this.state.currentPkgId}</p>
+                {currentPkg && <div>
+                    <p>ID: {currentPkg.id}</p>
+                    <p>Lanauge (ISO 639-3): {currentPkg.languageCode}</p>
+                    <DeletePackageButton pkg={currentPkg} onDone={this.onDeleteDone} />
+                </div>}
+
             </React.Fragment>
         );
     }
@@ -66,7 +73,7 @@ export default class extends React.Component<{}, State> {
         this.setCurrentPkgId(pkg.id);
     }
 
-    private onDeleteDone = async (pkg: IPackage) => {
+    private onDeleteDone = async () => {
         await this.loadPackages();
         this.setCurrentPkgId("");
     }
