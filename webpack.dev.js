@@ -23,7 +23,7 @@ module.exports = merge(config, {
         to: 'react-dom.js',
       },
       {
-        from: './app/pages/options.prod.html',
+        from: './app/pages/options.dev.html',
         to: 'options.html',
       }
     ]),

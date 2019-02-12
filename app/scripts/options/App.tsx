@@ -1,16 +1,29 @@
 import * as React from "react";
 
+import { HashRouter as Router, Link, Route } from "react-router-dom";
+
+import AppBar from "@material-ui/core/AppBar";
+import Button from "@material-ui/core/Button";
+import Toolbar from "@material-ui/core/Toolbar";
+
+import Settings from "./views/Settings";
+
 class App extends React.Component {
     public render() {
         return (
-            <div className="App">
-                <header className="App-header">
-                    <h1 className="App-title">Welcome to React</h1>
-                </header>
-                <p className="App-intro">
-                    To get started, edit <code>src/App.tsx</code> and save to reload.
-                </p>
-            </div>
+            <Router>
+                <div className="App">
+                    <AppBar position="static" color="primary">
+                        <Toolbar variant="dense">
+                            <Link to="settings"><Button>Settings</Button></Link>
+                            <Link to="wordlist"><Button>Word List</Button></Link>
+                            <Link to="history"><Button>History</Button></Link>
+                            <Link to="filter"><Button>Filter</Button></Link>
+                        </Toolbar>
+                    </AppBar>
+                    <Route path="settings" component={Settings} />
+                </div>
+            </Router>
         );
     }
 }
