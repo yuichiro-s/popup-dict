@@ -3,6 +3,7 @@ import * as React from "react";
 import { DialogActions, DialogContent, DialogTitle, LinearProgress } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
+import { cloneDeep } from "lodash-es";
 import { toast } from "react-toastify";
 
 import { IPackage } from "../../../common/package";
@@ -88,8 +89,9 @@ export default class extends React.Component<Props, State> {
     }
 
     private onOpen = () => {
-        this.setState(INITIAL_STATE);
-        this.setState({ open: true });
+        const newState = cloneDeep(INITIAL_STATE);
+        newState.open = true;
+        this.setState(newState);
     }
 
     private cancel = () => {

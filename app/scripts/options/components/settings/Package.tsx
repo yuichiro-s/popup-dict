@@ -3,8 +3,9 @@ import * as React from "react";
 import { MenuItem, Select } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 
+import { cloneDeep, debounce } from "lodash-es";
 import { get, keys } from "../../../common/objectmap";
-import { IPackage, PackageID } from "../../../common/package";
+import { IPackage, PackageID, ShowDictionary } from "../../../common/package";
 import { sendCommand } from "../../../content/command";
 import DeletePackageButton from "./DeletePackageButton";
 import ImportPackageButton from "./ImportPackageButton";
@@ -15,6 +16,12 @@ interface State {
 }
 
 export default class extends React.Component<{}, State> {
+
+    private updatePackage = debounce((pkg) => {
+        sendCommand({ type: "update-package", pkg }).then(() => {
+            console.log(`Updated package: ${pkg.id}`);
+        });
+    }, 300);
 
     constructor(props: {}) {
         super(props);
@@ -38,6 +45,11 @@ export default class extends React.Component<{}, State> {
             items.push(<MenuItem value={pkgId} key={pkgId}>{pkg.name}</MenuItem>);
         }
         const currentPkg = this.state.currentPkgId ? get(this.state.packages, this.state.currentPkgId)! : null;
+        const showDictionaryItems = [
+            { text: "Always", value: "always" },
+            { text: "Unknown or Marked", value: "unknown-or-marked" },
+            { text: "Never", value: "never" },
+        ].map(({ text, value }) => <MenuItem value={value} key={text}>{text}</MenuItem>);
 
         return (
             <React.Fragment>
@@ -52,7 +64,10 @@ export default class extends React.Component<{}, State> {
 
                 {currentPkg && <div>
                     <p>ID: {currentPkg.id}</p>
-                    <p>Lanauge (ISO 639-3): {currentPkg.languageCode}</p>
+                    <p>When to show the dictionary tooltip</p>
+                    <Select value={currentPkg.showDictionary} onChange={this.handleShowDictionaryChange}>
+                        {showDictionaryItems}
+                    </Select>
                     <DeletePackageButton pkg={currentPkg} onDone={this.onDeleteDone} />
                 </div>}
 
@@ -66,6 +81,13 @@ export default class extends React.Component<{}, State> {
 
     private handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         this.setCurrentPkgId(event.target.value);
+    }
+    private handleShowDictionaryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const newPackages = cloneDeep(this.state.packages);
+        const pkg = newPackages[this.state.currentPkgId];
+        pkg.showDictionary = event.target.value as ShowDictionary;
+        this.updatePackage(pkg);
+        this.setState({packages: newPackages});
     }
 
     private onImportDone = async (pkg: IPackage) => {
