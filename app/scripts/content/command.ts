@@ -4,8 +4,14 @@ import { disable, enable, toggleKnown, toggleMarked } from "./highlighter";
 import { setPackageID } from "./package";
 
 export function sendCommand(command: Command): Promise<any> {
-    return new Promise((resolve) => {
-        chrome.runtime.sendMessage(command, (result) => resolve(result));
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(command, (result) => {
+            if (result.status === "ok") {
+                resolve(result.data);
+            } else {
+                reject(result.data);
+            }
+        });
     });
 }
 

@@ -16,24 +16,18 @@ const LinkButton = (props: LinkButtonProps) => (
     <Button {...props} component={Link as any} />
 );
 
-class App extends React.Component {
-    public render() {
-        return (
-            <Router>
-                <div className="App">
-                    <AppBar position="static" color="primary">
-                        <Toolbar variant="dense">
-                            < LinkButton color="primary" to="/settings" >Settings</LinkButton>;
+export default () => (
+    <Router>
+        <div className="App">
+            <AppBar position="static" color="primary">
+                <Toolbar variant="dense">
+                    < LinkButton color="primary" to="/settings" >Settings</LinkButton>;
                             < LinkButton color="primary" to="/word-list" >Word List</LinkButton>;
                             < LinkButton color="primary" to="/history" >History</LinkButton>;
                             < LinkButton color="primary" to="/filter" >Filter</LinkButton>;
                         </Toolbar>
-                    </AppBar>
-                    <Route path="/settings" component={Settings} />
-                </div>
-            </Router>
-        );
-    }
-}
-
-export default App;
+            </AppBar>
+            <Route path="/settings" component={Settings} />
+        </div>
+    </Router>
+);

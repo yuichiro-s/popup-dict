@@ -1,8 +1,10 @@
 import * as React from "react";
+import { toast } from "react-toastify";
 
 import { sendCommand } from "../../../content/command";
 
 import Button from "@material-ui/core/Button";
+import { UploadFiles } from "./util";
 
 function sendExportCommand() {
     sendCommand({ type: "export-user-data" }).then((url) => {
@@ -16,14 +18,35 @@ function sendExportCommand() {
     });
 }
 
+function sendImportCommand(file: File) {
+    const url = URL.createObjectURL(file);
+    sendCommand({ type: "import-user-data", dataURL: url })
+        .then((msg) => {
+            toast.success(msg);
+        })
+        .catch((err) => {
+            toast.error(err);
+        });
+}
+
 export default class extends React.Component {
+
     public render() {
-        return (<div>
-            <Button variant="outlined" onClick={this.export}>Export</Button>
-            <Button variant="outlined" onClick={this.export}>Import</Button>
-        </div>);
+        return (
+            <div>
+                <Button variant="outlined" onClick={this.export}>Export</Button>
+                <Button variant="outlined" onClick={this.import}>Import</Button>
+            </div>
+        );
     }
     private export = () => {
         sendExportCommand();
+    }
+    private import = async () => {
+        const files = await UploadFiles();
+        if (files.length === 1) {
+            const file = files[0];
+            sendImportCommand(file);
+        }
     }
 }

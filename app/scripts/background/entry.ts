@@ -2,6 +2,7 @@ import Dexie, { IndexableType } from "dexie";
 
 import { Entry, IKnownEntry, IMarkedEntry, IUnknownEntry, State } from "../common/entry";
 import { PackageID } from "../common/package";
+import { loadJSON } from "../preprocess/loader-browser";
 import { getPackages } from "./packages";
 import { getTrie } from "./search";
 import { exportStats, importStats, IStatsHistoryEntry } from "./stats";
@@ -124,51 +125,56 @@ export interface IMarkedEntryFields {
     };
 }
 
-export async function importUserData(data: string) {
-    const { known, marked, stats } = JSON.parse(data);
+export async function importUserData(dataURL: string) {
+    try {
+        const { known, marked, stats } = await loadJSON(dataURL);
+        const entries: Entry[] = [];
 
-    const entries: Entry[] = [];
+        const cat = (tuple: [PackageID, string]) => {
+            return tuple.join("@");
+        };
 
-    const cat = (tuple: [PackageID, string]) => {
-        return tuple.join("@");
-    };
+        const keys = await db.vocabulary.toCollection().primaryKeys();
+        const keySet = new Set(keys.map(cat));
 
-    const keys = await db.vocabulary.toCollection().primaryKeys();
-    const keySet = new Set(keys.map(cat));
-
-    const packages = await getPackages();
-    for (const pkgId in known) {
-        if (pkgId in packages) {
-            for (const key of known[pkgId]) {
-                if (keySet.has(cat([pkgId, key]))) {
-                    const entry: IKnownEntry = {
-                        pkgId,
-                        key,
-                        state: State.Known,
-                    };
-                    entries.push(entry);
+        const packages = await getPackages();
+        for (const pkgId in known) {
+            if (pkgId in packages) {
+                for (const key of known[pkgId]) {
+                    if (keySet.has(cat([pkgId, key]))) {
+                        const entry: IKnownEntry = {
+                            pkgId,
+                            key,
+                            state: State.Known,
+                        };
+                        entries.push(entry);
+                    }
                 }
             }
         }
-    }
-    for (const pkgId in marked) {
-        if (pkgId in packages) {
-            for (const obj of marked[pkgId]) {
-                if (keySet.has(cat([pkgId, obj.key]))) {
-                    const entry: IMarkedEntry = {
-                        pkgId,
-                        key: obj.key,
-                        state: State.Marked,
-                        date: obj.date,
-                        context: obj.context,
-                        source: obj.source,
-                    };
-                    entries.push(entry);
+        for (const pkgId in marked) {
+            if (pkgId in packages) {
+                for (const obj of marked[pkgId]) {
+                    if (keySet.has(cat([pkgId, obj.key]))) {
+                        const entry: IMarkedEntry = {
+                            pkgId,
+                            key: obj.key,
+                            state: State.Marked,
+                            date: obj.date,
+                            context: obj.context,
+                            source: obj.source,
+                        };
+                        entries.push(entry);
+                    }
                 }
             }
         }
+        return Promise.all([putEntries(entries), importStats(stats)]).then(() => {
+            return `Imported ${entries.length} entries`;
+        });
+    } catch (e) {
+        throw new Error("Unable to recognize file format");
     }
-    return Promise.all([putEntries(entries), importStats(stats)]);
 }
 
 export async function exportUserData() {

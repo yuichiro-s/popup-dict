@@ -24,7 +24,7 @@ export type Command =
     { type: "update-entries", entries: Entry[] } |
     { type: "clear-entries" } |
     { type: "list-entries", pkgId?: PackageID, state?: State } |
-    { type: "import-user-data", data: string } |
+    { type: "import-user-data", dataURL: string } |
     { type: "export-user-data" } |
 
     // stats

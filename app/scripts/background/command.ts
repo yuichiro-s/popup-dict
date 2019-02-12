@@ -16,62 +16,77 @@ export function sendContentCommand(command: ContentCommand, tabId: number): Prom
 }
 
 export const messageHandler = (request: Command, sender: any, sendResponse: any) => {
-    if (request.type === "is-enabled") {
-        isEnabled().then(sendResponse);
+    const handler = async () => {
+        let response;
+        try {
+            let result;
 
-    } else if (request.type === "get-global-settings") {
-        getGlobalSettings().then(sendResponse);
-    } else if (request.type === "set-global-settings") {
-        setGlobalSettings(request.globalSettings).then(sendResponse);
+            if (request.type === "is-enabled") {
+                result = await isEnabled();
 
-    } else if (request.type === "lookup-dictionary") {
-        lookUpDictionary(request.keys, request.pkgId).then(sendResponse);
-    } else if (request.type === "get-frequency") {
-        getFrequency(request.keys, request.pkgId).then(sendResponse);
+            } else if (request.type === "get-global-settings") {
+                result = await getGlobalSettings();
+            } else if (request.type === "set-global-settings") {
+                result = await setGlobalSettings(request.globalSettings);
 
-    } else if (request.type === "get-tab") {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            sendResponse(tabs[0]);
-        });
-    } else if (request.type === "search") {
-        searchWithPackage(request.pkgId, request.key).then(sendResponse);
-    } else if (request.type === "search-all-batch") {
-        searchAllBatch(request.pkgId, request.tokensBatch).then(sendResponse);
+            } else if (request.type === "lookup-dictionary") {
+                result = await lookUpDictionary(request.keys, request.pkgId);
+            } else if (request.type === "get-frequency") {
+                result = await getFrequency(request.keys, request.pkgId);
 
-    } else if (request.type === "update-entry") {
-        updateEntry(request.entry).then(sendResponse);
-    } else if (request.type === "update-entries") {
-        updateEntries(request.entries).then(sendResponse);
-    } else if (request.type === "clear-entries") {
-        clearEntries().then(sendResponse);
-    } else if (request.type === "list-entries") {
-        listEntries(request.pkgId, request.state).then(sendResponse);
-    } else if (request.type === "import-user-data") {
-        importUserData(request.data).then(sendResponse);
-    } else if (request.type === "export-user-data") {
-        exportUserData().then(sendResponse);
+            } else if (request.type === "get-tab") {
+                result = await new Promise((resolve) => {
+                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        resolve(tabs[0]);
+                    });
+                });
+            } else if (request.type === "search") {
+                result = await searchWithPackage(request.pkgId, request.key);
+            } else if (request.type === "search-all-batch") {
+                result = await searchAllBatch(request.pkgId, request.tokensBatch);
 
-    } else if (request.type === "get-stats") {
-        getStats(request.pkgId).then(sendResponse);
-    } else if (request.type === "get-stats-history") {
-        getStatsHistory(request.pkgId).then(sendResponse);
+            } else if (request.type === "update-entry") {
+                result = await updateEntry(request.entry);
+            } else if (request.type === "update-entries") {
+                result = await updateEntries(request.entries);
+            } else if (request.type === "clear-entries") {
+                result = await clearEntries();
+            } else if (request.type === "list-entries") {
+                result = await listEntries(request.pkgId, request.state);
+            } else if (request.type === "import-user-data") {
+                result = await importUserData(request.dataURL);
+            } else if (request.type === "export-user-data") {
+                result = await exportUserData();
 
-    } else if (request.type === "get-packages") {
-        getPackages().then(sendResponse);
-    } else if (request.type === "get-package") {
-        getPackage(request.pkgId).then(sendResponse);
-    } else if (request.type === "set-last-package") {
-        setLastPackage(request.pkgId).then(sendResponse);
-    } else if (request.type === "get-last-package-id") {
-        getLastPackageID().then(sendResponse);
-    } else if (request.type === "update-package") {
-        updatePackage(request.pkg).then(sendResponse);
-    } else if (request.type === "delete-package") {
-        deletePackage(request.pkgId).then(sendResponse);
+            } else if (request.type === "get-stats") {
+                result = await getStats(request.pkgId);
+            } else if (request.type === "get-stats-history") {
+                result = await getStatsHistory(request.pkgId);
 
-    } else if (request.type === "guess-package") {
-        guessPackage(request.text).then(sendResponse);
-    }
+            } else if (request.type === "get-packages") {
+                result = await getPackages();
+            } else if (request.type === "get-package") {
+                result = await getPackage(request.pkgId);
+            } else if (request.type === "set-last-package") {
+                result = await setLastPackage(request.pkgId);
+            } else if (request.type === "get-last-package-id") {
+                result = await getLastPackageID();
+            } else if (request.type === "update-package") {
+                result = await updatePackage(request.pkg);
+            } else if (request.type === "delete-package") {
+                result = await deletePackage(request.pkgId);
+
+            } else if (request.type === "guess-package") {
+                result = await guessPackage(request.text);
+            }
+
+            response = { status: "ok", data: result };
+        } catch (e) {
+            response = { status: "error", data: e.message };
+        }
+        sendResponse(response);
+    };
+    handler();
 
     return true;
 };
