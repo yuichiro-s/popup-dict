@@ -203,5 +203,10 @@ export async function exportUserData() {
     const stats: IStatsHistoryEntry[] = await exportStats();
 
     const obj = { known, marked, stats };
-    return JSON.stringify(obj);
+
+    const json = JSON.stringify(obj);
+    const blob = new Blob([json], { type: "text/json" });
+    const url = window.URL.createObjectURL(blob);
+
+    return url;
 }
