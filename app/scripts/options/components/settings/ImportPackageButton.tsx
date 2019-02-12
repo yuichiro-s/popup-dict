@@ -145,6 +145,7 @@ export default class extends React.Component<Props, State> {
         }).catch((err: Error) => {
             toast.error(err.message);
         }).finally(() => {
+            preventUnload(false);
             this.cancel();
         });
     }
