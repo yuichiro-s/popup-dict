@@ -39,10 +39,11 @@ export default class extends React.Component<{}, State> {
 
         return (
             <React.Fragment>
+                <h2>Import</h2>
                 <ImportPackageButton onDone={this.onImportDone}>Import new package</ImportPackageButton>
                 <Button variant="outlined">Import 英辞郎</Button>
 
-                <h2>Customize Package</h2>
+                <h2>Manage Packages</h2>
                 <p>Select package</p>
                 <Select value={this.state.currentPkgId} onChange={this.handleChange}>
                     {items}
