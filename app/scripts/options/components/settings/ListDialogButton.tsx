@@ -12,7 +12,7 @@ interface Props {
     buttonTitle: string;
     globalSettings: IGlobalSettings;
     listKey: "blacklistedLanguages" | "blacklistedURLPatterns";
-    update: (globalSettings: IGlobalSettings) => void;
+    update: (globalSettings: IGlobalSettings) => Promise<void>;
 }
 
 interface State {

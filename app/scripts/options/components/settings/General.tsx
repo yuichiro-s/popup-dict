@@ -3,6 +3,7 @@ import * as React from "react";
 import { IGlobalSettings, INITIAL_GLOBAL_SETTINGS } from "../../../common/global-settings";
 import { sendCommand } from "../../../content/command";
 import ListDialogButton from "./ListDialogButton";
+import StyleDialogButton from "./StyleDialogButton";
 
 interface State {
     globalSettings: IGlobalSettings;
@@ -37,11 +38,16 @@ export default class extends React.Component<{}, {}> {
                 globalSettings={this.state.globalSettings}
                 update={this.update}
             />
+
+            <StyleDialogButton
+                globalSettings={this.state.globalSettings}
+                update={this.update}
+            />
         </div>;
     }
 
     private update = (globalSettings: IGlobalSettings) => {
         this.setState({ globalSettings });
-        sendCommand({ type: "set-global-settings", globalSettings });
+        return sendCommand({ type: "set-global-settings", globalSettings });
     }
 }
