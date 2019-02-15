@@ -6,7 +6,7 @@ import { PackageID } from "../common/package";
 import { countEntries } from "./entry";
 import { getPackages } from "./packages";
 
-interface IStats {
+export interface IStats {
     knownCount: number;
     markedCount: number;
 }
