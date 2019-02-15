@@ -4,9 +4,11 @@ import { IStats } from "../../../background/stats";
 import { IPackage } from "../../../common/package";
 import { sendCommand } from "../../../content/command";
 
-export const Stats: React.SFC<{
+interface Props {
     pkg: IPackage;
-}> = ({ pkg }) => {
+}
+
+export default ({ pkg }: Props) => {
     const [stats, setStats] = React.useState<IStats | null>(null);
     React.useEffect(() => {
         if (pkg !== null) {

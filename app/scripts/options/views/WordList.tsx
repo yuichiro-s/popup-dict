@@ -1,7 +1,8 @@
 import * as React from "react";
 
 import WithPackage from "../components/WithPackage";
-import { Stats } from "../components/word-list/Stats";
+import Stats from "../components/word-list/Stats";
+import WordTable from "../components/word-list/WordTable";
 
 export default () => {
 
@@ -17,6 +18,7 @@ export default () => {
         return <div>
             <PackageSelector />
             {stats}
+            <WordTable pkg={currentPkg}/>
         </div>;
     }
     }</WithPackage>;
