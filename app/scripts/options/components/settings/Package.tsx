@@ -1,13 +1,13 @@
 import * as React from "react";
 
 import { MenuItem, Select } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-
 import { cloneDeep, debounce } from "lodash-es";
+
 import { get, keys } from "../../../common/objectmap";
 import { IPackage, PackageID, ShowDictionary } from "../../../common/package";
 import { sendCommand } from "../../../content/command";
 import DeletePackageButton from "./DeletePackageButton";
+import ImportEijiroButton from "./ImportEijiroButton";
 import ImportPackageButton from "./ImportPackageButton";
 
 interface State {
@@ -54,7 +54,7 @@ export default class extends React.Component<{}, State> {
         return (
             <React.Fragment>
                 <ImportPackageButton onDone={this.onImportDone} />
-                <Button variant="outlined">Import 英辞郎</Button>
+                <ImportEijiroButton onDone={this.onImportDone} />
 
                 <h2>Manage Packages</h2>
                 <p>Select package</p>

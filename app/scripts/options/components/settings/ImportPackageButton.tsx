@@ -1,10 +1,8 @@
 import * as React from "react";
 
-import { DialogActions, DialogContent, DialogTitle, LinearProgress } from "@material-ui/core";
+import { DialogActions, DialogContent } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
 import { fromEvent } from "file-selector";
-import { cloneDeep } from "lodash-es";
 import Dropzone, { DropFilesEventHandler } from "react-dropzone";
 import { toast } from "react-toastify";
 
@@ -12,28 +10,20 @@ import { IProgress } from "../../../common/importer";
 import { IPackage } from "../../../common/package";
 import { importPackageFromFiles, validatePackage } from "../../importer";
 import styled from "../../styled-components";
-import { preventUnload } from "./prevent-unload";
+import ImportButton from "./ImportDialogButton";
 
 import * as promiseFinally from "promise.prototype.finally";
 promiseFinally.shim();
 
 interface Props {
-    onDone?: (pkg: IPackage) => void;
+    onDone: (pkg: IPackage) => void;
 }
 
 interface State {
-    open: boolean;
-    importing: boolean;
-    progress: number;
-    message: string;
     files: File[];
 }
 
 const INITIAL_STATE = {
-    open: false,
-    importing: false,
-    progress: 0,
-    message: "",
     files: [],
 };
 
@@ -77,87 +67,43 @@ export default class extends React.Component<Props, State> {
             uploadMessage = <p>Upload a package directory here</p>;
         }
 
-        let content;
-        if (this.state.importing) {
-            content = (<React.Fragment>
-                <LinearProgress variant="determinate" value={this.state.progress} />
-                <p>{this.state.message}</p>
-            </React.Fragment>);
-        } else {
-            content = (
-                <Dropzone
-                    onDrop={this.onDrop}
-                    getDataTransferItems={(e: Event) => fromEvent(e)}
-                    multiple
-                >
-                    {({ getRootProps, getInputProps }) => (
-                        <Container {...getRootProps()}>
-                            <input {...getInputProps({ webkitdirectory: "webkitdirectory" })} />
-                            {uploadMessage}
-                        </Container>
-                    )}
-                </Dropzone>
-            );
-        }
-
-        return (
+        const inner = ({ cancel, startImport }: { cancel: () => void, startImport: () => void }) =>
             <React.Fragment>
-                <Button
-                    variant="outlined"
-                    onClick={this.onOpen}>
-                    Import Package
-                </Button>
-                <Dialog
-                    open={this.state.open}
-                    disableBackdropClick
-                    disableEscapeKeyDown>
-                    <DialogTitle>Import package</DialogTitle>
-                    <DialogContent>
-                        {content}
-                    </DialogContent>
-                    {!this.state.importing && <DialogActions>
-                        <Button onClick={this.cancel}>Cancel</Button>
-                        <Button
-                            onClick={this.startImport}
-                            disabled={!importable}
-                            color="primary"
-                        >Import</Button>
-                    </DialogActions>}
-                </Dialog>
-            </React.Fragment>
-        );
+                <DialogContent>
+                    <Dropzone
+                        onDrop={this.onDrop}
+                        getDataTransferItems={(e: Event) => fromEvent(e)}
+                        multiple
+                    >
+                        {({ getRootProps, getInputProps }) => (
+                            <Container {...getRootProps()}>
+                                <input {...getInputProps({ webkitdirectory: "webkitdirectory" })} />
+                                {uploadMessage}
+                            </Container>
+                        )}
+                    </Dropzone>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancel}>Cancel</Button>
+                    <Button
+                        onClick={startImport}
+                        disabled={!importable}
+                        color="primary"
+                    >Import</Button>
+                </DialogActions>
+            </React.Fragment>;
+
+        return <ImportButton
+            onDone={this.props.onDone}
+            buttonTitle="Import Package"
+            title="Import Package"
+            importFn={this.importFn}
+            onOpen={this.onOpen}
+            inner={inner} />;
     }
 
-    private startImport = () => {
-        preventUnload(true);
-        this.setState({ importing: true, message: "Import started" });
-        importPackageFromFiles(this.state.files, (progress: IProgress) => {
-            const p = Math.round(progress.ratio * 100);
-            this.setState({
-                progress: p,
-                message: `[${p}%] ${progress.msg}`,
-            });
-        }).then((pkg: IPackage) => {
-            toast.success(`Successfully imported ${pkg.name}.`);
-            if (this.props.onDone) {
-                this.props.onDone(pkg);
-            }
-        }).catch((err: Error) => {
-            toast.error(err.message);
-        }).finally(() => {
-            preventUnload(false);
-            this.cancel();
-        });
-    }
-
-    private onOpen = () => {
-        const newState = cloneDeep(INITIAL_STATE);
-        newState.open = true;
-        this.setState(newState);
-    }
-
-    private cancel = () => {
-        this.setState({ open: false });
+    private importFn = (progressFn: (progress: IProgress) => void) => {
+        return importPackageFromFiles(this.state.files, progressFn);
     }
 
     private onDrop: DropFilesEventHandler = (files) => {
@@ -169,5 +115,9 @@ export default class extends React.Component<Props, State> {
                 toast.error(msg);
             }
         }
+    }
+
+    private onOpen = () => {
+        this.setState({files: []});
     }
 }

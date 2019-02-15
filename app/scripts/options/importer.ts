@@ -1,7 +1,7 @@
 import * as toml from "toml";
 
 import { ImportMessage, IProgress } from "../common/importer";
-import { ISettings } from "../common/package";
+import { IPackage, ISettings } from "../common/package";
 import { sendCommand } from "../content/command";
 import { EIJIRO_PKG_ID } from "../preprocess/eijiro";
 
@@ -97,7 +97,7 @@ export function validatePackage(files: File[]) {
 export function importPackage(
     msg: ImportMessage,
     progressFn: (progress: IProgress) => void,
-) {
+): Promise<IPackage> {
     return new Promise((resolve, reject) => {
         let pkgId: string;
         if (msg.type === "import-eijiro") {
