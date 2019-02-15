@@ -7,6 +7,7 @@ import Button, { ButtonProps } from "@material-ui/core/Button";
 import Toolbar from "@material-ui/core/Toolbar";
 
 import Settings from "./views/Settings";
+import WordList from "./views/WordList";
 
 interface LinkButtonProps extends ButtonProps {
     to: string;
@@ -28,6 +29,7 @@ export default () => (
                 </Toolbar>
             </AppBar>
             <Route path="/settings" component={Settings} />
+            <Route path="/word-list" component={WordList} />
         </div>
     </Router>
 );
