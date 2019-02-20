@@ -1,4 +1,4 @@
-import { messageHandler } from "./content/command";
+import { messageHandler } from "./content/contentCommand";
 import { isEnabled } from "./content/enabled";
 import { enable } from "./content/highlighter";
 

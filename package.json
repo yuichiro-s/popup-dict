@@ -49,6 +49,7 @@
     "generate-json-webpack-plugin": "^0.3.1",
     "handlebars": "^4.0.12",
     "jest": "^23.6.0",
+    "loadable-components": "^2.2.3",
     "lodash-es": "^4.17.11",
     "material-design-icons-iconfont": "^4.0.4",
     "mini-css-extract-plugin": "^0.5.0",
