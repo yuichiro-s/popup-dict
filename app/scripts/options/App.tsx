@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { HashRouter as Router, Link, Route } from "react-router-dom";
+import { HashRouter as Router, NavLink, Route } from "react-router-dom";
 
 import AppBar from "@material-ui/core/AppBar";
 import Button, { ButtonProps } from "@material-ui/core/Button";
@@ -17,7 +17,7 @@ interface LinkButtonProps extends ButtonProps {
 }
 
 const LinkButton = (props: LinkButtonProps) => (
-    <Button {...props} component={Link as any} />
+    <Button {...props} component={NavLink as any} />
 );
 
 export default () => (
@@ -27,7 +27,6 @@ export default () => (
                 <Toolbar variant="dense">
                     <LinkButton color="inherit" to="/settings" >Settings</LinkButton>
                     <LinkButton color="inherit" to="/word-list" >Word List</LinkButton>
-                    <LinkButton color="inherit" to="/history" >History</LinkButton>
                     <LinkButton color="inherit" to="/filter" >Filter</LinkButton>
                 </Toolbar>
             </AppBar>
