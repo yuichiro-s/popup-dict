@@ -8,7 +8,7 @@ import { IPackage, PackageID } from "../../../common/package";
 import { sendCommand } from "../../../content/command";
 
 interface Props {
-    pkg: IPackage | null;
+    pkg: IPackage;
 }
 
 interface TableEntry {
@@ -98,68 +98,62 @@ export default ({ pkg }: Props) => {
 
     React.useEffect(() => {
         setLoading(true);
-        if (pkg !== null) {
-            getEntriesToShow(pkg.id).then(({ entries: newEntries, entryToFreq: newEntryToFreq }) => {
-                setEntries(newEntries);
-                setEntryToFreq(newEntryToFreq);
-                setLoading(false);
-            });
-        }
+        getEntriesToShow(pkg.id).then(({ entries: newEntries, entryToFreq: newEntryToFreq }) => {
+            setEntries(newEntries);
+            setEntryToFreq(newEntryToFreq);
+            setLoading(false);
+        });
     }, [pkg]);
 
-    if (pkg === null) {
-        return null;
-    } else {
-        const items: TableEntry[] = [];
-        for (const entry of entries) {
-            items.push(createTableEntry(pkg, entry, entryToFreq));
-        }
-
-        const columns: Column[] = [
-            {
-                Header: "Date",
-                accessor: "date",
-                sortable: true,
-                width: 100,
-                Cell: (row) => <div>{new Date(row.value).toLocaleDateString()}</div>,
-            },
-            {
-                Header: "Freq",
-                accessor: "freq",
-                sortable: true,
-                width: 100,
-            },
-            {
-                Header: "Key",
-                accessor: "key",
-                sortable: true,
-                filterable: true,
-                filterMethod: ({ value }: Filter, row: TableEntry) => row.key.includes(value),
-                width: 200,
-            },
-            {
-                Header: "Context",
-                accessor: "context",
-                Cell: (row) => {
-                    const { before, word, after } = row.value as Context;
-                    return <div>
-                        <span>{before}</span>
-                        <span style={{ color: "red" }}>{word}</span>
-                        <span>{after}</span>
-                    </div>;
-                },
-                style: { whiteSpace: "unset" },
-            },
-        ];
-
-        return <ReactTable
-            columns={columns}
-            data={items}
-            loading={loading}
-            pageSizeOptions={[100, 500, 1000]}
-            defaultPageSize={100}
-            defaultSortDesc={true}
-            defaultSorted={[{ id: "date", desc: true }]}
-        />;
+    const items: TableEntry[] = [];
+    for (const entry of entries) {
+        items.push(createTableEntry(pkg, entry, entryToFreq));
     }
+
+    const columns: Column[] = [
+        {
+            Header: "Date",
+            accessor: "date",
+            sortable: true,
+            width: 100,
+            Cell: (row) => <div>{new Date(row.value).toLocaleDateString()}</div>,
+        },
+        {
+            Header: "Freq",
+            accessor: "freq",
+            sortable: true,
+            width: 100,
+        },
+        {
+            Header: "Key",
+            accessor: "key",
+            sortable: true,
+            filterable: true,
+            filterMethod: ({ value }: Filter, row: TableEntry) => row.key.includes(value),
+            width: 200,
+        },
+        {
+            Header: "Context",
+            accessor: "context",
+            Cell: (row) => {
+                const { before, word, after } = row.value as Context;
+                return <div>
+                    <span>{before}</span>
+                    <span style={{ color: "red" }}>{word}</span>
+                    <span>{after}</span>
+                </div>;
+            },
+            style: { whiteSpace: "unset" },
+        },
+    ];
+
+    return <ReactTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        pageSizeOptions={[100, 500, 1000]}
+        defaultPageSize={100}
+        defaultSortDesc={true}
+        defaultSorted={[{ id: "date", desc: true }]}
+    />;
 };

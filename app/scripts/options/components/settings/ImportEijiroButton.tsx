@@ -79,7 +79,8 @@ export default class extends React.Component<Props, State> {
                         <input {...getInputProps({ webkitdirectory: "webkitdirectory" })} />
                         <div>
                             {importable ?
-                                [inflectionFile, frequencyFile, whitelistFile].map((f: any) => <p>{f.name}</p>)
+                                [inflectionFile, frequencyFile, whitelistFile].map(
+                                    (f: any) => <p key={f.name}>{f.name}</p>)
                                 : <p>"Upload auxiliary files here"</p>
                             }
                         </div>

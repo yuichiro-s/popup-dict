@@ -5,7 +5,10 @@ import { HashRouter as Router, Link, Route } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Button, { ButtonProps } from "@material-ui/core/Button";
 import Toolbar from "@material-ui/core/Toolbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+import Filter from "./views/Filter";
 import Settings from "./views/Settings";
 import WordList from "./views/WordList";
 
@@ -30,6 +33,8 @@ export default () => (
             </AppBar>
             <Route path="/settings" component={Settings} />
             <Route path="/word-list" component={WordList} />
+            <Route path="/filter" component={Filter} />
+            <ToastContainer className="toast-container" toastClassName="dark-toast"/>
         </div>
     </Router>
 );

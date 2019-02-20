@@ -11,14 +11,16 @@ export default () => {
         currentPkg,
     }) => {
         let stats = null;
+        let wordTable = null;
         if (currentPkg !== null) {
             stats = <Stats pkg={currentPkg} />;
+            wordTable = <WordTable pkg={currentPkg}/>;
         }
 
         return <div>
             <PackageSelector />
             {stats}
-            <WordTable pkg={currentPkg}/>
+            {wordTable}
         </div>;
     }
     }</WithPackage>;
