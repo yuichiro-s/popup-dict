@@ -23,7 +23,7 @@ export default ({ pkg }: Props) => {
     if (stats !== null) {
         return <div>
             <span>Known: {stats.knownCount}</span>
-            <span>Marked: {stats.markedCount}</span>
+            <span style={{ marginLeft: "10px" }}>Marked: {stats.markedCount}</span>
         </div>;
     } else {
         return null;
