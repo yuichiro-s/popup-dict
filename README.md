@@ -1,78 +1,70 @@
 [![Build Status](https://travis-ci.com/yuichiro-s/popup-dict.svg?branch=master)](https://travis-ci.com/yuichiro-s/popup-dict)
 
-# popup dict
-
-Popup dictionary.
+# Highlighter
 
 ## Installation
 
-	$ npm install
+1. Download the extension [here](https://github.com/yuichiro-s/popup-dict/releases/download/0.1.1/build.tar.gz)
+and extract it
+3. Go to `chrome://extensions` in the Chrome browser
+4. Turn on "Developer mode" (top of the page)
+5. Press "Load unpacked extension..." and choose the extracted directory (the one containing `manifest.json`)
+6. Right-click the icon
+![logo](https://raw.githubusercontent.com/yuichiro-s/popup-dict/master/app/images/icon16.png)
+on the address bar and select "Options"
+6. Select "SETTINGS" and proceed to import a package (next section)
 
-## Usage
+## Importing a package
 
-Run `$ gulp --watch` and load the `dist`-directory into chrome.
+### Importing a precompiled package
 
-## Entryfiles (bundles)
+1. Download and extract the package you need
+   - English-Japanese: [ejdic-hand](https://drive.google.com/open?id=1zYrwpSTWYWmZIZIVtaXI4y8IQrUK-Q5R)
+   - English-English: wik-enen
+   - Chinese-English: cedict
+   - Spanish-English: wik-esen
+   - German-English: wik-deen
+   - French-English: wik-fren
+   - Russian-English: wik-ruen
+2. Press "IMPORT PACKAGE" on the settings page
+3. Upload the extracted package directory and press "IMPORT"
 
-There are two kinds of entryfiles that create bundles.
+### Importing 英辞郎
 
-1. All ts-files in the root of the `./app/scripts` directory
-2. All css-,scss- and less-files in the root of the `./app/styles` directory
+1. Purchase and download 英辞郎 data [here](https://booth.pm/ja/items/777563)
+2. Download and extract the auxiliary files [here](https://drive.google.com/open?id=1Vz8jncKpcZ0UNh0ycG_xqoRO-AjdVaYO)
+3. Press the "IMPORT 英辞郎" button on the settings page
+4. Upload the downloaded 英辞郎 file and press "NEXT"
+4. Upload the extracted directory of auxiliary files and press "IMPORT"
+6. (Optional) If you already have imported an English package (e.g., ejdic-hand), delete it by selecting the package (below "Configure Packages") and pressing the "DELETE PACKAGE" button.
 
-## Tasks
+## Basic Usage
 
-### Build
+- Initilally, every word on a web page is highlighted in yellow.
+- If you move a mouse cursor over a highlighted word, a dictionary popup will show up.
+  - You can configure when to show the popup dictionary. (next section)
+- If you are already familiar with the word, unhighlight it by pressing Ctrl+Shift+A while the mouse cursor is on the word
+  - If this doesn't work or you want to change the keyboard shortcuts, configure them by going to `chrome://extensions` and clicking the "Keyboard shortcuts" link. [More info](https://lifehacker.com/add-custom-keyboard-shortcuts-to-chrome-extensions-for-1595322121)
+  - You can also unhighlight multiple words at once by selecting a range of text and press Ctrl+Shift+A. All words in yellow in the range will be unhighlighted.
+- If the word is unfamiliar to you and you'd like to learn the word, mark the word in red by pressing Ctrl+Shift+S, so that the word will be always highlighted in red every time you encounter the word.
+- You can review all the words marked in red by going to "WORD LIST" section of the option page.
+  - You can bookmark this page for convenience.
+  - The words can be sorted by frequency so that you can review the most important words first.
 
-    $ gulp
+## Additional Features
 
+- Toggle highlights by clicking the icon on the address bar
+- Unhighlight frequent words
+  - Go to "FREQUENCY FILTER" on the option page
+- Configure when to show the dictionary popup
+  - Select from "Always", "Unknown or Marked" and "Never" on the settings page
+- Export and import your word list
+  - "User Data" section of the settings page
+- URL blacklist
+  - Disable the extension on pages that match specified URL patterns
+- Language blacklist
+  - Disable the extension on pages in certian languages
 
-| Option         | Description                                                                                                                                           |
-|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--watch`      | Starts a livereload server and watches all assets. <br>To reload the extension on change include `livereload.js` in your bundle.                      |
-| `--production` | Minifies all assets                                                                                                                                   |
-| `--verbose`    | Log additional data to the console.                                                                                                                   |
-| `--vendor`     | Compile the extension for different vendors (chrome, firefox, opera, edge)  Default: chrome                                                                 |
-| `--sourcemaps` | Force the creation of sourcemaps. Default: !production                                                                                                |
+## Disclaimer
 
-
-### pack
-
-Zips your `dist` directory and saves it in the `packages` directory.
-
-    $ gulp pack --vendor=firefox
-
-### Version
-
-Increments version number of `manifest.json` and `package.json`,
-commits the change to git and adds a git tag.
-
-
-    $ gulp patch      // => 0.0.X
-
-or
-
-    $ gulp feature    // => 0.X.0
-
-or
-
-    $ gulp release    // => X.0.0
-
-
-## Globals
-
-The build tool also defines a variable named `process.env.NODE_ENV` in your scripts. It will be set to `development` unless you use the `--production` option.
-
-
-**Example:** `./app/main.ts`
-
-```typescript
-if(process.env.NODE_ENV === 'development'){
-  console.log('We are in development mode!');
-}
-```
-
-
-
-
-
-
+- Some pages will look corrupted due to interaction between this extension and the Javascript and CSS code on the page. In that case, please turn off the plugin by clicking the extension icon on the address bar or blacklisting the URL of the page.
