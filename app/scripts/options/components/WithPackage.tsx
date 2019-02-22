@@ -61,12 +61,7 @@ export default class WithPackage extends React.Component<Props, State> {
             {items}
         </Select>;
 
-        let currentPkg;
-        if (this.state.currentPkgId === "") {
-            currentPkg = null;
-        } else {
-            currentPkg = get(this.state.packages, this.state.currentPkgId)!;
-        }
+        const currentPkg = get(this.state.packages, this.state.currentPkgId) || null;
 
         return this.props.children({
             packageSelector,
