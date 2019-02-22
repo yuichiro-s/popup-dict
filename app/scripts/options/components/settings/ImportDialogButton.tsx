@@ -47,8 +47,10 @@ export default class extends React.Component<Props, State> {
         let content;
         if (this.state.importing) {
             content = <DialogContent>
-                <LinearProgress variant="determinate" value={this.state.progress} />
-                <p>{this.state.message}</p>
+                <div style={{ width: 400 }}>
+                    <LinearProgress variant="determinate" value={this.state.progress} />
+                    <p>{this.state.message}</p>
+                </div>
             </DialogContent>;
         } else {
             content = this.props.inner({

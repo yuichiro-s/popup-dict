@@ -36,7 +36,7 @@ export default class extends React.Component<Props, State> {
 
         let content;
         if (this.state.deleting) {
-            content = <div>
+            content = <div style={{ width: 400 }}>
                 <LinearProgress variant="indeterminate" />
                 <p>Deleting {pkg.name} ...</p>
             </div>;

@@ -2,11 +2,11 @@ import * as React from "react";
 
 import Button from "@material-ui/core/Button";
 import Slider from "@material-ui/lab/Slider";
-import { debounce } from "lodash-es";
-import ReactTable, { Column } from "react-table";
-import "react-table/react-table.css";
 import { toast } from "react-toastify";
+import "react-virtualized/styles.css";
 
+import { CircularProgress } from "@material-ui/core";
+import { AutoSizer, List } from "react-virtualized";
 import { Entry, IKnownEntry, State } from "../../common/entry";
 import { IPackage, PackageID } from "../../common/package";
 import { sendCommand } from "../../content/command";
@@ -46,17 +46,14 @@ interface Props {
 interface TableEntry {
     freq: number;
     rank: number;
-    key: string;
     keyDisplay: string;
-    entry: Entry;
 }
 
 const WordFilter = ({ pkg }: Props) => {
     const [tableEntries, setTableEntries] = React.useState<TableEntry[]>([]);
     const [tableEntriesToShow, setTableEntriesToShow] = React.useState<TableEntry[]>([]);
     const [loading, setLoading] = React.useState<boolean>(false);
-    const [rank, setRank] = React.useState<number>(1);
-    const [rankDebounce, setRankDebounce] = React.useState<number>(1);
+    const [rank, setRank] = React.useState<number>(100);
 
     React.useEffect(() => {
         setLoading(true);
@@ -94,33 +91,11 @@ const WordFilter = ({ pkg }: Props) => {
     }, [pkg]);
 
     React.useEffect(() => {
-        setTableEntriesToShow(tableEntries.slice(0, rankDebounce).reverse());
+        setTableEntriesToShow(tableEntries.slice(0, rank).reverse());
     }, [tableEntries, rank]);
-
-    const columns: Column[] = [
-        {
-            Header: "Rank",
-            accessor: "rank",
-            width: 100,
-        },
-        {
-            Header: "Freq",
-            accessor: "freq",
-            width: 100,
-        },
-        {
-            Header: "Key",
-            accessor: "keyDisplay",
-        },
-    ];
-
-    const changeRankDebounce = debounce((value: number) => {
-        setRankDebounce(value);
-    }, 1000);
 
     const handleChange = (event: any, value: number) => {
         setRank(value);
-        changeRankDebounce(value);
     };
 
     const handleClick = () => {
@@ -142,37 +117,82 @@ const WordFilter = ({ pkg }: Props) => {
         }
     };
 
-    return <div>
-        <Slider
-            value={rank}
-            onChange={handleChange}
-            min={1}
-            max={Math.min(tableEntries.length, MAX_RANK)}
-            step={1}
-        />;
-        <Button onClick={handleClick}>Mark as known</Button>
+    const slider = <Slider
+        value={rank}
+        onChange={handleChange}
+        min={1}
+        max={Math.min(tableEntries.length, MAX_RANK)}
+        step={1}
+    />;
+    const button = <Button onClick={handleClick} variant="outlined">Mark as known</Button>;
+    const table = <AutoSizer>
+        {({ height, width }) => (
+            <List
+                width={width}
+                height={height}
+                rowHeight={14}
+                rowCount={tableEntriesToShow.length}
+                rowRenderer={
+                    ({ key, index, style }) => {
+                        const e = tableEntriesToShow[index];
+                        return <div key={key} style={style}>
+                            <span style={{ color: "grey" }}>#{e.rank} (freq={e.freq})</span> <b>{e.key}</b>
+                        </div>;
+                    }
+                }
+            />
+        )}
+    </AutoSizer>;
 
-        <ReactTable
-            columns={columns}
-            data={tableEntriesToShow}
-            loading={loading}
-            defaultPageSize={100}
-        />;
-    </div>;
+    if (loading) {
+        return <div style={{ margin: 20 }}>
+            <CircularProgress variant="indeterminate" />
+        </div>;
+    } else {
+        return (<React.Fragment>
+            <div style={{ marginTop: 40 }}>
+                <h2>Step 2: Set the threshold of frequency</h2>
+                <div>
+                    <p>Set the threshold using the slider below</p>
+                    <div style={{ width: "50%", padding: 20 }}>
+                        {slider}
+                    </div>
+                </div>
+                <div>
+                    <p>The {rank} most frequent words will be marked as known. (listed below)</p>
+                    <div style={{ width: 300, height: 300 }}>
+                        {table}
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ marginTop: 40 }}>
+                <h2>Step 3: Mark the selected words as known</h2>
+                {button}
+            </div>
+        </React.Fragment>);
+    }
 };
 
 export default () => <WithPackage>{({
     packageSelector: PackageSelector,
     currentPkg: pkg,
 }) => {
-    let content = null;
+
+    let step2 = null;
     if (pkg !== null) {
-        content = <WordFilter pkg={pkg} />;
+        step2 = <WordFilter pkg={pkg} />;
     }
 
     return <div>
-        <PackageSelector />
-        {content}
+        <h1>Mark most frequent words as known</h1>
+
+        <div style={{ marginTop: 40 }}>
+            <h2>Step 1: Select the dictionary</h2>
+            <PackageSelector />
+        </div>
+
+        {step2}
     </div>;
 }
 }</WithPackage>;

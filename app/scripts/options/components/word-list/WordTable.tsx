@@ -3,6 +3,7 @@ import * as React from "react";
 import ReactTable, { Column, Filter } from "react-table";
 import "react-table/react-table.css";
 
+import { LinearProgress } from "@material-ui/core";
 import { IMarkedEntry, State } from "../../../common/entry";
 import { IPackage, PackageID } from "../../../common/package";
 import { sendCommand } from "../../../content/command";
@@ -147,13 +148,17 @@ export default ({ pkg }: Props) => {
         },
     ];
 
-    return <ReactTable
-        columns={columns}
-        data={items}
-        loading={loading}
-        pageSizeOptions={[100, 500, 1000]}
-        defaultPageSize={100}
-        defaultSortDesc={true}
-        defaultSorted={[{ id: "date", desc: true }]}
-    />;
+    return <div>
+        {loading && <LinearProgress variant="indeterminate" />}
+        <ReactTable
+            columns={columns}
+            data={items}
+            loading={loading}
+            pageSizeOptions={[100, 500, 1000]}
+            defaultPageSize={100}
+            defaultSortDesc={true}
+            showPaginationTop={true}
+            defaultSorted={[{ id: "date", desc: true }]}
+        />
+    </div>;
 };

@@ -11,7 +11,7 @@ import { IProgress } from "../../../common/importer";
 import { IPackage } from "../../../common/package";
 import { loadEijiroFromFiles } from "../../eijiro";
 import styled from "../../styled-components";
-import ImportButton from "./ImportDialogButton";
+import ImportDialogButton from "./ImportDialogButton";
 
 import * as promiseFinally from "promise.prototype.finally";
 promiseFinally.shim();
@@ -42,6 +42,8 @@ const Container = styled.div`
     border-width: 2px;
     border-radius: 5px;
     border-style: dashed;
+    background-color: #eeeeee;
+    text-align: center;
   `;
 
 export default class extends React.Component<Props, State> {
@@ -51,8 +53,8 @@ export default class extends React.Component<Props, State> {
         const { activeStep, eijiroFile, inflectionFile, frequencyFile, whitelistFile } = this.state;
         const importable = eijiroFile && inflectionFile && frequencyFile && whitelistFile;
         const steps = [
-            "Select 英辞郎 file",
-            "Select auxiliary files",
+            "Upload 英辞郎 file",
+            "Upload auxiliary files",
             "Import",
         ];
 
@@ -63,7 +65,9 @@ export default class extends React.Component<Props, State> {
                     <Container {...getRootProps()}>
                         <input {...getInputProps()} />
                         <div>
-                            <p>{eijiroFile ? (eijiroFile as any).name : "Upload 英辞郎 file here"}</p>
+                            <p>{eijiroFile ?
+                                (eijiroFile as any).name :
+                                "Drag and drop EIJIRO-1446.TXT here or click"}</p>
                         </div>
                     </Container>
                 )}
@@ -81,7 +85,7 @@ export default class extends React.Component<Props, State> {
                             {importable ?
                                 [inflectionFile, frequencyFile, whitelistFile].map(
                                     (f: any) => <p key={f.name}>{f.name}</p>)
-                                : <p>"Upload auxiliary files here"</p>
+                                : <p>Drag and drop "auxiliary" directory here or click</p>
                             }
                         </div>
                     </Container>
@@ -98,18 +102,20 @@ export default class extends React.Component<Props, State> {
                     <DialogActions>
                         <Button onClick={cancel}>Cancel</Button>
                         <Button onClick={this.next}
+                            color="primary"
                             disabled={this.state.eijiroFile === null}>Next</Button>
                     </DialogActions>) ||
                     (activeStep === 1 &&
                         <DialogActions>
                             <Button onClick={cancel}>Cancel</Button>
                             <Button onClick={() => { this.next(); startImport(); }}
+                                color="primary"
                                 disabled={!importable}>Import</Button>
                         </DialogActions>
                     ) || null}
             </React.Fragment>;
 
-        return <ImportButton
+        return <ImportDialogButton
             header={<Stepper activeStep={activeStep}>
                 {steps.map((label) => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
             </Stepper>}

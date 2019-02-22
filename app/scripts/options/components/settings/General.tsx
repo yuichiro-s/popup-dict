@@ -3,7 +3,6 @@ import * as React from "react";
 import { IGlobalSettings, INITIAL_GLOBAL_SETTINGS } from "../../../common/global-settings";
 import { sendCommand } from "../../../content/command";
 import ListDialogButton from "./ListDialogButton";
-import StyleDialogButton from "./StyleDialogButton";
 
 interface State {
     globalSettings: IGlobalSettings;
@@ -23,27 +22,32 @@ export default class extends React.Component<{}, {}> {
 
     public render() {
         return <div>
-            <ListDialogButton
-                title="Edit URL Blacklist"
-                buttonTitle="Edit URL Blacklist"
-                listKey="blacklistedURLPatterns"
-                globalSettings={this.state.globalSettings}
-                update={this.update}
-            />
-
-            <ListDialogButton
-                title="Edit Language Blacklist"
-                buttonTitle="Edit Language Blacklist"
-                listKey="blacklistedLanguages"
-                globalSettings={this.state.globalSettings}
-                update={this.update}
-            />
-
-            <StyleDialogButton
-                globalSettings={this.state.globalSettings}
-                update={this.update}
-            />
-        </div>;
+            <p>
+                <ListDialogButton
+                    title="Edit URL Blacklist"
+                    message={<p>Highlights will be disabled on pages where the URL
+                        contains one of the following patterns. You can specify
+                        patterns as regular expressions. Example: <i>https://www.google.com/</i></p>}
+                    buttonTitle="Edit URL Blacklist"
+                    listKey="blacklistedURLPatterns"
+                    globalSettings={this.state.globalSettings}
+                    update={this.update}
+                />
+            </p>
+            <p>
+                <ListDialogButton
+                    title="Edit Language Blacklist"
+                    message={<p>Highlights will be disabled on pages where one of the
+                        following languages is detected. Languages are specified as ISO-639-3 codes.
+                        Supported languages are listed&nbsp;
+                        <a href="https://github.com/wooorm/franc/tree/master/packages/franc">here</a>.</p>}
+                    buttonTitle="Edit Language Blacklist"
+                    listKey="blacklistedLanguages"
+                    globalSettings={this.state.globalSettings}
+                    update={this.update}
+                />
+            </p>
+        </div >;
     }
 
     private update = (globalSettings: IGlobalSettings) => {

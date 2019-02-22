@@ -2,7 +2,7 @@ import { IGlobalSettings } from "../common/global-settings";
 import { sendCommand } from "./command";
 
 function notMatch(url: string, pattern: string): boolean {
-    pattern = pattern.replace("*", ".*");
+    if (pattern.trim().length === 0) { return true; }
     const matched = url.match(new RegExp(`${pattern}`)) !== null;
     if (matched) {
         console.log(`Pattern ${pattern} matched to ${url}.`);

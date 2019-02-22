@@ -33,9 +33,10 @@ export default class extends React.Component<Props, State> {
                     onClick={this.open}>
                     Edit Highlight Styles
                 </Button>
-                <Dialog open={this.state.open}>
+                <Dialog open={this.state.open} fullWidth={true}>
                     <DialogTitle>Edit Highlight Styles</DialogTitle>
                     <DialogContent>
+                        <p>hello</p>
                         <Grid container spacing={16}>
                             <Grid item xs={6}>
                                 <h2>Unknown</h2>
@@ -48,6 +49,7 @@ export default class extends React.Component<Props, State> {
                                 <TextField multiline value={hover} onChange={this.change("hover")}></TextField>
                             </Grid>
                             <Grid item xs={6}>
+                            <h2>Preview</h2>
 
                             </Grid>
                         </Grid>

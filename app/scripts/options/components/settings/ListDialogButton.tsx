@@ -1,14 +1,17 @@
 import * as React from "react";
 
-import { DialogActions, DialogContent, DialogTitle, TextField } from "@material-ui/core";
+import { DialogActions, DialogContent, DialogTitle, Fab, IconButton, TextField } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
+import AddIcon from "@material-ui/icons/Add";
+import DeleteIcon from "@material-ui/icons/Delete";
 import { cloneDeep } from "lodash-es";
 
 import { IGlobalSettings } from "../../../common/global-settings";
 
 interface Props {
     title: string;
+    message: JSX.Element;
     buttonTitle: string;
     globalSettings: IGlobalSettings;
     listKey: "blacklistedLanguages" | "blacklistedURLPatterns";
@@ -28,8 +31,8 @@ export default class extends React.Component<Props, State> {
         const content = [];
         for (const [idx, item] of this.props.globalSettings[this.props.listKey].entries()) {
             const textField = <div key={idx}>
-                <TextField value={item} onChange={this.change(idx)} />
-                <Button onClick={this.delete(idx)}>Delete</Button>
+                <TextField style={{ width: "80%" }} value={item} onChange={this.change(idx)} />
+                <IconButton onClick={this.delete(idx)}><DeleteIcon /></IconButton>
             </div>;
             content.push(textField);
         }
@@ -44,7 +47,8 @@ export default class extends React.Component<Props, State> {
                 <Dialog open={this.state.open}>
                     <DialogTitle>{this.props.title}</DialogTitle>
                     <DialogContent>
-                        <Button onClick={this.add}>Add</Button>
+                        {this.props.message}
+                        <Button variant="outlined" onClick={this.add}>Add</Button>
                         {content}
                     </DialogContent>
                     <DialogActions>

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { MenuItem, Select } from "@material-ui/core";
+import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 import { cloneDeep } from "lodash-es";
 
 import { IPackage, ShowDictionary } from "../../../common/package";
@@ -34,23 +34,36 @@ export default () => {
             updatePackage(newPkg);
         };
 
+        let content = null;
+        if (currentPkg !== null) {
+            content = <div>
+                <FormControl>
+                    <InputLabel>When to show popup dictionary</InputLabel>
+                    <Select value={currentPkg.showDictionary} onChange={handleShowDictionaryChange}>
+                        {showDictionaryItems}
+                    </Select>
+                </FormControl>
+
+                <p>
+                    <DeletePackageButton pkg={currentPkg} onDone={onDeleteDone} />
+                </p>
+            </div>;
+        }
+
         return <React.Fragment>
-            <ImportPackageButton onDone={onImportDone} />
-            <ImportEijiroButton onDone={onImportDone} />
+            <p>
+                <ImportPackageButton onDone={onImportDone} />
+            </p>
+            <p>
+                <ImportEijiroButton onDone={onImportDone} />
+            </p>
 
-            <h2>Manage Packages</h2>
-            <p>Select package</p>
-
-            <PackageSelector />
-
-            {currentPkg && <div>
-                <p>ID: {currentPkg.id}</p>
-                <p>When to show the dictionary tooltip</p>
-                <Select value={currentPkg.showDictionary} onChange={handleShowDictionaryChange}>
-                    {showDictionaryItems}
-                </Select>
-                <DeletePackageButton pkg={currentPkg} onDone={onDeleteDone} />
-            </div>}
+            <h2>Configure Packages</h2>
+            <FormControl>
+                <InputLabel>Package to configure</InputLabel>
+                <PackageSelector />
+            </FormControl>
+            {content}
 
         </React.Fragment>;
     }}

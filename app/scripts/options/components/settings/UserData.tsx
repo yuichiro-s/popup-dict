@@ -34,8 +34,12 @@ export default class extends React.Component {
     public render() {
         return (
             <div>
-                <Button variant="outlined" onClick={this.export}>Export</Button>
-                <Button variant="outlined" onClick={this.import}>Import</Button>
+                <p>
+                    <Button variant="outlined" onClick={this.export}>Export User Data</Button>
+                </p>
+                <p>
+                    <Button variant="outlined" onClick={this.import}>Import User Data</Button>
+                </p>
             </div>
         );
     }

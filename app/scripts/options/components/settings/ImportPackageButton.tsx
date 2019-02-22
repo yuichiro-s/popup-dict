@@ -10,7 +10,7 @@ import { IProgress } from "../../../common/importer";
 import { IPackage } from "../../../common/package";
 import { importPackageFromFiles, validatePackage } from "../../importer";
 import styled from "../../styled-components";
-import ImportButton from "./ImportDialogButton";
+import ImportDialogButton from "./ImportDialogButton";
 
 import * as promiseFinally from "promise.prototype.finally";
 promiseFinally.shim();
@@ -44,6 +44,8 @@ const Container = styled.div`
     border-radius: 5px;
     border-color: ${(props) => getColor(props)};
     border-style: dashed;
+    background-color: #eeeeee;
+    text-align: center;
   `;
 
 export default class extends React.Component<Props, State> {
@@ -64,7 +66,9 @@ export default class extends React.Component<Props, State> {
                 <ul>{names}</ul>
             </div>;
         } else {
-            uploadMessage = <p>Upload a package directory here</p>;
+            uploadMessage = <div>
+                <p>Drag and drop a package directory here or click</p>
+            </div>;
         }
 
         const inner = ({ cancel, startImport }: { cancel: () => void, startImport: () => void }) =>
@@ -77,8 +81,10 @@ export default class extends React.Component<Props, State> {
                     >
                         {({ getRootProps, getInputProps }) => (
                             <Container {...getRootProps()}>
-                                <input {...getInputProps({ webkitdirectory: "webkitdirectory" })} />
-                                {uploadMessage}
+                                <div>
+                                    <input {...getInputProps({ webkitdirectory: "webkitdirectory" })} />
+                                    {uploadMessage}
+                                </div>
                             </Container>
                         )}
                     </Dropzone>
@@ -93,7 +99,7 @@ export default class extends React.Component<Props, State> {
                 </DialogActions>
             </React.Fragment>;
 
-        return <ImportButton
+        return <ImportDialogButton
             onDone={this.props.onDone}
             buttonTitle="Import Package"
             title="Import Package"
@@ -118,6 +124,6 @@ export default class extends React.Component<Props, State> {
     }
 
     private onOpen = () => {
-        this.setState({files: []});
+        this.setState({ files: [] });
     }
 }

@@ -24,13 +24,13 @@ export default () => (
                 <Toolbar variant="dense">
                     <LinkButton color="inherit" to="/settings" >Settings</LinkButton>
                     <LinkButton color="inherit" to="/word-list" >Word List</LinkButton>
-                    <LinkButton color="inherit" to="/filter" >Filter</LinkButton>
+                    <LinkButton color="inherit" to="/filter" >Frequency Filter</LinkButton>
                 </Toolbar>
             </AppBar>
             <Route path="/settings" component={loadable(() => import("./views/Settings"))} />
             <Route path="/word-list" component={loadable(() => import("./views/WordList"))} />
             <Route path="/filter" component={loadable(() => import("./views/Filter"))} />
-            <ToastContainer className="toast-container" toastClassName="dark-toast"/>
+            <ToastContainer className="toast-container" toastClassName="dark-toast" />
         </div>
     </Router>
 );
