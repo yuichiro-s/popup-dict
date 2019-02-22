@@ -45,7 +45,7 @@ on the address bar and select "Options"
   - You can configure when to show the popup dictionary. (next section)
 - If you are already familiar with the word, unhighlight it by pressing Ctrl+Shift+A while the mouse cursor is on the word
   - If this doesn't work or you want to change the keyboard shortcuts, configure them by going to `chrome://extensions` and clicking the "Keyboard shortcuts" link. [More info](https://lifehacker.com/add-custom-keyboard-shortcuts-to-chrome-extensions-for-1595322121)
-  - You can also unhighlight multiple words at once by selecting a range of text and press Ctrl+Shift+A. All words in yellow in the range will be unhighlighted.
+  - You can also unhighlight multiple words at once by selecting a range of text and pressing Ctrl+Shift+A. All words in yellow in the range will be unhighlighted.
 - If the word is unfamiliar to you and you'd like to learn the word, mark the word in red by pressing Ctrl+Shift+S, so that the word will be always highlighted in red every time you encounter the word.
 - You can review all the words marked in red by going to "WORD LIST" section of the option page.
   - You can bookmark this page for convenience.
