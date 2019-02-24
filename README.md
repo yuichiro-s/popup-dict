@@ -67,4 +67,4 @@ on the address bar and select "Options"
 
 ## Disclaimer
 
-- Some pages will look corrupted due to interaction between this extension and the Javascript and CSS code on the page. In that case, please turn off the plugin by clicking the extension icon on the address bar or blacklisting the URL of the page.
+- Some pages will look corrupted due to interaction between this extension and the Javascript and CSS code on the page. In that case, please turn off the extension by clicking the extension icon on the address bar or blacklisting the URL of the page.
