@@ -43,10 +43,10 @@ on the address bar and select "Options"
 - Initilally, every word on a web page is highlighted in yellow.
 - If you move a mouse cursor over a highlighted word, a dictionary popup will show up.
   - You can configure when to show the popup dictionary. (next section)
-- If you are already familiar with the word, unhighlight it by pressing Ctrl+Shift+A while the mouse cursor is on the word
+- If you are already familiar with the word, unhighlight it by pressing **Ctrl+Shift+A** (or **⌘+Shift+A** on Mac) while the mouse cursor is on the word
   - If this doesn't work or you want to change the keyboard shortcuts, configure them by going to `chrome://extensions` and clicking the "Keyboard shortcuts" link. [More info](https://lifehacker.com/add-custom-keyboard-shortcuts-to-chrome-extensions-for-1595322121)
-  - You can also unhighlight multiple words at once by selecting a range of text and press Ctrl+Shift+A. All words in yellow in the range will be unhighlighted.
-- If the word is unfamiliar to you and you'd like to learn the word, mark the word in red by pressing Ctrl+Shift+S, so that the word will be always highlighted in red every time you encounter the word.
+  - You can also unhighlight multiple words at once by selecting a range of text and pressing **Ctrl+Shift+A** (or **⌘+Shift+A** on Mac) . All words in yellow in the range will be unhighlighted.
+- If the word is unfamiliar to you and you'd like to learn the word, mark the word in red by pressing **Ctrl+Shift+S** (or **⌘+Shift+S** on Mac) , so that the word will be always highlighted in red every time you encounter the word.
 - You can review all the words marked in red by going to "WORD LIST" section of the option page.
   - You can bookmark this page for convenience.
   - The words can be sorted by frequency so that you can review the most important words first.
@@ -67,4 +67,4 @@ on the address bar and select "Options"
 
 ## Disclaimer
 
-- Some pages will look corrupted due to interaction between this extension and the Javascript and CSS code on the page. In that case, please turn off the plugin by clicking the extension icon on the address bar or blacklisting the URL of the page.
+- Some pages will look corrupted due to interaction between this extension and the Javascript and CSS code on the page. In that case, please turn off the extension by clicking the extension icon on the address bar or blacklisting the URL of the page.
