@@ -5,7 +5,7 @@ import { IPackage, ISettings } from "../common/package";
 import { sendCommand } from "../content/command";
 import { EIJIRO_PKG_ID } from "../preprocess/eijiro";
 
-export function loadFile(file: File): Promise<string> {
+function loadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
         console.log(`Loading ${file.name} ...`);
         const reader = new FileReader();

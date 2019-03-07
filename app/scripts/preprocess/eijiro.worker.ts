@@ -45,7 +45,7 @@ async function loadEijiro(
     chunkSize: number,
     progressFn: (progress: IProgress) => void) {
 
-    const eijiroContent = loadText(eijiroURL);
+    const eijiroContent = loadText(eijiroURL, "Shift_JIS");
     const inflectionContent = loadText(inflectionURL);
     const frequencyContent = loadText(frequencyURL);
     const whitelistContent = loadText(whitelistURL);
