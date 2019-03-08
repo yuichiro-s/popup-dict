@@ -4,7 +4,7 @@
 
 ## Installation
 
-1. Download the extension [here](https://github.com/yuichiro-s/popup-dict/releases/download/0.1.1/build.tar.gz)
+1. Download the extension [here](https://github.com/yuichiro-s/popup-dict/releases/download/0.1.2/build.tar.gz)
 and extract it
 3. Go to `chrome://extensions` in the Chrome browser
 4. Turn on "Developer mode" (top of the page)
