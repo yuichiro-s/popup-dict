@@ -20,12 +20,11 @@ on the address bar and select "Options"
 
 1. Download and extract the package you need
    - English-Japanese: [ejdic-hand](https://drive.google.com/open?id=1zYrwpSTWYWmZIZIVtaXI4y8IQrUK-Q5R)
-   - English-English: wik-enen
-   - Chinese-English: cedict
-   - Spanish-English: wik-esen
-   - German-English: wik-deen
-   - French-English: wik-fren
-   - Russian-English: wik-ruen
+   - Chinese-English: [cedict](https://drive.google.com/open?id=1_90xbE_N7AftBafNbwrJVuHO5tknofC1)
+   - Spanish-English: [wik-esen](https://drive.google.com/open?id=1faHfvvArP6zJ8uzyRhVmTaevWV3Ovqhe)
+   - German-English: [wik-deen](https://drive.google.com/open?id=1gMIF4XNNVh8vYBHkBAv6WSu8jkp1eKwz)
+   - French-English: [wik-fren](https://drive.google.com/open?id=1l1L2YTVOMdKlAu9Ffv4TvtuaX0vfhQle)
+   - Russian-English: [wik-ruen](https://drive.google.com/open?id=1Y2pGQ0VdYUeBbzXTQ4HJ9iO6Cnpgu1rY)
 2. Press "IMPORT PACKAGE" on the settings page
 3. Upload the extracted package directory and press "IMPORT"
 
