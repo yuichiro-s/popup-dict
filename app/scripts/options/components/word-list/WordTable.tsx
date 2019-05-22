@@ -17,14 +17,12 @@ interface TableEntry {
     freq: number;
     key: string;
     keyDisplay: string;
-    context: {
-        before: string;
-        word: string;
-        after: string;
-    };
-    source: {
-        url: string;
-        title: string;
+    contextAndSource: {
+        context: Context;
+        source: {
+            url: string;
+            title: string;
+        };
     };
     known: boolean;
     entry: IMarkedEntry;
@@ -81,12 +79,14 @@ function createTableEntry(pkg: IPackage, entry: IMarkedEntry, entryToFreq: Map<I
         keyDisplay: pkg.tokenizeByWhiteSpace
             ? entry.key
             : entry.key.replace(/ /g, ""),
-        context: splitContext(
-            entry.context.text,
-            entry.context.begin,
-            entry.context.end,
-        ),
-        source: entry.source,
+        contextAndSource: {
+            context: splitContext(
+                entry.context.text,
+                entry.context.begin,
+                entry.context.end,
+            ),
+            source: entry.source,
+        },
         known: false,
         entry,
     };
@@ -135,30 +135,35 @@ export default ({ pkg }: Props) => {
         },
         {
             Header: "Context",
-            accessor: "context",
+            accessor: "contextAndSource",
             Cell: (row) => {
-                const { before, word, after } = row.value as Context;
+                const { context: { before, word, after }, source: { url, title } } = row.value;
                 return <div>
-                    <span>{before}</span>
-                    <span style={{ color: "red" }}>{word}</span>
-                    <span>{after}</span>
-                </div>;
-            },
-            style: { whiteSpace: "unset" },
-        },
-    ];
+                    <div>
+                        <span>{before}</span>
+                        <span style={{ color: "red" }}>{word}</span>
+                        <span>{after}</span>
+                    </div>
+                    <div className="source" style={{
+                        fontSize: "x-small",
+                    }}><a href={url} style={{ color: "gray" }}><i>{title}</i></a></div>
+                    </div>;
+                },
+            style: {whiteSpace: "unset" },
+                },
+            ];
 
     return <div>
-        {loading && <LinearProgress variant="indeterminate" />}
-        <ReactTable
-            columns={columns}
-            data={items}
-            loading={loading}
-            pageSizeOptions={[100, 500, 1000]}
-            defaultPageSize={100}
-            defaultSortDesc={true}
-            showPaginationTop={true}
-            defaultSorted={[{ id: "date", desc: true }]}
-        />
-    </div>;
-};
+                        {loading && <LinearProgress variant="indeterminate" />}
+                        <ReactTable
+                            columns={columns}
+                            data={items}
+                            loading={loading}
+                            pageSizeOptions={[100, 500, 1000]}
+                            defaultPageSize={100}
+                            defaultSortDesc={true}
+                            showPaginationTop={true}
+                            defaultSorted={[{ id: "date", desc: true }]}
+                        />
+                    </div>;
+                };
