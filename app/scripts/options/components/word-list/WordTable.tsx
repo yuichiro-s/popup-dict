@@ -127,10 +127,10 @@ export default ({ pkg }: Props) => {
         },
         {
             Header: "Key",
-            accessor: "key",
+            accessor: "keyDisplay",
             sortable: true,
             filterable: true,
-            filterMethod: ({ value }: Filter, row: TableEntry) => row.key.includes(value),
+            filterMethod: ({ value }: Filter, row: TableEntry) => row.keyDisplay.includes(value),
             width: 200,
         },
         {

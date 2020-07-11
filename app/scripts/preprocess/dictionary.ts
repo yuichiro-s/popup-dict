@@ -8,13 +8,14 @@ export function buildDictionaryAndFrequency(
     dict: IDictionary,
     lemmatizer: ILemmatizer,
     rawFrequencyTable: IFrequencyTable,
-    chunkSize: number) {
+    chunkSize: number,
+    splitCharacters: boolean = false) {
     // Note: keys in rawFrequencyTable are assumed to be lowercased
 
     // aggregate frequency of all word forms
     const frequencyTable: IFrequencyTable = {};
     for (const [keyStr, freq] of Object.entries(rawFrequencyTable)) {
-        const key = lemmatizeKeyStr(keyStr, lemmatizer).join(" ");
+        const key = lemmatizeKeyStr(keyStr, lemmatizer).join(splitCharacters ? "" : " ");
         frequencyTable[key] = (get(frequencyTable, key) || 0) + freq;
     }
 
@@ -22,7 +23,7 @@ export function buildDictionaryAndFrequency(
     const freqs: { [key: string]: number } = {};
     for (const [keyStr, dictionaryItem] of Object.entries(dict)) {
         const key = lemmatizeKeyStr(keyStr, lemmatizer).join(" ");
-        const freqKey = key.toLowerCase();
+        const freqKey = lemmatizeKeyStr(keyStr, lemmatizer).join(splitCharacters ? "" : " ").toLowerCase();
         freqs[key] = get(frequencyTable, freqKey) || 0;
         dictWithKeysLemmatized[key] = dictionaryItem;
     }

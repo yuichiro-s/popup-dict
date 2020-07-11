@@ -107,7 +107,7 @@ async function main() {
 
     console.log(`Building dictionary and frequency ...`);
     const { index, dictionaryChunks, freqs } = buildDictionaryAndFrequency(
-        dict, lemmatizer, await rawFrequencyTable, args.chunk_size);
+        dict, lemmatizer, await rawFrequencyTable, args.chunk_size, true);
     await writePackage(args.out, lemmatizer, trie, freqs, index, dictionaryChunks, args.settings);
 
     console.log("Done.");
