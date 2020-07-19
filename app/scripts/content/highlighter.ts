@@ -65,6 +65,22 @@ function isTooltipEnabled(pkg: IPackage | null, state: State) {
     }
 }
 
+function tts(text: string, languageCode: string) {
+    const msg = new SpeechSynthesisUtterance();
+    msg.text = text;
+    // Convert ISO 639-3 to ISO 639-1.
+    // TODO: Move this to a utility function.
+    if (languageCode === "cmn") {
+        languageCode = "zh";
+    } else if (languageCode === "rus") {
+        languageCode = "ru";
+    }
+    msg.lang = languageCode;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(msg);
+
+}
+
 async function mouseEnterListener(event: MouseEvent) {
     const element = event.target as HTMLElement;
     currentSpanNode = element;
@@ -93,6 +109,9 @@ async function mouseEnterListener(event: MouseEvent) {
                 }) as Instance;
                 if (t) {
                     t.show();
+                }
+                if (pkg.tts) {
+                    tts(key, pkg.languageCode);
                 }
             }
         }

@@ -7,14 +7,7 @@ export interface IDictionaryInfo {
 
 export type ShowDictionary = "always" | "unknown-or-marked" | "never";
 
-export interface IPackage {
-    id: PackageID;
-    name: string;
-    languageCode: string;
-    tokenizeByWhiteSpace: boolean;
-    dictionaries: IDictionaryInfo[];
-    showDictionary: ShowDictionary;
-    template: string;
+export interface IPackage extends ISettings {
     default: ISettings;
 }
 
@@ -26,6 +19,7 @@ export interface ISettings {
     dictionaries: IDictionaryInfo[];
     showDictionary: ShowDictionary;
     template: string;
+    tts: boolean;
 }
 
 export function createPackage(settings: ISettings): IPackage {
@@ -37,6 +31,7 @@ export function createPackage(settings: ISettings): IPackage {
         dictionaries: settings.dictionaries || [],
         showDictionary: settings.showDictionary || "unknown-or-marked",
         template: settings.template,
+        tts: settings.tts || false,
         default: settings,
     };
 }

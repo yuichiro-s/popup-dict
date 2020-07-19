@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
+import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from "@material-ui/core";
 import { cloneDeep } from "lodash-es";
 
 import { IPackage, ShowDictionary } from "../../../common/package";
@@ -33,17 +33,29 @@ export default () => {
             newPkg.showDictionary = event.target.value as ShowDictionary;
             updatePackage(newPkg);
         };
+        const handleTtsChange = (event: any) => {
+            const newPkg = cloneDeep(currentPkg!);
+            newPkg.tts = event.target.checked;
+            updatePackage(newPkg);
+        };
 
         let content = null;
         if (currentPkg !== null) {
             content = <div>
-                <FormControl>
-                    <InputLabel>When to show popup dictionary</InputLabel>
-                    <Select value={currentPkg.showDictionary} onChange={handleShowDictionaryChange}>
-                        {showDictionaryItems}
-                    </Select>
-                </FormControl>
-
+                <p>
+                    <FormControl>
+                        <InputLabel>When to show popup dictionary</InputLabel>
+                        <Select value={currentPkg.showDictionary} onChange={handleShowDictionaryChange}>
+                            {showDictionaryItems}
+                        </Select>
+                    </FormControl>
+                </p>
+                <p>
+                    <FormControlLabel
+                        control={<Checkbox checked={currentPkg.tts} onChange={handleTtsChange} />}
+                        label="Enable TTS on popup"
+                    />
+                </p>
                 <p>
                     <DeletePackageButton pkg={currentPkg} onDone={onDeleteDone} />
                 </p>

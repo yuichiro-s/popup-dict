@@ -79,6 +79,7 @@ const SETTINGS: ISettings = {
     ],
     showDictionary: "unknown-or-marked",
     template: TEMPLATE,
+    tts: true,
 };
 
 export type MarkedString = Array<string | [string]>;
