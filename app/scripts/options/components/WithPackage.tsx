@@ -41,8 +41,11 @@ export default class WithPackage extends React.Component<Props, State> {
         this.loadPackages().then((packages) => {
             const pkgIds = keys(packages);
             if (pkgIds.length > 0) {
-                const pkgId = pkgIds[0];
-                this.setCurrentPkgId(pkgId);
+                sendCommand({ type: "get-last-package-id" }).then((lastPkgId) => {
+                    console.log("last", lastPkgId);
+                    const pkgId = lastPkgId || pkgIds[0];
+                    this.setCurrentPkgId(pkgId);
+                });
             }
         });
     }

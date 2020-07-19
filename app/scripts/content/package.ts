@@ -51,6 +51,8 @@ function guessPackage(): Promise<IPackage | null> {
 export async function setPackageID(pkgId: PackageID) {
     console.log("Language set to: " + pkgId);
     currentPackage = await sendCommand({ type: "get-package", pkgId });
+    // TODO: make sure last package ID is updated from all code paths.
+    await sendCommand({type: "set-last-package", pkgId: (await currentPackage)!.id});
 }
 
 export async function getPackage(): Promise<IPackage | null> {

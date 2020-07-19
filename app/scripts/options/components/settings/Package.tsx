@@ -42,6 +42,7 @@ export default () => {
         let content = null;
         if (currentPkg !== null) {
             content = <div>
+                <p>ID: {currentPkg.id}</p>
                 <p>
                     <FormControl>
                         <InputLabel>When to show popup dictionary</InputLabel>
