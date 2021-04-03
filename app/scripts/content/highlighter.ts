@@ -74,6 +74,8 @@ function tts(text: string, languageCode: string) {
         languageCode = "zh";
     } else if (languageCode === "rus") {
         languageCode = "ru";
+    } else if (languageCode === "kor") {
+        languageCode = "ko";
     }
     msg.lang = languageCode;
     window.speechSynthesis.cancel();
@@ -111,7 +113,7 @@ async function mouseEnterListener(event: MouseEvent) {
                     t.show();
                 }
                 if (pkg.tts) {
-                    tts(key, pkg.languageCode);
+                    tts(element.innerText, pkg.languageCode);
                 }
             }
         }
