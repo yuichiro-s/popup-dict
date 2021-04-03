@@ -280,8 +280,8 @@ async function highlight(root?: Element) {
             if (done) { break; }
 
             // tokenize
-            currentNodes.push(node);
-            const text = node.textContent!;
+            currentNodes.push(node as Node);
+            const text = (node as Node).textContent!;
             const tokens = tokenize(text, pkg.tokenizeByWhiteSpace);
             tokensBatch.push(tokens);
 
@@ -444,11 +444,11 @@ const scrollListener = (event: Event) => {
 
 const observer = new MutationObserver(async (records: MutationRecord[]) => {
     // enumerate all newly added nodes
-    const addedNodes = new Set();
+    const addedNodes: Set<HTMLElement> = new Set();
     for (const record of records) {
         record.addedNodes.forEach((node) => {
             if (node.nodeType !== Node.TEXT_NODE) {
-                addedNodes.add(node);
+                addedNodes.add(node as HTMLElement);
             }
         });
     }
