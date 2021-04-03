@@ -37,7 +37,7 @@ export default class extends React.Component<Props, State> {
                     <DialogTitle>Edit Highlight Styles</DialogTitle>
                     <DialogContent>
                         <p>hello</p>
-                        <Grid container spacing={16}>
+                        <Grid container>
                             <Grid item xs={6}>
                                 <h2>Unknown</h2>
                                 <TextField multiline value={unknown} onChange={this.change("unknown")}></TextField>

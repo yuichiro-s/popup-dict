@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Button from "@material-ui/core/Button";
-import Slider from "@material-ui/lab/Slider";
+import Slider from "@material-ui/core/Slider";
 import { toast } from "react-toastify";
 import "react-virtualized/styles.css";
 

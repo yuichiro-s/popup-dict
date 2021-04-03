@@ -35,7 +35,7 @@ export function putEntries(entries: Entry[]) {
                     f(index + CHUNK);
                 });
             } else {
-                resolve();
+                (resolve as () => void)();
             }
         }
         f(0);
@@ -50,7 +50,7 @@ export function deleteEntries(pkgId: PackageID) {
 
 export function lookUpEntries(pkgId: PackageID, keys: string[][]): Promise<Entry[]> {
     function lookup(resolve: any) {
-        const results: Array<Entry | null> = [];
+        const results: (Entry | null)[] = [];
         function f(index: number) {
             if (index < keys.length) {
                 const keyStr = keys[index].join(" ");

@@ -59,7 +59,7 @@ export default class WithPackage extends React.Component<Props, State> {
 
         const packageSelector = () => <Select
             value={this.state.currentPkgId}
-            onChange={((e) => { this.setCurrentPkgId(e.target.value); })}
+            onChange={((e) => { this.setCurrentPkgId(e.target.value as string); })}
         >
             {items}
         </Select>;

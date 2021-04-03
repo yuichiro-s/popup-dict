@@ -12,7 +12,7 @@ export function updatePackage(pkg: IPackage) {
         const pkgId = pkg.id;
         getPackages().then((packages) => {
             packages[pkgId] = pkg;
-            chrome.storage.local.set({ packages }, resolve);
+            chrome.storage.local.set({ packages }, resolve as () => void);
         });
     });
 }
@@ -72,6 +72,6 @@ export function getLastPackageID() {
 
 export function setLastPackage(pkgId: PackageID) {
     return new Promise((resolve) => {
-        chrome.storage.local.set({ lastPackageID: pkgId }, resolve);
+        chrome.storage.local.set({ lastPackageID: pkgId }, resolve as () => void);
     });
 }

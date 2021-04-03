@@ -1,5 +1,5 @@
 import { debounce } from "lodash-es";
-import tippy, { Instance } from "tippy.js";
+import tippy, { Instance, hideAll } from "tippy.js";
 import "tippy.js/themes/light-border.css";
 
 import { IDictionaryItem } from "../common/dictionary";
@@ -86,7 +86,7 @@ function tts(text: string, languageCode: string) {
 async function mouseEnterListener(event: MouseEvent) {
     const element = event.target as HTMLElement;
     currentSpanNode = element;
-    tippy.hideAll();
+    hideAll();
 
     // look up dictionary
     const pkg = await getPackage();
@@ -106,7 +106,6 @@ async function mouseEnterListener(event: MouseEvent) {
                     delay: [0, 0],
                     duration: [0, 0],
                     arrow: true,
-                    size: "small",
                     interactive: false,
                 }) as Instance;
                 if (t) {

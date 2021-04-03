@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { IProgress } from "../../../common/importer";
 import { IPackage } from "../../../common/package";
 import { importPackageFromFiles, validatePackage } from "../../importer";
-import styled from "../../styled-components";
+import styled from "styled-components";
 import ImportDialogButton from "./ImportDialogButton";
 
 import * as promiseFinally from "promise.prototype.finally";

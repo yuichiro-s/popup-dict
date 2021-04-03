@@ -52,7 +52,7 @@ export function getKeys(root: ITrieNode): string[][] {
     return keys;
 }
 
-export function findAllOccurrences(trie: ITrieNode, tokens: Array<string | string[]>) {
+export function findAllOccurrences(trie: ITrieNode, tokens: (string | string[])[]) {
     // alternatives of only the first token are considered
 
     const keys = [];
